@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -39,7 +39,7 @@ export default function Home() {
         <div className="container">
           <div className="top-nav">
             <div className="left">
-              <a href="/"><h1 className="logo"></h1></a>
+              <Link href="/"><h1 className="logo"></h1></Link>
             </div>
             <div className="right">
               <ul className="nav">
@@ -48,7 +48,7 @@ export default function Home() {
                 <li><a href="#">Why Stable</a></li>
                 <li><a href="mailto:hello@stable.io">Reach out</a></li>
               </ul>
-              <button className="hamburger-menu"><img src="./imgs/hamburger-menu.svg"/></button>
+              <button className="hamburger-menu"><img src="./imgs/hamburger-menu.svg" alt=""/></button>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export default function Home() {
                           <div className="network-select-btn">
                             <img src="./imgs/eth-logo.svg" className="network-logo" alt="Ethereum"/>
                             <span>Ethereum</span>
-                            <img src="./imgs/arrow-down.svg" className="arrow"/>
+                            <img src="./imgs/arrow-down.svg" alt="" className="arrow"/>
                           </div>
                           <div className="select-menu">
                             <ul className="networks">
@@ -110,7 +110,7 @@ export default function Home() {
 
                   <div className="divider">
                     <div className="icon-circle">
-                      <img src="./imgs/arrow-long-down.svg" className="arrow-icon"/>
+                      <img src="./imgs/arrow-long-down.svg" alt="" className="arrow-icon"/>
                     </div>
                   </div>
 
@@ -122,7 +122,7 @@ export default function Home() {
                           <div className="network-select-btn">
                             <img src="./imgs/op-logo.svg" className="network-logo" alt="Ethereum"/>
                             <span>Optimism</span>
-                            <img src="./imgs/arrow-down.svg" className="arrow"/>
+                            <img src="./imgs/arrow-down.svg" alt="" className="arrow"/>
                           </div>
                         </div>
                       </div>
@@ -138,7 +138,7 @@ export default function Home() {
                       <div className="left">
                         <span className="label">Destination gas</span>
                         <div className="tooltip">
-                          <img src="./imgs/tooltip.svg" className="tooltip-icon"/>
+                          <img src="./imgs/tooltip.svg" alt="" className="tooltip-icon"/>
                         </div>
                         <div className="options">
                           <button className="option active">Zero</button>
@@ -167,7 +167,7 @@ export default function Home() {
 
                   <div className="route-summary">
                     <div className="left">
-                      <img src="./imgs/route.svg" className="route-icon"/>
+                      <img src="./imgs/route.svg" alt="" className="route-icon"/>
                       <span>Route: <strong>AvaxHop</strong></span>
                       <span className="badge badge-green">Best Route</span>
                     </div>
@@ -235,7 +235,7 @@ export default function Home() {
             </div>
             <div className="right">
               <ul>
-                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><img src="./imgs/x-logo.svg" style={{width: "12px", height: "12px"}}/></button></a></li>
+                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><img src="./imgs/x-logo.svg" alt="" style={{width: "12px", height: "12px"}}/></button></a></li>
               </ul>
             </div>
           </footer>
