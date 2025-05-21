@@ -50,7 +50,8 @@ export default function Home() {
     }
     setIsInProgress(true);
     try {
-      await stable.executeRoute(route);
+      const txHashes = await stable.executeRoute(route);
+      console.log("txHashes", txHashes);
     } finally {
       setIsInProgress(false);
     }
