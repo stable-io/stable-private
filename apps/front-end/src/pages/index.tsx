@@ -36,9 +36,18 @@ const stable = new Stable({
 export default function Home() {
   const sourceChain = "Ethereum";
   const targetChain = "Optimism";
+  const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(10);
   const [route, setRoute] = useState<Route | undefined>(undefined);
   const [isInProgress, setIsInProgress] = useState(false);
+
+  const updateBalance = () => {
+    stable.getBalance(account.address, [sourceChain]).then(balances => {
+      setBalance(parseFloat(balances[sourceChain]));
+    }).catch(err => {
+      console.error(err);
+    });
+  }
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(parseFloat(e.target.value) || 0);
@@ -52,10 +61,15 @@ export default function Home() {
     try {
       const txHashes = await stable.executeRoute(route);
       console.log("txHashes", txHashes);
+      updateBalance();
     } finally {
       setIsInProgress(false);
     }
   };
+
+  useEffect(() => {
+    updateBalance();
+  }, [])
 
   useEffect(() => {
     stable.findRoutes({
@@ -165,7 +179,7 @@ export default function Home() {
                           <button className="edit-btn">Edit</button>
                         </div>
                         <div className="balance">
-                          <span>Balance: 4,500.32 USDC</span>
+                          <span>Balance: {formatNumber(balance)} USDC</span>
                         </div>
 
                       </div>
