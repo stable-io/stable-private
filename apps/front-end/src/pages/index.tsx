@@ -1,7 +1,76 @@
+import type { Route } from "@stable-io/stable-sdk";
+import Stable from "@stable-io/stable-sdk";
+import type { Url } from "@stable-io/utils";
 import Head from "next/head";
 import Link from "next/link";
+import { createWalletClient, http } from "viem";
+import { mnemonicToAccount } from "viem/accounts";
+import type { Chain } from "viem/chains";
+import { useEffect, useState } from "react";
+
+const truncateAddress = (address: string) => `${address.slice(0, 4)}...${address.slice(-4)}`;
+
+const formatNumber = (num: number): string => num.toLocaleString('en-US', {
+  maximumFractionDigits: 6,
+  minimumFractionDigits: 0
+});
+
+const bigintReplacer = (key: string, value: unknown) => typeof value === "bigint" ? value.toString() : value;
+const stringify = (obj: unknown) => JSON.stringify(obj, bigintReplacer, 2);
+
+const mnemonic = process.env['NEXT_PUBLIC_MNEMONIC']!;
+const account = mnemonicToAccount(mnemonic);
+const signer = {
+  platform: "Evm" as const,
+  getWalletClient: (chain: Chain, url: Url) => createWalletClient({
+      account,
+      chain,
+      transport: http(url),
+    }),
+};
+const stable = new Stable({
+  network: "Testnet",
+  signer,
+});
 
 export default function Home() {
+  const sourceChain = "Ethereum";
+  const targetChain = "Optimism";
+  const [amount, setAmount] = useState(10);
+  const [route, setRoute] = useState<Route | undefined>(undefined);
+  const [isInProgress, setIsInProgress] = useState(false);
+  
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(parseFloat(e.target.value) || 0);
+  };
+
+  const handleTransfer = async () => {
+    if (!route) {
+      return;
+    }
+    setIsInProgress(true);
+    try {
+      await stable.executeRoute(route);
+    } finally {
+      setIsInProgress(false);
+    }
+  };
+
+  useEffect(() => {
+    stable.findRoutes({
+      sourceChain,
+      targetChain,
+      amount: amount.toString(10),
+      sender: account.address,
+      recipient: account.address,
+    }, {}).then(result => {
+      console.log(stringify(result));
+      setRoute(result.all[0]);
+    }).catch(err => {
+      console.error(err)
+    });
+  }, [amount]);
+
   return (
     <>
       <Head>
@@ -66,10 +135,10 @@ export default function Home() {
                           <span className="network-select-title">From</span>
                           <div className="network-select-btn">
                             <img src="./imgs/eth-logo.svg" className="network-logo" alt="Ethereum"/>
-                            <span>Ethereum</span>
+                            <span>{sourceChain}</span>
                             <img src="./imgs/arrow-down.svg" alt="" className="arrow"/>
                           </div>
-                          <div className="select-menu">
+                          {/* <div className="select-menu">
                             <ul className="networks">
                               <li className="selected">
                                 <img src="./imgs/eth-logo.svg" className="network-logo item-icon" alt="Ethereum"/>
@@ -85,13 +154,13 @@ export default function Home() {
                                 <span>Ethereum</span>
                               </li>
                             </ul>
-                          </div>
+                          </div> */} {/* @todo */}
                         </div>
                       </div>
                       <div className="right">
                         <div className="wallet-chip">
                           <img src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon"/>
-                          <span className="address">0x60...62da</span>
+                          <span className="address">{truncateAddress(account.address)}</span>
                           <button className="edit-btn">Edit</button>
                         </div>
                         <div className="balance">
@@ -103,7 +172,14 @@ export default function Home() {
 
                     <div className="amount-section">
                       <img src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon"/>
-                      <input type="text" value="2,410" placeholder="Enter amount"/>
+                      <input 
+                        type="number"
+                        value={amount} 
+                        onChange={handleAmountChange}
+                        placeholder="Enter amount"
+                        min="0"
+                        step="0.000001"
+                      />
                       <button className="max-button">MAX</button>
                     </div>
                   </div>
@@ -120,8 +196,8 @@ export default function Home() {
                         <div className="network-select">
                           <span className="network-select-title">To</span>
                           <div className="network-select-btn">
-                            <img src="./imgs/op-logo.svg" className="network-logo" alt="Ethereum"/>
-                            <span>Optimism</span>
+                            <img src="./imgs/op-logo.svg" className="network-logo" alt="Optimism"/>
+                            <span>{targetChain}</span>
                             <img src="./imgs/arrow-down.svg" alt="" className="arrow"/>
                           </div>
                         </div>
@@ -129,7 +205,7 @@ export default function Home() {
                       <div className="right">
                         <div className="wallet-chip">
                           <img src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon"/>
-                          <span className="address">0x60...62da</span>
+                          <span className="address">{truncateAddress(account.address)}</span>
                           <button className="edit-btn">Edit</button>
                         </div>
                       </div>
@@ -203,14 +279,14 @@ export default function Home() {
                       <span className="label">You receive</span>
                       <span className="value">
                       <img src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon"/>
-                      2,408 USDC
+                      {formatNumber(amount)} USDC
                       </span>
                     </div>
                   </div>
 
                   <div className="main-cta-container">
-                    <button className="main-cta">
-                      <div className="spinner"></div>
+                    <button className="main-cta" onClick={handleTransfer}>
+                      {isInProgress && <div className="spinner"></div>}
                       <span>Confirm Transfer</span>
                     </button>
                   </div>
