@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stable-io/stable-sdk": "workspace:^",
+    "@stable-io/utils": "workspace:^",
     "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "viem": "^2.23.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
