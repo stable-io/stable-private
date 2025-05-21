@@ -285,7 +285,7 @@ export default function Home() {
                   </div>
 
                   <div className="main-cta-container">
-                    <button className="main-cta" onClick={handleTransfer}>
+                    <button className="main-cta" disabled={!route} onClick={handleTransfer}>
                       {isInProgress && <div className="spinner"></div>}
                       <span>Confirm Transfer</span>
                     </button>
