@@ -37,7 +37,7 @@ export default function Home() {
   const sourceChain = "Ethereum";
   const targetChain = "Optimism";
   const [balance, setBalance] = useState(0);
-  const [amount, setAmount] = useState(10);
+  const [amount, setAmount] = useState(0);
   const [route, setRoute] = useState<Route | undefined>(undefined);
   const [isInProgress, setIsInProgress] = useState(false);
 
@@ -48,9 +48,17 @@ export default function Home() {
       console.error(err);
     });
   }
+
+  // @todo: Subtract expected fees
+  const maxAmount = balance;
+
+  const handleMaxAmount = () => {
+    setAmount(maxAmount);
+  };
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(parseFloat(e.target.value) || 0);
+    const newAmount = parseFloat(e.target.value) || 0;
+    setAmount(newAmount);
   };
 
   const handleTransfer = async () => {
@@ -193,9 +201,10 @@ export default function Home() {
                         onChange={handleAmountChange}
                         placeholder="Enter amount"
                         min="0"
+                        max={maxAmount}
                         step="0.000001"
                       />
-                      <button className="max-button">MAX</button>
+                      <button className="max-button" onClick={handleMaxAmount}>MAX</button>
                     </div>
                   </div>
 
