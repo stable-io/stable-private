@@ -35,7 +35,7 @@ const stable = new Stable({
 
 export default function Home() {
   const sourceChain = "Ethereum";
-  const targetChain = "Optimism";
+  const targetChain = "Arbitrum";
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
   const [route, setRoute] = useState<Route | undefined>(undefined);
@@ -90,7 +90,7 @@ export default function Home() {
       recipient: account.address,
     }, {}).then(result => {
       console.log(stringify(result));
-      setRoute(result.all[0]);
+      setRoute(result.all[3]); // v2Direct, fast with permit
     }).catch(err => {
       console.error(err)
     });
@@ -222,7 +222,7 @@ export default function Home() {
                         <div className="network-select">
                           <span className="network-select-title">To</span>
                           <div className="network-select-btn">
-                            <img src="./imgs/op-logo.svg" className="network-logo" alt="Optimism"/>
+                            <img src="./imgs/arb-logo.svg" className="network-logo" alt="Arbitrum"/>
                             <span>{targetChain}</span>
                             <img src="./imgs/arrow-down.svg" alt="" className="arrow"/>
                           </div>
@@ -270,7 +270,7 @@ export default function Home() {
                   <div className="route-summary">
                     <div className="left">
                       <img src="./imgs/route.svg" alt="" className="route-icon"/>
-                      <span>Route: <strong>AvaxHop</strong></span>
+                      <span>Route: <strong>V2 Fast</strong></span>
                       <span className="badge badge-green">Best Route</span>
                     </div>
                     <div className="right">
