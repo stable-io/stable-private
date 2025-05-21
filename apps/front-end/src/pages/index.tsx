@@ -52,6 +52,8 @@ export default function Home() {
   // @todo: Subtract expected fees
   const maxAmount = balance;
 
+  const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
+
   const handleMaxAmount = () => {
     setAmount(maxAmount);
   };
@@ -278,7 +280,7 @@ export default function Home() {
                       </div>
                       <div className="meta">
                         <img src="./imgs/time.svg" className="icon" alt="Duration"/>
-                        <span>~90s</span>
+                        <span>~{estimatedDuration} seconds</span>
                       </div>
                     </div>
                   </div>
@@ -289,7 +291,7 @@ export default function Home() {
                   <div className="summary">
                     <div className="row">
                       <span className="label">Estimated time</span>
-                      <span className="value">~24 seconds</span>
+                      <span className="value">~{estimatedDuration} seconds</span>
                     </div>
                     {/* <div className="row">
                       <span className="label">Bridge fee</span>
