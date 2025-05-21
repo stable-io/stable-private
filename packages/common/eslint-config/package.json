@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "eslint-config",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "license": "MPL-2.0",
   "author": "Stable Technologies",
@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "!*.test.*",
     "README.md"
   ],
   "scripts": {

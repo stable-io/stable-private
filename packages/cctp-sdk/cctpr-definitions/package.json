@@ -1,11 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@stable-io/cctp-sdk-cctpr-definitions",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "license": "MPL-2.0",
   "author": "Stable Technologies",
   "description": "Definitions for the CCTPR corridor of the CCTP SDK",
+  "files": [
+    "dist",
+    "!*.test.*",
+    "README.md"
+  ],
   "keywords": [
     "typescript",
     "cctp",
@@ -17,10 +22,6 @@
     "import": "./dist/index.js",
     "default": "./dist/index.js"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "scripts": {
     "prepublishOnly": "eslint . && jest && tsc",
     "build": "tsc",
