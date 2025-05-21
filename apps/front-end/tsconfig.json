@@ -15,7 +15,8 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@stable-io/stable-sdk": ["../../packages/stable-sdk"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
