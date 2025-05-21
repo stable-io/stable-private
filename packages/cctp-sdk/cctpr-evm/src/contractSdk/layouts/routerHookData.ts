@@ -1,0 +1,17 @@
+// Copyright (c) 2025 Stable Technologies Inc
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+import { type Network, universalAddressItem } from "@stable-io/cctp-sdk-definitions";
+import type { Layout, DeriveType } from "binary-layout";
+import { supportedDomainItem, gasDropoffItem } from "./common.js";
+
+export const routerHookDataLayout = <N extends Network>(network: N) => [
+  { name: "destinationDomain", ...supportedDomainItem(network) },
+  { name: "mintRecipient",     ...universalAddressItem         },
+  { name: "gasDropoff",        ...gasDropoffItem               },
+] as const satisfies Layout;
+
+export type RouterHookData<N extends Network> =
+  DeriveType<ReturnType<typeof routerHookDataLayout<N>>>;

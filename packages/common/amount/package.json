@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@stable-io/amount",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MPL-2.0",
+  "author": "Stable Technologies",
+  "description": "Handle amounts of different kinds with units a type-safe manner with infinite precision",
+  "keywords": [
+    "typescript",
+    "amount",
+    "unit",
+    "rational"
+  ],
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.cjs",
+    "import": "./dist/index.js",
+    "default": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "prepublishOnly": "eslint . && jest && tsc",
+    "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "jest --coverage",
+    "test:watch": "jest --watchAll=true",
+    "clean": "rm -rf ./dist"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "eslint": "^9.22.0",
+    "eslint-config": "workspace:^",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.6",
+    "typescript": "^5.8.2"
+  }
+}

@@ -1,0 +1,20 @@
+Original Notes:
+  substrate [Domain | "Offchain"/"Rwa"]
+  dimension [eth, avax, sol, usd, Erc20Token1, Erc20Token2, ...]
+  units [eth, gwei, wei], [dollar, cent], [sol, lamports]
+  meta-units [human, atomic]
+  custom default units (most in human but e.g. gas prices in gwei)
+  should support both static and dynamic polymorphism, e.g. all Erc20Tokens should have a common
+  base class
+  associated meta information (e.g. for ERC20 on-chain address, symbol)
+
+  2 types:
+  * actual amounts
+  * prices & conversions, i.e. amount of asset1 per unit amount of asset2
+  - conversions are fixed at compile time between related assets (e.g. native vs wrapped tokens)
+    while prices change at runtime
+  gasPrice
+
+TODO:
+  - parsing?
+  - better formatting

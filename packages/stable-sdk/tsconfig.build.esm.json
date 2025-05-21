@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "outDir": "dist/esm",
+    "module": "NodeNext"
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.*"]
+}

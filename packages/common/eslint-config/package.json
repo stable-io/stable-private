@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "eslint-config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MPL-2.0",
+  "author": "Stable Technologies",
+  "description": "An ESLint config",
+  "keywords": [
+    "cctp",
+    "sdk",
+    "eslint",
+    "eslintconfig"
+  ],
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.cjs",
+    "import": "./dist/index.js",
+    "default": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc && eslint .",
+    "lint:fix": "tsc && eslint --fix ."
+  },
+  "dependencies": {
+    "@eslint/js": "^9.22.0",
+    "@stylistic/eslint-plugin": "^4.2.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-regexp": "^2.7.0",
+    "eslint-plugin-unicorn": "^57.0.0",
+    "typescript-eslint": "^8.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "eslint": "^9.22.0",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "eslint": "^9.22.0"
+  }
+}

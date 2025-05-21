@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@stable-io/cctp-sdk-evm",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MPL-2.0",
+  "author": "Stable Technologies",
+  "description": "EVM support for the CCTP SDK",
+  "keywords": [
+    "typescript",
+    "cctp",
+    "sdk"
+  ],
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.cjs",
+    "import": "./dist/index.js",
+    "default": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "prepublishOnly": "eslint . && jest && tsc",
+    "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "jest --coverage",
+    "test:watch": "yarn test --watchAll=true",
+    "clean": "rm -rf ./dist"
+  },
+  "dependencies": {
+    "@stable-io/cctp-sdk-definitions": "workspace:^",
+    "@stable-io/map-utils": "workspace:^",
+    "@stable-io/utils": "workspace:^",
+    "binary-layout": "^1.2.2",
+    "viem": "^2.23.12"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "eslint": "^9.22.0",
+    "eslint-config": "workspace:^",
+    "globals": "^16.1.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.6",
+    "typescript": "^5.8.2"
+  }
+}
