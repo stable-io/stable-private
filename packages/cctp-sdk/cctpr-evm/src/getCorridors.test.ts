@@ -201,7 +201,7 @@ describe("getCorridors", () => {
   });
 
   it("handles optional gasDropoff parameter", async () => {
-    const gasDropoff = avax(0.1);
+    const gasDropoff = avax(0.001);
     const resultWithoutGasDropoff = await getCorridors()(mockClient, destinationDomain);
     const resultWithGasDropoff = await getCorridors()(mockClient, destinationDomain, gasDropoff);
     expect(resultWithGasDropoff.stats).toHaveLength(resultWithoutGasDropoff.stats.length);
