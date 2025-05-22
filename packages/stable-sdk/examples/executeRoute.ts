@@ -45,7 +45,7 @@ const intent = {
   sender,
   recipient,
 
-  gasDropoffDesired: eth(0.002).toUnit("atomic"),
+  gasDropoffDesired: 0n,
 };
 
 const routes = await sdk.findRoutes(intent, { paymentToken: "usdc" });
@@ -57,6 +57,11 @@ console.info(`Recipient: ${recipient}`);
 const selectedRoutes = [routes.all[3]];
 
 for (const route of selectedRoutes) {
+  const hasBalance = await sdk.checkHasEnoughFunds(route);
+  if (!hasBalance) {
+    console.info(`${route.intent.sender} doesn't have enough balance to pay for the transfer`);
+    continue;
+  }
   console.info("--------------------------------");
   console.info("");
   console.info("");

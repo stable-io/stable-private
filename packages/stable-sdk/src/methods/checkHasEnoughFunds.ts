@@ -27,7 +27,7 @@ export const $checkHasEnoughFunds =
       rpcUrl,
     );
     const senderAddr = new EvmAddress(sender);
-    const usdcAddr = new EvmAddress(usdcContracts.contractAddressOf[sourceChain]);
+    const usdcAddr = new EvmAddress(usdcContracts.contractAddressOf[network][sourceChain]);
     const gasToken = gasTokenOf(sourceChain);
 
     const requiredGasFromSteps = route.steps.reduce(
