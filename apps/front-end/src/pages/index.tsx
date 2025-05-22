@@ -49,14 +49,13 @@ export default function Home() {
     });
   }
 
-  // @todo: Subtract expected fees
-  const maxAmount = balance;
-
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
 
-  const handleMaxAmount = () => {
-    setAmount(maxAmount);
-  };
+  // @todo: Subtract expected fees
+  // const maxAmount = balance;
+  // const handleMaxAmount = () => {
+  //   setAmount(maxAmount);
+  // };
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newAmount = parseFloat(e.target.value) || 0;
@@ -203,10 +202,10 @@ export default function Home() {
                         onChange={handleAmountChange}
                         placeholder="Enter amount"
                         min="0"
-                        max={maxAmount}
+                        // max={maxAmount} // @todo
                         step="0.000001"
                       />
-                      <button className="max-button" onClick={handleMaxAmount}>MAX</button>
+                      {/* <button className="max-button" onClick={handleMaxAmount}>MAX</button> */}
                     </div>
                   </div>
 
