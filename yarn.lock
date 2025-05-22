@@ -1308,9 +1308,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@stable-io/stable-sdk@workspace:packages/stable-sdk":
+"@stable-io/sdk@workspace:packages/stable-sdk":
   version: 0.0.0-use.local
-  resolution: "@stable-io/stable-sdk@workspace:packages/stable-sdk"
+  resolution: "@stable-io/sdk@workspace:packages/stable-sdk"
   dependencies:
     "@stable-io/amount": "workspace:^"
     "@stable-io/cctp-sdk-cctpr-definitions": "workspace:^"
