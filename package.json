@@ -1,6 +1,5 @@
 {
   "name": "stable",
-  "version": "0.0.0",
   "author": "Stable Technologies",
   "license": "MPL-2.0",
   "engines": {
@@ -11,7 +10,10 @@
     "build": "yarn workspaces foreach --all --topological run build",
     "lint": "yarn workspaces foreach --all --topological run lint",
     "test": "yarn workspaces foreach --all --topological run test",
-    "clean": "yarn workspaces foreach --all --topological run clean"
+    "clean": "yarn workspaces foreach --all --topological run clean",
+    "upgrade-cctp-sdk": "yarn workspaces foreach --worktree --from \"packages/cctp-sdk/**/*\" version",
+    "upgrade-common": "yarn workspaces foreach --worktree --from \"packages/common/**/*\" version",
+    "upgrade-stable-sdk": "yarn workspaces foreach --worktree --from \"packages/stable-sdk/**/*\" version"
   },
   "workspaces": [
     "packages/cctp-sdk/*",
