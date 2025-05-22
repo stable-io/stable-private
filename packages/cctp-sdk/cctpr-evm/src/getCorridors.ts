@@ -12,7 +12,7 @@ import type {
   Usdc,
   Percentage,
 } from "@stable-io/cctp-sdk-definitions";
-import { duration, v1, v2, genericGasToken, gasTokenKindOf } from "@stable-io/cctp-sdk-definitions";
+import { duration, v1, v2, genericGasToken } from "@stable-io/cctp-sdk-definitions";
 import type { EvmClient } from "@stable-io/cctp-sdk-evm";
 import { EvmAddress } from "@stable-io/cctp-sdk-evm";
 import type { Text, TODO } from "@stable-io/utils";
@@ -137,11 +137,9 @@ async function getCorridorStats<
   corridors: RoArray<SensibleCorridor<N, S, D>>,
   gasDropoff?: GasTokenOf<D, SupportedDomain<N>>,
 ): Promise<RoArray<CorridorStats<N, S, SensibleCorridor<N, S, D>>>> {
-  const destinationGasToken = Amount.ofKind(gasTokenKindOf(destination));
+  const gasDropoffRequest = genericGasToken(gasDropoff ? gasDropoff.toUnit("human") : 0);
 
-  const gasDropoffRequest = destinationGasToken(gasDropoff ? gasDropoff.toUnit("human") : 0);
-
-  const gasDropoffLimit = destinationGasToken(
+  const gasDropoffLimit = genericGasToken(
     cctpr.gasDropoffLimitOf[network][destination],
   );
   if (gasDropoffRequest.gt(gasDropoffLimit))
