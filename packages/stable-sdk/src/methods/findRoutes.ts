@@ -92,6 +92,7 @@ export const $findRoutes =
         corridor,
         gasDropoff,
         paymentToken === "usdc",
+        routeSearchOptions.relayFeeMaxChangeMargin,
       );
       for (const newRoute of newRoutes) {
         const index = routes.length;
@@ -174,6 +175,7 @@ async function buildCorridorRoutes<
   corridor: CorridorStats<Network, keyof EvmDomains, Corridor>,
   gasDropoff: GasTokenOf<SupportedDomain<N>>,
   payInUsdc: boolean,
+  relayFeeMaxChangeMargin?: number,
 ): Promise<Route[]> {
   const cctprEvm = initCctprEvm(evmClient.network);
   const estimatedDuration = corridor.transferTime.toUnit("sec").toNumber();
@@ -189,7 +191,7 @@ async function buildCorridorRoutes<
     corridor.cost,
     intendedAmount,
     payInUsdc,
-    intent.relayFeeMaxChangeMargin,
+    relayFeeMaxChangeMargin,
   );
 
   const quote = payInUsdc
