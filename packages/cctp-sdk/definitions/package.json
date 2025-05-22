@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@stable-io/cctp-sdk-definitions",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "type": "module",
   "license": "MPL-2.0",
   "author": "Stable Technologies",
@@ -19,10 +19,11 @@
   },
   "files": [
     "dist",
+    "!*.test.*",
     "README.md"
   ],
   "scripts": {
-    "prepublishOnly": "eslint . && jest && tsc",
+    "prepublishOnly": "eslint . && tsc",
     "build": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
@@ -33,6 +34,9 @@
     "@stable-io/map-utils": "workspace:^",
     "@stable-io/utils": "workspace:^",
     "binary-layout": "^1.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

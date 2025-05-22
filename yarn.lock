@@ -1640,7 +1640,7 @@ __metadata:
   resolution: "@stable-io/front-end@workspace:apps/front-end"
   dependencies:
     "@eslint/eslintrc": "npm:^3"
-    "@stable-io/stable-sdk": "workspace:^"
+    "@stable-io/sdk": "workspace:^"
     "@stable-io/utils": "workspace:^"
     "@types/node": "npm:^20"
     "@types/react": "npm:^19"
@@ -1668,9 +1668,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@stable-io/stable-sdk@workspace:^, @stable-io/stable-sdk@workspace:packages/stable-sdk":
+"@stable-io/sdk@workspace:^, @stable-io/sdk@workspace:packages/stable-sdk":
   version: 0.0.0-use.local
-  resolution: "@stable-io/stable-sdk@workspace:packages/stable-sdk"
+  resolution: "@stable-io/sdk@workspace:packages/stable-sdk"
   dependencies:
     "@stable-io/amount": "workspace:^"
     "@stable-io/cctp-sdk-cctpr-definitions": "workspace:^"

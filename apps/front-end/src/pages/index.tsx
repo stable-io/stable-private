@@ -1,5 +1,5 @@
-import type { Route } from "@stable-io/stable-sdk";
-import Stable from "@stable-io/stable-sdk";
+import type { Route } from "@stable-io/sdk";
+import Stable from "@stable-io/sdk";
 import type { Url } from "@stable-io/utils";
 import Head from "next/head";
 import Link from "next/link";

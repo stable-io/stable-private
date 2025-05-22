@@ -1,8 +1,11 @@
 {
-  "name": "@stable-io/stable-sdk",
-  "version": "0.0.0",
+  "name": "@stable-io/sdk",
+  "version": "0.0.1",
   "main": "./dist/esm/index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "node": "./dist/cjs/index.js",

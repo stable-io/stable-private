@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@stable-io/stable-sdk": "workspace:^",
+    "@stable-io/sdk": "workspace:^",
     "@stable-io/utils": "workspace:^",
     "next": "15.3.2",
     "react": "^19.0.0",
