@@ -59,7 +59,7 @@ export interface Route {
 
   fees: Fee[];
 
-  // "rates" property contains information about relevant
+  // "rates" property will contain information about relevant
   // rates that may have been used in the whole process.
   // The first example we'll need is going to be the gas
   // drop-off exchange rate
@@ -71,18 +71,18 @@ export interface Route {
 
   intent: Intent;
 
-  // the key of message-signature is that it's needed
-  // to build transactions and so it needs to be treated
-  // in a special way during the whole transfer workflow
+  // When using permit, the transactions require a an Eip2612
+  // signature to be built, so they can not be built eagerly.
+  // This is the reason behind workflow needing to be an async
+  // generator or state machine, which is not serializable.
+  // There are some scenarios where integrator may want to
+  // prevent using this routes to generate a serializable workflow.
+  // (eg: txs generated in the backend and signed on the front-end)
   requiresMessageSignature: boolean;
 
   steps: RouteExecutionStep[];
 
-  /**
-   * @todo: review this type.
-   */
   workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx>;
-  // workflow: RouteWorkflow;
 }
 
 export function isContractTx(subject: unknown): subject is ContractTx {
@@ -99,37 +99,16 @@ export interface RouteSearchOptions {
   // A single property "paymentToken" will select
   // the token used to pay for all fees.
   // (relayer, gas, gas-dropoff...)
-  // Forcing paying all fees with the same coin
-  // could limit how many routes are available
-  // (not the case for the expected features supported
-  // by cctpxr after gas-less payments is working)
 
   // defaults to usdc.
   paymentToken?: "usdc" | "native";
 
-  // not yet, but likely in the near future
-  // slippage: ;
+  // How much change in the relay fee is tolerated between the moment the
+  // relay is quoted until the relay is executed.
+  relayFeeMaxChangeMargin?: number;
 
-  // whether or not to allow routes
-  // that require signing messages as a dependency of a subsequent step
-  // think permit, permit2 and the like
-  // hopefully this is abstract enough if similar cases
-  // appear in other platforms such as Solana, Sui, Aptos...
-  // integrators might be interested in filtering out routes
-  // that have dependencies between steps since this can make it hard to
-  // achieve a "create transactions in a service and send them in another one" architecture.
-  // a better name might be allowStepsDependency | restrictStepsDependency
+  // Ideas...
   // allowSigningMessages?: boolean;
-
-  /**
-   * @todo:
-   * we could easily add a "max relay fee slippage" here to let the integrator
-   * configure the slippage we use for the max relay fee.
-   */
-  // maxRelaySlippage
-
-  // purely for illustration purposes of what kind of
-  // other properties this interface may have in the future.
   // allowSwitchingChains: boolean;
 }
 
