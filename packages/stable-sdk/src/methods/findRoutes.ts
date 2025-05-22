@@ -44,6 +44,9 @@ import type {
  * @todo: no need to use bigint for gas units
  */
 const EVM_APPROVAL_TX_GAS_COST_APROXIMATE = 40000n;
+/**
+ * @todo: this probably makes more sense in BPS?
+ */
 const RELAY_FEE_MAX_CHANGE_MARGIN = 1.5;
 
 export type FindRoutesDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl">;
@@ -320,9 +323,6 @@ function getCorridorStep(
   switch (corridor) {
     /**
      * @todo: add sensible values to the gas cost estimation of the corridors.
-     *
-     * note: we can add more details about the tx here, such as the contract
-     *       it needs to be sent.
      */
     case "v1":
       return {
