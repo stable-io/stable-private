@@ -11,7 +11,9 @@
   --font-base: 1em;
   --font-md: 1.1em;
   --font-lg: 1.2em;
-  --font-xl: 2.5em;
+  --font-xl: 1.35em;
+  --font-xxl: 1.6em;
+  --font-xxxl: 2.5em;
 
   --fw-normal: 400;
   --fw-medium: 500;
@@ -492,7 +494,7 @@ footer .social-media-btn{
   height: 32px;
 }
 .bridge-widget .amount-section input{
-  font-size: var(--font-xl);
+  font-size: var(--font-xxl);
   font-weight: var(--fw-medium);
   border: none;
   outline: none;
@@ -753,9 +755,38 @@ footer .social-media-btn{
 }
 
 
-
-
-
+.main-content .top{
+  float: left;
+  width: 100%;
+  margin-bottom: 30px;
+}
+.alert{
+  float: left;
+  width: 100%;
+  padding: 20px;
+  border-radius: var(--radius-medium);
+}
+.alert-success{
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.alert-success *{
+  color: #155724;
+}
+.alert h3{
+  float: left;
+  width: 100%;
+  font-size: var(--font-xl);
+  font-weight: var(--fw-semibold);
+  margin-bottom: 10px;
+}
+.alert p{
+  float: left;
+  width: 100%;
+}
+.alert p a{
+  text-decoration: underline;
+}
 
 
 
