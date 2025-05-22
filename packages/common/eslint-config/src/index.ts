@@ -15,6 +15,7 @@ import unicornPlugin from "eslint-plugin-unicorn";
 import tseslint from "typescript-eslint";
 
 const linterOptionsConfig: Linter.Config = {
+  name: "base:linter-options",
   linterOptions: {
     reportUnusedDisableDirectives: "error",
     reportUnusedInlineConfigs: "error",
@@ -22,6 +23,7 @@ const linterOptionsConfig: Linter.Config = {
 };
 
 const tsConfig: Linter.Config = {
+  name: "base:ts",
   languageOptions: {
     parserOptions: {
       projectService: true,
@@ -30,6 +32,7 @@ const tsConfig: Linter.Config = {
 };
 
 const jsConfig: ConfigWithExtends = {
+  name: "base:js",
   extends: [
     tseslint.configs.disableTypeChecked,
   ],
@@ -37,6 +40,7 @@ const jsConfig: ConfigWithExtends = {
 };
 
 const ruleOverridesConfig: Linter.Config = {
+  name: "base:rule-overrides",
   rules: {
     "no-console": ["warn", { allow: ["error", "info", "table", "warn"] }],
     "@stylistic/array-bracket-spacing": "off",
@@ -78,6 +82,7 @@ const ruleOverridesConfig: Linter.Config = {
 };
 
 const defaultConfig: ConfigArray = tseslint.config(
+  { name: "base:default" },
   linterOptionsConfig,
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
