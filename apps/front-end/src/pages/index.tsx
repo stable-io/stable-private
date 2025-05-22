@@ -1,4 +1,4 @@
-import type { Route } from "@stable-io/sdk";
+import type { Network, Route } from "@stable-io/sdk";
 import Stable from "@stable-io/sdk";
 import type { Url } from "@stable-io/utils";
 import Head from "next/head";
@@ -17,6 +17,9 @@ const formatNumber = (num: number): string => num.toLocaleString('en-US', {
 
 const bigintReplacer = (key: string, value: unknown) => typeof value === "bigint" ? value.toString() : value;
 const stringify = (obj: unknown) => JSON.stringify(obj, bigintReplacer, 2);
+
+const getExplorerUrl = (network: Network, txHash: string): string =>
+  `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
 
 const mnemonic = process.env['NEXT_PUBLIC_MNEMONIC']!;
 const account = mnemonicToAccount(mnemonic);
@@ -40,6 +43,8 @@ export default function Home() {
   const [amount, setAmount] = useState(0);
   const [route, setRoute] = useState<Route | undefined>(undefined);
   const [isInProgress, setIsInProgress] = useState(false);
+  const [txHashes, setTxHashes] = useState<readonly string[] | undefined>(undefined);
+  const explorerUrl = txHashes ? getExplorerUrl("Testnet", txHashes.at(-1)!) : "#";
 
   const updateBalance = () => {
     stable.getBalance(account.address, [sourceChain]).then(balances => {
@@ -67,10 +72,13 @@ export default function Home() {
       return;
     }
     setIsInProgress(true);
+    setTxHashes(undefined);
     try {
       const txHashes = await stable.executeRoute(route);
-      console.log("txHashes", txHashes);
+      setTxHashes(txHashes);
       updateBalance();
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsInProgress(false);
     }
@@ -146,6 +154,13 @@ export default function Home() {
           </div>
 
           <div className="main-content">
+            {txHashes && <div className="top">
+              <div className="alert alert-success">
+                <h3>Transfer Complete</h3>
+                {/* @todo: Add explorer link */}
+                <p>Your USDC has been successfully bridged to {targetChain}. You can now view it in your wallet or explore the transaction on <a href={explorerUrl} target="_blank">our explorer</a>.</p>
+              </div>
+            </div>}
             <div className="left" style={{width: "50%"}}>
               <div className="bridge-widget">
                 <div className="widget-title">
