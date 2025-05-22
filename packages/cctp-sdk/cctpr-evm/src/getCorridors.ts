@@ -18,6 +18,8 @@ import { EvmAddress } from "@stable-io/cctp-sdk-evm";
 import type { Text, TODO } from "@stable-io/utils";
 import { assertDistinct, assertEqual } from "@stable-io/utils";
 import type { RoArray } from "@stable-io/map-utils";
+import { Amount } from "@stable-io/amount";
+
 import type { QuoteRelay, Corridor } from "./contractSdk/layouts/index.js";
 import { CctpR as CctpRContract } from "./contractSdk/index.js";
 import type { SupportedEvmDomain } from "./common.js";
@@ -135,6 +137,14 @@ async function getCorridorStats<
   corridors: RoArray<SensibleCorridor<N, S, D>>,
   gasDropoff?: GasTokenOf<D, SupportedDomain<N>>,
 ): Promise<RoArray<CorridorStats<N, S, SensibleCorridor<N, S, D>>>> {
+  const gasDropoffRequest = genericGasToken(gasDropoff ? gasDropoff.toUnit("human") : 0);
+
+  const gasDropoffLimit = genericGasToken(
+    cctpr.gasDropoffLimitOf[network][destination],
+  );
+  if (gasDropoffRequest.gt(gasDropoffLimit))
+    throw new Error("Gas Drop Off Limit Exceeded");
+
   const source = cctprContract.client.domain;
   const fastCostsPromise = Promise.all(corridors.map(corridor =>
     corridor === "v1"
@@ -147,7 +157,7 @@ async function getCorridorStats<
     quoteRelay: variant,
     destinationDomain: destination,
     corridor,
-    gasDropoff: genericGasToken(gasDropoff ? gasDropoff.toUnit("human") : 0),
+    gasDropoff: gasDropoffRequest,
   })));
   const allQuotesPromise = cctprContract.quoteOnChainRelay(
     quoteRelays as unknown as RoArray<QuoteRelay<N>>, //TODO all this ugly casting...
