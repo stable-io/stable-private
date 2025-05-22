@@ -16,7 +16,7 @@ yarn build # builds every package
 2. Run examples:
 ```shell
 # requires `packages/stable-sdk/.env` file to have an `EVM_PRIVATE_KEY` variable
-yarn workspace @stable-io/stable-sdk tsx examples/executeRoute.ts 
+yarn workspace @stable-io/sdk tsx examples/executeRoute.ts
 ```
 
 
