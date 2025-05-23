@@ -25,7 +25,7 @@ const nextCoreWebVitalsConfig = compat.extends("next/core-web-vitals");
 const nextTypescriptConfig = compat.extends("next/typescript");
 
 /** Remove plugins that are already defined in base config */
-const removeConflictingPlugins = (configs) => configs.map((config) => {
+const removeConflictingPlugins = configs => configs.map((config) => {
   if (config.plugins) {
     delete config.plugins["import"];
     delete config.plugins["@typescript-eslint"];

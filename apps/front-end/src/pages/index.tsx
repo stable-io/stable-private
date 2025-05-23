@@ -12,7 +12,7 @@ import { formatNumber, stringify, truncateAddress } from "../utils";
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
 
-const mnemonic = process.env['NEXT_PUBLIC_MNEMONIC']!;
+const mnemonic = process.env["NEXT_PUBLIC_MNEMONIC"]!;
 const account = mnemonicToAccount(mnemonic);
 const signer = {
   platform: "Evm" as const,
@@ -45,18 +45,18 @@ export default function Home() {
   const [amount, setAmount] = useState(0);
   const [gasDropoffLevel, setGasDropoffLevel] = useState<GasDropoffLevel>("zero");
   const gasDropoff = gasDropoffs[gasDropoffLevel];
-  const [route, setRoute] = useState<Route | undefined>(undefined);
+  const [route, setRoute] = useState<Route | undefined>();
   const [isInProgress, setIsInProgress] = useState(false);
-  const [txHashes, setTxHashes] = useState<readonly string[] | undefined>(undefined);
+  const [txHashes, setTxHashes] = useState<readonly string[] | undefined>();
   const explorerUrl = txHashes ? getExplorerUrl("Testnet", txHashes.at(-1)!) : "#";
 
   const updateBalance = () => {
-    stable.getBalance(account.address, [sourceChain]).then(balances => {
-      setBalance(parseFloat(balances[sourceChain]));
-    }).catch(err => {
-      console.error(err);
+    stable.getBalance(account.address, [sourceChain]).then((balances) => {
+      setBalance(Number.parseFloat(balances[sourceChain]));
+    }).catch((error) => {
+      console.error(error);
     });
-  }
+  };
 
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
 
@@ -65,9 +65,9 @@ export default function Home() {
   // const handleMaxAmount = () => {
   //   setAmount(maxAmount);
   // };
-  
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newAmount = parseFloat(e.target.value) || 0;
+    const newAmount = Number.parseFloat(e.target.value) || 0;
     setAmount(newAmount);
   };
 
@@ -90,7 +90,7 @@ export default function Home() {
 
   useEffect(() => {
     updateBalance();
-  }, [])
+  }, []);
 
   useEffect(() => {
     setRoute(undefined);
@@ -101,11 +101,11 @@ export default function Home() {
       sender: account.address,
       recipient: account.address,
       gasDropoffDesired: gasDropoff ? BigInt(gasDropoff) : undefined,
-    }, {}).then(result => {
+    }, {}).then((result) => {
       console.log(stringify(result));
       setRoute(result.all[3]); // v2Direct, fast with permit
-    }).catch(err => {
-      console.error(err)
+    }).catch((error) => {
+      console.error(error);
     });
   }, [amount, gasDropoff]);
 
@@ -167,7 +167,7 @@ export default function Home() {
                 <p>Your USDC has been successfully bridged to {targetChain}. You can now view it in your wallet or explore the transaction on <a href={explorerUrl} target="_blank">our explorer</a>.</p>
               </div>
             </div>}
-            <div className="left" style={{width: "50%"}}>
+            <div className="left" style={{ width: "50%" }}>
               <div className="bridge-widget">
                 <div className="widget-title">
                   <h2>Transfer USDC</h2>
@@ -217,9 +217,9 @@ export default function Home() {
 
                     <div className="amount-section">
                       <img src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon"/>
-                      <input 
+                      <input
                         type="number"
-                        value={amount} 
+                        value={amount}
                         onChange={handleAmountChange}
                         placeholder="Enter amount"
                         min="0"
@@ -285,7 +285,7 @@ export default function Home() {
 
                   </div>
 
-                  <div className="divider" style={{margin: "25px 0px"}}></div>
+                  <div className="divider" style={{ margin: "25px 0px" }}></div>
 
                   <div className="route-summary">
                     <div className="left">
@@ -305,8 +305,7 @@ export default function Home() {
                     </div>
                   </div>
 
-
-                  <div className="divider" style={{margin: "25px 0px"}}></div>
+                  <div className="divider" style={{ margin: "25px 0px" }}></div>
 
                   <div className="summary">
                     <div className="row">
@@ -339,14 +338,14 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="right" style={{width: "calc(100% - 50% - 30px)", marginLeft: "30px"}}>
+            <div className="right" style={{ width: "calc(100% - 50% - 30px)", marginLeft: "30px" }}>
               <div className="sidebar">
                 <ul className="tabs">
                   <li className="active">My Portfolio</li>
                   <li>History</li>
                 </ul>
                 <div className="sidebar-content">
-                  <p style={{textAlign: "center", padding: "260px 0px", opacity: ".6"}}>Portfolio view goes here..</p>
+                  <p style={{ textAlign: "center", padding: "260px 0px", opacity: ".6" }}>Portfolio view goes here..</p>
                 </div>
               </div>
             </div>
@@ -357,7 +356,7 @@ export default function Home() {
             </div>
             <div className="right">
               <ul>
-                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><img src="./imgs/x-logo.svg" alt="" style={{width: "12px", height: "12px"}}/></button></a></li>
+                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><img src="./imgs/x-logo.svg" alt="" style={{ width: "12px", height: "12px" }}/></button></a></li>
               </ul>
             </div>
           </footer>
