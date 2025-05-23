@@ -1646,6 +1646,7 @@ __metadata:
     "@types/react": "npm:^19"
     "@types/react-dom": "npm:^19"
     eslint: "npm:^9"
+    eslint-config: "workspace:^"
     eslint-config-next: "npm:15.3.2"
     next: "npm:15.3.2"
     react: "npm:^19.0.0"
