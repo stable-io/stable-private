@@ -34,17 +34,18 @@ export default function Home() {
   const targetChain = "Arbitrum";
 
   // @todo: Update with actual values, probably dependent on the chain
-  const maxGasDropoff = 10 ** 15; // eg 0.001 ETH
-  const gasDropoffs: Partial<Record<GasDropoffLevel, number>> = {
-    low: maxGasDropoff / 3,
-    avg: maxGasDropoff * 2 / 3,
+  const maxGasDropoff = 10n ** 15n; // eg 0.001 ETH
+  const gasDropoffs: Record<GasDropoffLevel, bigint> = {
+    zero: 0n,
+    low: maxGasDropoff / 3n,
+    avg: maxGasDropoff * 2n / 3n,
     high: maxGasDropoff,
   };
 
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
   const [gasDropoffLevel, setGasDropoffLevel] = useState<GasDropoffLevel>("zero");
-  const gasDropoff = gasDropoffs[gasDropoffLevel];
+  const gasDropoffDesired = gasDropoffs[gasDropoffLevel];
   const [route, setRoute] = useState<Route | undefined>();
   const [isInProgress, setIsInProgress] = useState(false);
   const [txHashes, setTxHashes] = useState<readonly string[] | undefined>();
@@ -53,7 +54,8 @@ export default function Home() {
   const updateBalance = () => {
     stable.getBalance(account.address, [sourceChain]).then((balances) => {
       setBalance(Number.parseFloat(balances[sourceChain]));
-    }).catch((error) => {
+      return;
+    }).catch((error: unknown) => {
       console.error(error);
     });
   };
@@ -71,21 +73,20 @@ export default function Home() {
     setAmount(newAmount);
   };
 
-  const handleTransfer = async () => {
+  const handleTransfer = () => {
     if (!route) {
       return;
     }
     setIsInProgress(true);
     setTxHashes(undefined);
-    try {
-      const txHashes = await stable.executeRoute(route);
+    stable.executeRoute(route).then((txHashes) => {
       setTxHashes(txHashes);
       updateBalance();
-    } catch (error) {
+    }).catch((error: unknown) => {
       console.error(error);
-    } finally {
+    }).finally(() => {
       setIsInProgress(false);
-    }
+    });
   };
 
   useEffect(() => {
@@ -100,14 +101,14 @@ export default function Home() {
       amount: amount.toString(10),
       sender: account.address,
       recipient: account.address,
-      gasDropoffDesired: gasDropoff ? BigInt(gasDropoff) : undefined,
+      gasDropoffDesired,
     }, {}).then((result) => {
       console.log(stringify(result));
       setRoute(result.all[3]); // v2Direct, fast with permit
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       console.error(error);
     });
-  }, [amount, gasDropoff]);
+  }, [amount, gasDropoffDesired]);
 
   return (
     <>
@@ -186,16 +187,32 @@ export default function Home() {
                           {/* <div className="select-menu">
                             <ul className="networks">
                               <li className="selected">
-                                <img src="./imgs/eth-logo.svg" className="network-logo item-icon" alt="Ethereum"/>
+                                <img
+                                  src="./imgs/eth-logo.svg"
+                                  className="network-logo item-icon"
+                                  alt="Ethereum"
+                                />
                                 <span>Ethereum</span>
-                                <img src="./imgs/check.svg" className="selected-icon" alt="Selected"/>
+                                <img
+                                  src="./imgs/check.svg"
+                                  className="selected-icon"
+                                  alt="Selected"
+                                />
                               </li>
                               <li>
-                                <img src="./imgs/eth-logo.svg" className="network-logo item-icon" alt="Ethereum"/>
+                                <img
+                                  src="./imgs/eth-logo.svg"
+                                  className="network-logo item-icon"
+                                  alt="Ethereum"
+                                />
                                 <span>Ethereum</span>
                               </li>
                               <li>
-                                <img src="./imgs/eth-logo.svg" className="network-logo item-icon" alt="Ethereum"/>
+                                <img
+                                  src="./imgs/eth-logo.svg"
+                                  className="network-logo item-icon"
+                                  alt="Ethereum"
+                                />
                                 <span>Ethereum</span>
                               </li>
                             </ul>
