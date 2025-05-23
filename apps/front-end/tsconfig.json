@@ -13,6 +13,6 @@
       "@stable-io/sdk": ["../../packages/stable-sdk"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "src/types/**/*", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
