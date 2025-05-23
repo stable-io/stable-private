@@ -8,7 +8,7 @@ import { createWalletClient, http } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
 import type { Chain } from "viem/chains";
 import { useEffect, useState } from "react";
-import { formatNumber, stringify, truncateAddress } from "../utils";
+import { formatNumber, truncateAddress } from "../utils";
 
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
@@ -104,7 +104,6 @@ export default function Home() {
       recipient: account.address,
       gasDropoffDesired,
     }, {}).then((result) => {
-      console.log(stringify(result));
       setRoute(result.all[3]); // v2Direct, fast with permit
     }).catch((error: unknown) => {
       console.error(error);
