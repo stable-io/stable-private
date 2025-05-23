@@ -44,6 +44,9 @@ import type {
  * @todo: no need to use bigint for gas units
  */
 const EVM_APPROVAL_TX_GAS_COST_APROXIMATE = 40000n;
+/**
+ * @todo: this probably makes more sense in BPS?
+ */
 const RELAY_FEE_MAX_CHANGE_MARGIN = 1.5;
 
 export type FindRoutesDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl">;
@@ -92,6 +95,7 @@ export const $findRoutes =
         corridor,
         gasDropoff,
         paymentToken === "usdc",
+        routeSearchOptions.relayFeeMaxChangeMargin,
       );
       for (const newRoute of newRoutes) {
         const index = routes.length;
@@ -174,6 +178,7 @@ async function buildCorridorRoutes<
   corridor: CorridorStats<Network, keyof EvmDomains, Corridor>,
   gasDropoff: GasTokenOf<SupportedDomain<N>>,
   payInUsdc: boolean,
+  relayFeeMaxChangeMargin?: number,
 ): Promise<Route[]> {
   const cctprEvm = initCctprEvm(evmClient.network);
   const estimatedDuration = corridor.transferTime.toUnit("sec").toNumber();
@@ -189,7 +194,7 @@ async function buildCorridorRoutes<
     corridor.cost,
     intendedAmount,
     payInUsdc,
-    intent.relayFeeMaxChangeMargin,
+    relayFeeMaxChangeMargin,
   );
 
   const quote = payInUsdc
@@ -318,9 +323,6 @@ function getCorridorStep(
   switch (corridor) {
     /**
      * @todo: add sensible values to the gas cost estimation of the corridors.
-     *
-     * note: we can add more details about the tx here, such as the contract
-     *       it needs to be sent.
      */
     case "v1":
       return {

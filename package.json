@@ -13,7 +13,8 @@
     "clean": "yarn workspaces foreach --all --topological run clean",
     "upgrade-cctp-sdk": "yarn workspaces foreach --worktree --from \"packages/cctp-sdk/**/*\" version",
     "upgrade-common": "yarn workspaces foreach --worktree --from \"packages/common/**/*\" version",
-    "upgrade-stable-sdk": "yarn workspaces foreach --worktree --from \"packages/stable-sdk/**/*\" version"
+    "upgrade-stable-sdk": "yarn workspaces foreach --worktree --from \"packages/stable-sdk/**/*\" version",
+    "publish-all": "yarn workspaces foreach --worktree --from \"packages/**/*\" --no-private --topological npm publish --access public --tolerate-republish"
   },
   "workspaces": [
     "apps/*",
