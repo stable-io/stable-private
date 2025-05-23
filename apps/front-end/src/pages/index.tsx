@@ -93,6 +93,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
+    setRoute(undefined);
     stable.findRoutes({
       sourceChain,
       targetChain,
