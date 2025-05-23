@@ -70,6 +70,8 @@ const ruleOverridesConfig: Linter.Config = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
     "import/no-unresolved": "off", // Not recommended in combination with typescript-eslint
+    "promise/always-return": ["error", { ignoreLastCallback: true }],
+    "promise/catch-or-return": ["error", { allowFinally: true }],
     "unicorn/consistent-function-scoping": "off",
     "unicorn/filename-case": ["error", { case: "camelCase" }],
     "unicorn/no-array-reduce": "off",
