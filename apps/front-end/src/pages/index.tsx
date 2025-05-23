@@ -157,7 +157,7 @@ export default function Home() {
                 <li><a href="mailto:hello@stable.io">Reach out</a></li>
               </ul>
               <button className="hamburger-menu">
-                <Image src="./imgs/hamburger-menu.svg" alt="" unoptimized />
+                <Image src="./imgs/hamburger-menu.svg" alt="" unoptimized height={20} width={20} />
               </button>
             </div>
           </div>
@@ -182,9 +182,9 @@ export default function Home() {
                         <div className="network-select">
                           <span className="network-select-title">From</span>
                           <div className="network-select-btn">
-                            <Image src="./imgs/eth-logo.svg" className="network-logo" alt="Ethereum" unoptimized />
+                            <Image src="./imgs/eth-logo.svg" className="network-logo" alt="Ethereum" unoptimized height={24} width={24} />
                             <span>{sourceChain}</span>
-                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized />
+                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
                           </div>
                           {/* <div className="select-menu">
                             <ul className="networks">
@@ -223,7 +223,7 @@ export default function Home() {
                       </div>
                       <div className="right">
                         <div className="wallet-chip">
-                          <Image src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon" unoptimized />
+                          <Image src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon" unoptimized height={16} width={16} />
                           <span className="address">{truncateAddress(account.address)}</span>
                           <button className="edit-btn">Edit</button>
                         </div>
@@ -235,7 +235,7 @@ export default function Home() {
                     </div>
 
                     <div className="amount-section">
-                      <Image src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon" unoptimized />
+                      <Image src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon" unoptimized height={32} width={32} />
                       <input
                         type="number"
                         value={amount}
@@ -251,7 +251,7 @@ export default function Home() {
 
                   <div className="divider">
                     <div className="icon-circle">
-                      <Image src="./imgs/arrow-long-down.svg" alt="" className="arrow-icon" unoptimized />
+                      <Image src="./imgs/arrow-long-down.svg" alt="" className="arrow-icon" unoptimized height={12} width={10} />
                     </div>
                   </div>
 
@@ -261,15 +261,15 @@ export default function Home() {
                         <div className="network-select">
                           <span className="network-select-title">To</span>
                           <div className="network-select-btn">
-                            <Image src="./imgs/arb-logo.svg" className="network-logo" alt="Arbitrum" unoptimized />
+                            <Image src="./imgs/arb-logo.svg" className="network-logo" alt="Arbitrum" unoptimized height={24} width={24} />
                             <span>{targetChain}</span>
-                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized />
+                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
                           </div>
                         </div>
                       </div>
                       <div className="right">
                         <div className="wallet-chip">
-                          <Image src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon" unoptimized />
+                          <Image src="./imgs/metamask-logo.svg" alt="MetaMask" className="wallet-icon" unoptimized height={16} width={16} />
                           <span className="address">{truncateAddress(account.address)}</span>
                           <button className="edit-btn">Edit</button>
                         </div>
@@ -279,7 +279,7 @@ export default function Home() {
                       <div className="left">
                         <span className="label">Destination gas</span>
                         <div className="tooltip">
-                          <Image src="./imgs/tooltip.svg" alt="" className="tooltip-icon" unoptimized />
+                          <Image src="./imgs/tooltip.svg" alt="" className="tooltip-icon" unoptimized height={14} width={14} />
                         </div>
                         <div className="options">
                           <button className={`option ${gasDropoffLevel === "zero" ? "active" : ""}`} onClick={() => setGasDropoffLevel("zero")}>Zero</button>
@@ -308,17 +308,17 @@ export default function Home() {
 
                   <div className="route-summary">
                     <div className="left">
-                      <Image src="./imgs/route.svg" alt="" className="route-icon" unoptimized />
+                      <Image src="./imgs/route.svg" alt="" className="route-icon" unoptimized height={18} width={18} />
                       <span>Route: <strong>V2 Fast</strong></span>
                       <span className="badge badge-green">Best Route</span>
                     </div>
                     <div className="right">
                       <div className="meta">
-                        <Image src="./imgs/gas.svg" className="icon" alt="Gas fees" unoptimized />
+                        <Image src="./imgs/gas.svg" className="icon" alt="Gas fees" unoptimized height={16} width={16} />
                         <span>$3.20</span>
                       </div>
                       <div className="meta">
-                        <Image src="./imgs/time.svg" className="icon" alt="Duration" unoptimized />
+                        <Image src="./imgs/time.svg" className="icon" alt="Duration" unoptimized height={16} width={16} />
                         <span>~{estimatedDuration} seconds</span>
                       </div>
                     </div>
@@ -342,7 +342,7 @@ export default function Home() {
                     <div className="row total">
                       <span className="label">You receive</span>
                       <span className="value">
-                      <Image src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon" unoptimized />
+                      <Image src="./imgs/usdc-icon.svg" alt="USDC" className="usdc-icon" unoptimized height={32} width={32} />
                       {formatNumber(amount)} USDC
                       </span>
                     </div>
@@ -375,7 +375,7 @@ export default function Home() {
             </div>
             <div className="right">
               <ul>
-                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><Image src="./imgs/x-logo.svg" alt="" unoptimized /></button></a></li>
+                <li><a href="https://x.com/stable_io" target="_blank"><button className="social-media-btn"><Image src="./imgs/x-logo.svg" alt="" unoptimized height={14} width={14} /></button></a></li>
               </ul>
             </div>
           </footer>
