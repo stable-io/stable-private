@@ -1,19 +1,26 @@
+# Editor
 .vscode
 
-/**/dist
-
+# Node.js
 /**/node_modules
 
-# debug
+# npm
 npm-debug.log*
+
+# Yarn
+.yarn/*
+!.yarn/releases
 yarn-debug.log*
 yarn-error.log*
 
-# env files
+# Env files
 /**/.env
 
-.yarn/*
-!.yarn/releases
+# Build files
+/**/dist
 
-# testing
+# Testing
 /**/coverage
+
+# Next.js
+/**/.next/

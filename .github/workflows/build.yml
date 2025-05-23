@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Set up environment variables
+        run: cp ./apps/front-end/.env.local.example ./apps/front-end/.env.local
+
       - name: Build
         run: yarn build
 
