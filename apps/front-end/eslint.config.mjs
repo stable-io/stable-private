@@ -16,9 +16,30 @@ const tsConfig = {
   languageOptions: {
     parserOptions: {
       projectService: {
-        allowDefaultProject: ["*.mjs", "examples/*.mjs"],
+        allowDefaultProject: [
+          "next.config.ts",
+          "*.mjs",
+          "examples/*.mjs",
+          "scripts/*.ts",
+          "scripts/ComponentTemplate/*.ts",
+          "scripts/ComponentTemplate/*.tsx",
+        ],
       },
     },
+  },
+};
+
+const tsxConfig = {
+  name: "front-end:tsx",
+  files: ["**/*.tsx"],
+  rules: {
+    "unicorn/filename-case": [
+      "error",
+      {
+        case: "pascalCase",
+        ignore: ["_app.tsx", "_document.tsx"],
+      },
+    ],
   },
 };
 
@@ -46,6 +67,7 @@ const flatConfig = [
   ...eslintConfig,
   ignoreConfig,
   tsConfig,
+  tsxConfig,
   prettierConfig,
 ];
 
