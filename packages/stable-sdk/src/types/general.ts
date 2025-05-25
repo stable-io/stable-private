@@ -3,6 +3,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
+
+export type EvmChains = keyof EvmDomains
+
 export type Network = "Mainnet" | "Testnet";
 
 /** @todo */

@@ -1,4 +1,4 @@
-import type { Network, Route } from "@stable-io/sdk";
+import type { Network, Route, EvmChains } from "@stable-io/sdk";
 import Stable from "@stable-io/sdk";
 import type { Url } from "@stable-io/utils";
 import Head from "next/head";
@@ -30,10 +30,55 @@ const stable = new Stable({
 
 type GasDropoffLevel = "zero" | "low" | "avg" | "high";
 
+type NetworkConfiguration = { name: EvmChains; logo: string };
+// Define available networks
+const availableNetworks = [
+  { name: "Ethereum", logo: "./imgs/eth-logo.svg" },
+  { name: "Arbitrum", logo: "./imgs/arb-logo.svg" },
+  { name: "Optimism", logo: "./imgs/op-logo.svg" },
+  { name: "Base", logo: "./imgs/tmp/base-logo.png" },
+  { name: "Polygon", logo: "./imgs/tmp/pol-logo.png" },
+  { name: "Unichain", logo: "./imgs/tmp/uni-logo.png" },
+  { name: "Avalanche", logo: "./imgs/tmp/ava-logo.png" },
+] as const satisfies NetworkConfiguration[];
+
+// New component for network selection
+function NetworkSelect({ title, selectedNetwork, availableNetworks, onSelect }: {
+  title: string;
+  selectedNetwork: NetworkConfiguration;
+  availableNetworks: NetworkConfiguration[];
+  onSelect: (network: NetworkConfiguration) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="network-select">
+      <span className="network-select-title">{title}</span>
+      <div className="network-select-btn" onClick={() => setIsOpen(!isOpen)}>
+        <Image src={selectedNetwork.logo} className="network-logo" alt={selectedNetwork.name} unoptimized height={24} width={24} />
+        <span>{selectedNetwork.name}</span>
+        <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
+      </div>
+      {isOpen && (
+        <div className="select-menu">
+          <ul className="networks">
+            {availableNetworks.filter(network => network.name !== selectedNetwork.name).map(network => (
+              <li key={network.name} onClick={() => { onSelect(network); setIsOpen(false); }}>
+                <img src={network.logo} className="network-logo item-icon" alt={network.name} />
+                <span>{network.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const sourceChain = "Ethereum";
   const targetChain = "Arbitrum";
-
+  
   // @todo: Update with actual values, probably dependent on the chain
   const maxGasDropoff = 10n ** 15n; // eg 0.001 ETH
   const gasDropoffs: Record<GasDropoffLevel, bigint> = {
@@ -42,6 +87,9 @@ export default function Home() {
     avg: maxGasDropoff * 2n / 3n,
     high: maxGasDropoff,
   };
+  
+  const [selectedSourceNetwork, setSelectedSourceNetwork] = useState<NetworkConfiguration>(availableNetworks[0]);
+  const [selectedTargetNetwork, setSelectedTargetNetwork] = useState<NetworkConfiguration>(availableNetworks[1]);
 
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
@@ -97,18 +145,18 @@ export default function Home() {
   useEffect(() => {
     setRoute(undefined);
     stable.findRoutes({
-      sourceChain,
-      targetChain,
+      sourceChain: selectedSourceNetwork.name,
+      targetChain: selectedTargetNetwork.name,
       amount: amount.toString(10),
       sender: account.address,
       recipient: account.address,
       gasDropoffDesired,
     }, {}).then((result) => {
-      setRoute(result.all[3]); // v2Direct, fast with permit
+      setRoute(result.all[result.fastest]); // v2Direct, fast with permit
     }).catch((error: unknown) => {
       console.error(error);
     });
-  }, [amount, gasDropoffDesired]);
+  }, [amount, gasDropoffDesired, selectedSourceNetwork, selectedTargetNetwork]);
 
   return (
     <>
@@ -179,47 +227,12 @@ export default function Home() {
                   <div className="select-section select-from-section">
                     <div className="network-settings">
                       <div className="left">
-                        <div className="network-select">
-                          <span className="network-select-title">From</span>
-                          <div className="network-select-btn">
-                            <Image src="./imgs/eth-logo.svg" className="network-logo" alt="Ethereum" unoptimized height={24} width={24} />
-                            <span>{sourceChain}</span>
-                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
-                          </div>
-                          {/* <div className="select-menu">
-                            <ul className="networks">
-                              <li className="selected">
-                                <img
-                                  src="./imgs/eth-logo.svg"
-                                  className="network-logo item-icon"
-                                  alt="Ethereum"
-                                />
-                                <span>Ethereum</span>
-                                <img
-                                  src="./imgs/check.svg"
-                                  className="selected-icon"
-                                  alt="Selected"
-                                />
-                              </li>
-                              <li>
-                                <img
-                                  src="./imgs/eth-logo.svg"
-                                  className="network-logo item-icon"
-                                  alt="Ethereum"
-                                />
-                                <span>Ethereum</span>
-                              </li>
-                              <li>
-                                <img
-                                  src="./imgs/eth-logo.svg"
-                                  className="network-logo item-icon"
-                                  alt="Ethereum"
-                                />
-                                <span>Ethereum</span>
-                              </li>
-                            </ul>
-                          </div> */} {/* @todo */}
-                        </div>
+                        <NetworkSelect
+                          title="From"
+                          selectedNetwork={selectedSourceNetwork}
+                          availableNetworks={availableNetworks}
+                          onSelect={setSelectedSourceNetwork}
+                        />
                       </div>
                       <div className="right">
                         <div className="wallet-chip">
@@ -230,7 +243,6 @@ export default function Home() {
                         <div className="balance">
                           <span>Balance: {formatNumber(balance)} USDC</span>
                         </div>
-
                       </div>
                     </div>
 
@@ -258,14 +270,12 @@ export default function Home() {
                   <div className="select-section select-from-section">
                     <div className="network-settings">
                       <div className="left">
-                        <div className="network-select">
-                          <span className="network-select-title">To</span>
-                          <div className="network-select-btn">
-                            <Image src="./imgs/arb-logo.svg" className="network-logo" alt="Arbitrum" unoptimized height={24} width={24} />
-                            <span>{targetChain}</span>
-                            <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
-                          </div>
-                        </div>
+                        <NetworkSelect
+                          title="To"
+                          selectedNetwork={selectedTargetNetwork}
+                          availableNetworks={availableNetworks}
+                          onSelect={setSelectedTargetNetwork}
+                        />
                       </div>
                       <div className="right">
                         <div className="wallet-chip">
@@ -301,30 +311,33 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-
                   </div>
 
                   <div className="divider" style={{ margin: "25px 0px" }}></div>
 
-                  <div className="route-summary">
-                    <div className="left">
-                      <Image src="./imgs/route.svg" alt="" className="route-icon" unoptimized height={18} width={18} />
-                      <span>Route: <strong>V2 Fast</strong></span>
-                      <span className="badge badge-green">Best Route</span>
-                    </div>
-                    <div className="right">
-                      <div className="meta">
-                        <Image src="./imgs/gas.svg" className="icon" alt="Gas fees" unoptimized height={16} width={16} />
-                        <span>$3.20</span>
+                  {route && (
+                    <>
+                      <div className="route-summary">
+                        <div className="left">
+                          <Image src="./imgs/route.svg" alt="" className="route-icon" unoptimized height={18} width={18} />
+                          <span>Route: <strong>{route.corridor}</strong></span>
+                          <span className="badge badge-green">Best Route</span>
+                        </div>
+                        <div className="right">
+                          <div className="meta">
+                            <Image src="./imgs/gas.svg" className="icon" alt="Gas fees" unoptimized height={16} width={16} />
+                            <span>$3.20</span>
+                          </div>
+                          <div className="meta">
+                            <Image src="./imgs/time.svg" className="icon" alt="Duration" unoptimized height={16} width={16} />
+                            <span>~{estimatedDuration} seconds</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="meta">
-                        <Image src="./imgs/time.svg" className="icon" alt="Duration" unoptimized height={16} width={16} />
-                        <span>~{estimatedDuration} seconds</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="divider" style={{ margin: "25px 0px" }}></div>
+                      <div className="divider" style={{ margin: "25px 0px" }}></div>
+                    </>
+                  )}
 
                   <div className="summary">
                     <div className="row">
