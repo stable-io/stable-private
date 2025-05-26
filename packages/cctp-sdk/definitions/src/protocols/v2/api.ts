@@ -68,8 +68,8 @@ type GetMessagesValuePending = Readonly<{
     status: "pending_confirmations";
     cctpVersion: 1 | 2;
     eventNonce: string;
-  }]>
-}>
+  }]>;
+}>;
 
 type GetMessagesRawResponse<H extends HTTPCode> =
   H extends 200 ? APIResponse<H, GetMessagesValueSuccess|GetMessagesValuePending> :
@@ -98,7 +98,7 @@ export type GetMessagesResponse = Readonly<{
   code: number;
   error: string;
 } | {
-  status: "pending"
+  status: "pending";
 }>;
 
 export type TxHashOrNonce = { transactionHash: string } | { nonce: string };
@@ -155,7 +155,7 @@ export const fetchMessagesFactory = <N extends Network>(network: N) => async (
 
   const message = response.value.messages[0];
 
-  if (message.status !== "success") return { status: "pending" };
+  if (message.status !== "complete") return { status: "pending" };
 
   return {
     status: "success",
@@ -167,7 +167,7 @@ export const fetchMessagesFactory = <N extends Network>(network: N) => async (
       cctpVersion: message.cctpVersion as ApiVersion,
       status: message.status as MessageStatus,
     }],
-  }
+  };
 };
 
 export const init = <N extends Network>(network: N) => ({
