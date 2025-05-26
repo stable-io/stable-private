@@ -108,9 +108,6 @@ function ChainSelect({
 }
 
 export default function Home() {
-  const sourceChain = "Ethereum";
-  const targetChain = "Arbitrum";
-
   // @todo: Update with actual values, probably dependent on the chain
   const maxGasDropoff = 10n ** 15n; // eg 0.001 ETH
   const gasDropoffs: Record<GasDropoffLevel, bigint> = {
@@ -139,9 +136,9 @@ export default function Home() {
 
   const updateBalance = () => {
     stable
-      .getBalance(account.address, [sourceChain])
+      .getBalance(account.address, [selectedSourceChain.name])
       .then((balances) => {
-        setBalance(Number.parseFloat(balances[sourceChain]));
+        setBalance(Number.parseFloat(balances[selectedSourceChain.name]));
         return;
       })
       .catch((error: unknown) => {
@@ -322,7 +319,7 @@ export default function Home() {
                   <h3>Transfer Complete</h3>
                   {/* @todo: Add explorer link */}
                   <p>
-                    Your USDC has been successfully bridged to {targetChain}.
+                    Your USDC has been successfully bridged to {selectedTargetChain.name}.
                     You can now view it in your wallet or explore the
                     transaction on{" "}
                     <a href={explorerUrl} target="_blank">
