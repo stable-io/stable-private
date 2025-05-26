@@ -46,8 +46,8 @@ const availableChains = [
 
 function ChainSelect({
   title,
-  selectedNetwork,
-  availableNetworks,
+  selectedChain,
+  availableChains,
   onSelect,
 }: {
   title: string;
@@ -84,7 +84,7 @@ function ChainSelect({
           <ul className="networks">
             {availableChains
               .filter((chain) => chain.name !== selectedChain.name)
-              .map((network) => (
+              .map((chain) => (
                 <li
                   key={chain.name}
                   onClick={() => {
@@ -123,7 +123,7 @@ export default function Home() {
   const [selectedSourceChain, setSelectedSourceChain] =
     useState<ChainInformation>(availableChains[0]);
   const [selectedTargetChain, setSelectedTargetChain] =
-    useState<NetworkConfiguration>(availableChains[1]);
+    useState<ChainInformation>(availableChains[1]);
 
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
