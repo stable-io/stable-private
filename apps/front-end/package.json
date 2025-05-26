@@ -10,7 +10,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "clean": "rm -rf .next next-env.d.ts"
+    "clean": "rm -rf .next next-env.d.ts",
+    "component:generate": "tsx scripts/generateComponent.ts"
   },
   "dependencies": {
     "@stable-io/sdk": "workspace:^",
@@ -25,11 +26,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chalk": "^5.4.1",
     "eslint": "^9",
     "eslint-config": "workspace:^",
     "eslint-config-next": "15.3.2",
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.5.3",
+    "tsx": "^4.19.4",
     "typescript": "^5"
   }
 }
