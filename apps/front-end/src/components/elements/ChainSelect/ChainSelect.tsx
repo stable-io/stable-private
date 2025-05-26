@@ -1,69 +1,42 @@
-import Image from "next/image";
 import { useState } from "react";
 import type { AvailableChains } from "@/constants";
-import { availableChains, chainLogos } from "@/constants";
+import { ChainSelectButton } from "./ChainSelectButton";
+import { ChainSelectMenu } from "./ChainSelectMenu";
 
 export interface ChainSelectProps {
   title: string;
+  chains: readonly AvailableChains[];
   selectedChain: AvailableChains;
   onSelect: (network: AvailableChains) => void;
 }
 
 export const ChainSelect = ({
   title,
+  chains,
   selectedChain,
   onSelect,
 }: ChainSelectProps) => {
+  const otherChains = chains.filter((chain) => chain !== selectedChain);
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleSelect = (chain: AvailableChains) => {
+    onSelect(chain);
+    setIsOpen(false);
+  };
 
   return (
     <div data-testid="ChainSelect" className="network-select">
       <span className="network-select-title">{title}</span>
-      <div className="network-select-btn" onClick={() => setIsOpen(!isOpen)}>
-        <Image
-          src={chainLogos[selectedChain]}
-          className="network-logo"
-          alt={selectedChain}
-          unoptimized
-          height={24}
-          width={24}
-        />
-        <span>{selectedChain}</span>
-        <Image
-          src="./imgs/arrow-down.svg"
-          alt=""
-          className="arrow"
-          unoptimized
-          height={6}
-          width={10}
-        />
-      </div>
+      <ChainSelectButton
+        selectedChain={selectedChain}
+        onToggle={handleToggle}
+      />
       {isOpen && (
-        <div className="select-menu">
-          <ul className="networks">
-            {availableChains
-              .filter((chain) => chain !== selectedChain)
-              .map((chain) => (
-                <li
-                  key={chain}
-                  onClick={() => {
-                    onSelect(chain);
-                    setIsOpen(false);
-                  }}
-                >
-                  <Image
-                    src={chainLogos[chain]}
-                    className="network-logo item-icon"
-                    alt={chain}
-                    unoptimized
-                    height={24}
-                    width={24}
-                  />
-                  <span>{chain}</span>
-                </li>
-              ))}
-          </ul>
-        </div>
+        <ChainSelectMenu chains={otherChains} onSelect={handleSelect} />
       )}
     </div>
   );
