@@ -5,7 +5,7 @@
 
 import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 
-export type EvmChains = keyof EvmDomains
+export type EvmChains = keyof EvmDomains;
 
 export type Network = "Mainnet" | "Testnet";
 
