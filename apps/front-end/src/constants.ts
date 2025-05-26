@@ -18,7 +18,7 @@ export const chainLogos = {
   Optimism: "./imgs/op-logo.svg",
   Base: "./imgs/tmp/base-logo.png",
   Polygon: "./imgs/tmp/pol-logo.png",
-  Unichain: "./imgs/tmp/uni-logo.png",
+  Unichain: "./imgs/uni-logo.png",
   Avalanche: "./imgs/tmp/ava-logo.png",
 } as const satisfies Record<AvailableChains, string>;
 
