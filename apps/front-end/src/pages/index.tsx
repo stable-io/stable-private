@@ -1,127 +1,18 @@
-import type { Network, Route, EvmChains } from "@stable-io/sdk";
-import Stable from "@stable-io/sdk";
-import type { Url } from "@stable-io/utils";
+import type { Network, Route } from "@stable-io/sdk";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { createWalletClient, http } from "viem";
-import { mnemonicToAccount } from "viem/accounts";
-import type { Chain } from "viem/chains";
-import { useEffect, useState } from "react";
-import { formatNumber, truncateAddress } from "../utils";
+import { useCallback, useEffect, useState } from "react";
+import { ChainSelect } from "@/components";
+import type { AvailableChains, GasDropoffLevel } from "@/constants";
+import { availableChains, gasDropoffs } from "@/constants";
+import { account, stable } from "@/context";
+import { formatNumber, truncateAddress } from "@/utils";
 
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
 
-const mnemonic = process.env["NEXT_PUBLIC_MNEMONIC"]!;
-const account = mnemonicToAccount(mnemonic);
-
-const signer = {
-  platform: "Evm" as const,
-  getWalletClient: (chain: Chain, url: Url) =>
-    createWalletClient({
-      account,
-      chain,
-      transport: http(url),
-    }),
-};
-const stable = new Stable({
-  network: "Testnet",
-  signer,
-});
-
-type GasDropoffLevel = "zero" | "low" | "avg" | "high";
-
-type ChainInformation = { name: EvmChains; logo: string };
-
-const availableChains = [
-  { name: "Ethereum", logo: "./imgs/eth-logo.svg" },
-  { name: "Arbitrum", logo: "./imgs/arb-logo.svg" },
-  { name: "Optimism", logo: "./imgs/op-logo.svg" },
-  { name: "Base", logo: "./imgs/tmp/base-logo.png" },
-  { name: "Polygon", logo: "./imgs/tmp/pol-logo.png" },
-  { name: "Unichain", logo: "./imgs/tmp/uni-logo.png" },
-  { name: "Avalanche", logo: "./imgs/tmp/ava-logo.png" },
-] as const satisfies ChainInformation[];
-
-function ChainSelect({
-  title,
-  selectedChain,
-  availableChains,
-  onSelect,
-}: {
-  title: string;
-  selectedChain: ChainInformation;
-  availableChains: ChainInformation[];
-  onSelect: (network: ChainInformation) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="network-select">
-      <span className="network-select-title">{title}</span>
-      <div className="network-select-btn" onClick={() => setIsOpen(!isOpen)}>
-        <Image
-          src={selectedChain.logo}
-          className="network-logo"
-          alt={selectedChain.name}
-          unoptimized
-          height={24}
-          width={24}
-        />
-        <span>{selectedChain.name}</span>
-        <Image
-          src="./imgs/arrow-down.svg"
-          alt=""
-          className="arrow"
-          unoptimized
-          height={6}
-          width={10}
-        />
-      </div>
-      {isOpen && (
-        <div className="select-menu">
-          <ul className="networks">
-            {availableChains
-              .filter((chain) => chain.name !== selectedChain.name)
-              .map((chain) => (
-                <li
-                  key={chain.name}
-                  onClick={() => {
-                    onSelect(chain);
-                    setIsOpen(false);
-                  }}
-                >
-                  <img
-                    src={chain.logo}
-                    className="network-logo item-icon"
-                    alt={chain.name}
-                  />
-                  <span>{chain.name}</span>
-                </li>
-              ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Home() {
-  // @todo: Update with actual values, probably dependent on the chain
-  const maxGasDropoff = 10n ** 15n; // eg 0.001 ETH
-  const gasDropoffs: Record<GasDropoffLevel, bigint> = {
-    zero: 0n,
-    low: maxGasDropoff / 3n,
-    avg: (maxGasDropoff * 2n) / 3n,
-    high: maxGasDropoff,
-  };
-
-  const [selectedSourceChain, setSelectedSourceChain] =
-    useState<ChainInformation>(availableChains[0]);
-  const [selectedTargetChain, setSelectedTargetChain] =
-    useState<ChainInformation>(availableChains[1]);
-
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
   const [gasDropoffLevel, setGasDropoffLevel] =
@@ -134,17 +25,23 @@ export default function Home() {
     ? getExplorerUrl("Testnet", txHashes.at(-1)!)
     : "#";
 
-  const updateBalance = () => {
+  const [sourceChain, setSourceChain] = useState<AvailableChains>(
+    availableChains[0],
+  );
+  const [targetChain, setTargetChain] = useState<AvailableChains>(
+    availableChains[1],
+  );
+
+  const updateBalance = useCallback(() => {
     stable
-      .getBalance(account.address, [selectedSourceChain.name])
+      .getBalance(account.address, [sourceChain])
       .then((balances) => {
-        setBalance(Number.parseFloat(balances[selectedSourceChain.name]));
-        return;
+        setBalance(Number.parseFloat(balances[sourceChain]));
       })
       .catch((error: unknown) => {
         console.error(error);
       });
-  };
+  }, [sourceChain]);
 
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
 
@@ -181,15 +78,15 @@ export default function Home() {
 
   useEffect(() => {
     updateBalance();
-  }, []);
+  }, [updateBalance]);
 
   useEffect(() => {
     setRoute(undefined);
     stable
       .findRoutes(
         {
-          sourceChain: selectedSourceChain.name,
-          targetChain: selectedTargetChain.name,
+          sourceChain,
+          targetChain,
           amount: amount.toString(10),
           sender: account.address,
           recipient: account.address,
@@ -203,7 +100,7 @@ export default function Home() {
       .catch((error: unknown) => {
         console.error(error);
       });
-  }, [amount, gasDropoffDesired, selectedSourceChain, selectedTargetChain]);
+  }, [amount, gasDropoffDesired, sourceChain, targetChain]);
 
   return (
     <>
@@ -319,7 +216,7 @@ export default function Home() {
                   <h3>Transfer Complete</h3>
                   {/* @todo: Add explorer link */}
                   <p>
-                    Your USDC has been successfully bridged to {selectedTargetChain.name}.
+                    Your USDC has been successfully bridged to {targetChain}.
                     You can now view it in your wallet or explore the
                     transaction on{" "}
                     <a href={explorerUrl} target="_blank">
@@ -341,9 +238,8 @@ export default function Home() {
                       <div className="left">
                         <ChainSelect
                           title="From"
-                          selectedChain={selectedSourceChain}
-                          availableChains={availableChains}
-                          onSelect={setSelectedSourceChain}
+                          selectedChain={sourceChain}
+                          onSelect={setSourceChain}
                         />
                       </div>
                       <div className="right">
@@ -407,9 +303,8 @@ export default function Home() {
                       <div className="left">
                         <ChainSelect
                           title="To"
-                          selectedChain={selectedTargetChain}
-                          availableChains={availableChains}
-                          onSelect={setSelectedTargetChain}
+                          selectedChain={targetChain}
+                          onSelect={setTargetChain}
                         />
                       </div>
                       <div className="right">
