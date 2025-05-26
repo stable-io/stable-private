@@ -15,6 +15,7 @@ const getExplorerUrl = (network: Network, txHash: string): string =>
 
 const mnemonic = process.env["NEXT_PUBLIC_MNEMONIC"]!;
 const account = mnemonicToAccount(mnemonic);
+
 const signer = {
   platform: "Evm" as const,
   getWalletClient: (chain: Chain, url: Url) => createWalletClient({
@@ -30,9 +31,9 @@ const stable = new Stable({
 
 type GasDropoffLevel = "zero" | "low" | "avg" | "high";
 
-type NetworkConfiguration = { name: EvmChains; logo: string };
-// Define available networks
-const availableNetworks = [
+type ChainInformation = { name: EvmChains; logo: string };
+
+const availableChains = [
   { name: "Ethereum", logo: "./imgs/eth-logo.svg" },
   { name: "Arbitrum", logo: "./imgs/arb-logo.svg" },
   { name: "Optimism", logo: "./imgs/op-logo.svg" },
@@ -40,14 +41,14 @@ const availableNetworks = [
   { name: "Polygon", logo: "./imgs/tmp/pol-logo.png" },
   { name: "Unichain", logo: "./imgs/tmp/uni-logo.png" },
   { name: "Avalanche", logo: "./imgs/tmp/ava-logo.png" },
-] as const satisfies NetworkConfiguration[];
+] as const satisfies ChainInformation[];
 
 // New component for network selection
-function NetworkSelect({ title, selectedNetwork, availableNetworks, onSelect }: {
+function ChainSelect({ title, selectedChain, availableChains, onSelect }: {
   title: string;
-  selectedNetwork: NetworkConfiguration;
-  availableNetworks: NetworkConfiguration[];
-  onSelect: (network: NetworkConfiguration) => void;
+  selectedChain: ChainInformation;
+  availableChains: ChainInformation[];
+  onSelect: (network: ChainInformation) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,14 +56,14 @@ function NetworkSelect({ title, selectedNetwork, availableNetworks, onSelect }: 
     <div className="network-select">
       <span className="network-select-title">{title}</span>
       <div className="network-select-btn" onClick={() => setIsOpen(!isOpen)}>
-        <Image src={selectedNetwork.logo} className="network-logo" alt={selectedNetwork.name} unoptimized height={24} width={24} />
-        <span>{selectedNetwork.name}</span>
+        <Image src={selectedChain.logo} className="network-logo" alt={selectedChain.name} unoptimized height={24} width={24} />
+        <span>{selectedChain.name}</span>
         <Image src="./imgs/arrow-down.svg" alt="" className="arrow" unoptimized height={6} width={10} />
       </div>
       {isOpen && (
         <div className="select-menu">
           <ul className="networks">
-            {availableNetworks.filter(network => network.name !== selectedNetwork.name).map(network => (
+            {availableChains.filter(network => network.name !== selectedChain.name).map(network => (
               <li key={network.name} onClick={() => { onSelect(network); setIsOpen(false); }}>
                 <img src={network.logo} className="network-logo item-icon" alt={network.name} />
                 <span>{network.name}</span>
@@ -88,8 +89,8 @@ export default function Home() {
     high: maxGasDropoff,
   };
   
-  const [selectedSourceNetwork, setSelectedSourceNetwork] = useState<NetworkConfiguration>(availableNetworks[0]);
-  const [selectedTargetNetwork, setSelectedTargetNetwork] = useState<NetworkConfiguration>(availableNetworks[1]);
+  const [selectedSourceChain, setSelectedSourceChain] = useState<ChainInformation>(availableChains[0]);
+  const [selectedTargetChain, setSelectedTargetChain] = useState<ChainInformation>(availableChains[1]);
 
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
@@ -145,18 +146,18 @@ export default function Home() {
   useEffect(() => {
     setRoute(undefined);
     stable.findRoutes({
-      sourceChain: selectedSourceNetwork.name,
-      targetChain: selectedTargetNetwork.name,
+      sourceChain: selectedSourceChain.name,
+      targetChain: selectedTargetChain.name,
       amount: amount.toString(10),
       sender: account.address,
       recipient: account.address,
       gasDropoffDesired,
     }, {}).then((result) => {
-      setRoute(result.all[result.fastest]); // v2Direct, fast with permit
+      setRoute(result.all[result.fastest]);
     }).catch((error: unknown) => {
       console.error(error);
     });
-  }, [amount, gasDropoffDesired, selectedSourceNetwork, selectedTargetNetwork]);
+  }, [amount, gasDropoffDesired, selectedSourceChain, selectedTargetChain]);
 
   return (
     <>
@@ -227,11 +228,11 @@ export default function Home() {
                   <div className="select-section select-from-section">
                     <div className="network-settings">
                       <div className="left">
-                        <NetworkSelect
+                        <ChainSelect
                           title="From"
-                          selectedNetwork={selectedSourceNetwork}
-                          availableNetworks={availableNetworks}
-                          onSelect={setSelectedSourceNetwork}
+                          selectedChain={selectedSourceChain}
+                          availableChains={availableChains}
+                          onSelect={setSelectedSourceChain}
                         />
                       </div>
                       <div className="right">
@@ -270,11 +271,11 @@ export default function Home() {
                   <div className="select-section select-from-section">
                     <div className="network-settings">
                       <div className="left">
-                        <NetworkSelect
+                        <ChainSelect
                           title="To"
-                          selectedNetwork={selectedTargetNetwork}
-                          availableNetworks={availableNetworks}
-                          onSelect={setSelectedTargetNetwork}
+                          selectedChain={selectedTargetChain}
+                          availableChains={availableChains}
+                          onSelect={setSelectedTargetChain}
                         />
                       </div>
                       <div className="right">
