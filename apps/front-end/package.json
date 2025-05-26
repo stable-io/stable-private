@@ -6,6 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -25,6 +27,8 @@
     "eslint": "^9",
     "eslint-config": "workspace:^",
     "eslint-config-next": "15.3.2",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
     "typescript": "^5"
   }
 }
