@@ -33,7 +33,7 @@ type FastBurnFeeRawResponse = APIResponse<200, Readonly<{ minimumFee: number }>>
 export type FastBurnFeeResponse = Readonly<{ minimumFee: Percentage }>;
 
 type GetMessagesValueSuccess = Readonly<{
-  messages: ReadonlyArray<{
+  messages: Readonly<[{
     message: string;
     eventNonce: string;
     attestation: string;
@@ -59,11 +59,20 @@ type GetMessagesValueSuccess = Readonly<{
     }>;
     cctpVersion: number;
     status: string;
-  }>;
+  }]>;
 }>;
 
+type GetMessagesValuePending = Readonly<{
+  messages: Readonly<[{
+    attestation: "PENDING";
+    status: "pending_confirmations";
+    cctpVersion: 1 | 2;
+    eventNonce: string;
+  }]>
+}>
+
 type GetMessagesRawResponse<H extends HTTPCode> =
-  H extends 200 ? APIResponse<H, GetMessagesValueSuccess> :
+  H extends 200 ? APIResponse<H, GetMessagesValueSuccess|GetMessagesValuePending> :
   H extends 400 ? APIResponse<H, GenericErrorValue> :
   H extends 404 ? APIResponse<H, GenericErrorValueWithCode> :
   never;
@@ -88,6 +97,8 @@ export type GetMessagesResponse = Readonly<{
   /* @todo: Not sure what the error code is */
   code: number;
   error: string;
+} | {
+  status: "pending"
 }>;
 
 export type TxHashOrNonce = { transactionHash: string } | { nonce: string };
@@ -141,17 +152,22 @@ export const fetchMessagesFactory = <N extends Network>(network: N) => async (
   if (response.status === 404) {
     return { status: "not_found", ...response.value };
   }
+
+  const message = response.value.messages[0];
+
+  if (message.status !== "success") return { status: "pending" };
+
   return {
     status: "success",
-    messages: response.value.messages.map(message => ({
+    messages: [{
       message: encoding.hex.decode(message.message),
       eventNonce: message.eventNonce as CCTPNonce,
       attestation: encoding.hex.decode(message.attestation),
       decodedMessage: message.decodedMessage,
       cctpVersion: message.cctpVersion as ApiVersion,
       status: message.status as MessageStatus,
-    })),
-  };
+    }],
+  }
 };
 
 export const init = <N extends Network>(network: N) => ({

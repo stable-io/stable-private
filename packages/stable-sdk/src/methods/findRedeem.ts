@@ -42,10 +42,10 @@ export const $findRedeem =
         sourceDomain,
         { transactionHash },
       );
-      if (response.status === "success" && response.messages[0].status === "complete") {
+
+      if (response.status === "success") {
         break;
       }
-      // Wait half a second before retrying
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
