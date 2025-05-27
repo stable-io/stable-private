@@ -2,7 +2,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
-import { EventEmitter } from "node:events";
+
 import {
   Usdc,
   Usd,
@@ -14,95 +14,13 @@ import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
 import { ContractTx, Eip2612Data } from "@stable-io/cctp-sdk-evm";
+import { TransferProgressEventEmitter } from "src/progress.js";
 
 type StepTypes = "permit" | "pre-approval" | "transfer";
 
 export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
 
-interface BaseRouteExecutionStep {
-  type: StepTypes;
-  chain: keyof EvmDomains;
-  platform: SupportedPlatform;
-  // This is the estimated cost of executing this step on-chain.
-  // value=0 for permits
-  // Expressed in gas token units
-  gasCostEstimation: bigint;
-};
 
-export interface SignPermitStep extends BaseRouteExecutionStep {
-  type: "permit";
-  // data: UnsignedMessage; // see existing type on cctp-sdk
-};
-
-export interface PreApproveStep extends BaseRouteExecutionStep {
-  type: "pre-approval";
-  // data: UnsignedTx; // see existing type on cctp-sdk
-};
-
-export interface TransferStep extends BaseRouteExecutionStep {
-  type: "transfer"
-};
-
-export type RouteExecutionStep = SignPermitStep | PreApproveStep | TransferStep;
-
-/**
- * Transaction Events
- */
-export type TxIncludedEventData = {
-
-}
-
-export type TxSentEventData = {
-
-}
-
-/**
- * Transfer Life Cycle Events
- */
-
-export type PermitSignedEventData = {
-
-};
-
-export type ApprovalSentEventData = {
-
-};
-
-export type TransferSentEventData = {
-
-};
-
-export type TransferConfirmedEventData = {
-
-};
-
-export type TransferRedeemedEventData = {
-
-};
-
-interface TransferProgressEvents {
-  // actual transaction data
-  "transaction-sent": TxSentEventData;
-  "transaction-included": TxIncludedEventData;
-
-  // step 1 (non might be present)
-  "permit-signed": PermitSignedEventData;
-  "approval-sent": ApprovalSentEventData;
-
-  // step 2
-  "transfer-sent": TransferSentEventData;
-
-  // step 3
-  "transfer-confirmed": TransferConfirmedEventData;
-
-  // step 4
-  "transfer-redeemed": TransferRedeemedEventData;
-}
-
-export interface TransferProgressEventEmitter extends EventEmitter {
-  on<K extends keyof TransferProgressEvents>(event: K, listener: (payload: TransferProgressEvents[K]) => void): this;
-  emit<K extends keyof TransferProgressEvents>(event: K, payload: TransferProgressEvents[K]): boolean;
-}
 export interface Route {
   corridor: Corridor;
 
@@ -139,6 +57,42 @@ export interface Route {
   workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx, Permit | undefined>;
 }
 
+interface BaseRouteExecutionStep {
+  type: StepTypes;
+  chain: keyof EvmDomains;
+  platform: SupportedPlatform;
+  // This is the estimated cost of executing this step on-chain.
+  // value=0 for permits
+  // Expressed in gas token units
+  gasCostEstimation: bigint;
+};
+
+export type RouteExecutionStep = SignPermitStep | PreApproveStep | TransferStep;
+
+export interface SignPermitStep extends BaseRouteExecutionStep {
+  type: "permit";
+};
+
+export interface PreApproveStep extends BaseRouteExecutionStep {
+  type: "pre-approval";
+};
+
+export interface TransferStep extends BaseRouteExecutionStep {
+  type: "transfer"
+};
+
+/**
+ * 
+ * @param txOrSig at the moment cctp-sdk returns either a contract transaction to sign and send
+ *                or a eip2612 message to sign and return to it.
+ */
+export function getStepType(txOrSig: ContractTx | Eip2612Data): StepTypes {
+  if (isEip2612Data(txOrSig)) return "permit";
+  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approval";
+  if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
+  throw new Error("Unknown Step Type");
+};
+
 export function isContractTx(subject: unknown): subject is ContractTx {
   if (typeof subject !== "object" || subject === null) return false;
   return "data" in subject && "to" in subject;
@@ -149,20 +103,13 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
   return "domain" in subject && "types" in subject && "message" in subject;
 }
 
-export function isApprovalTx(subject: ContractTx) {
-
+export function isApprovalTx(subject: ContractTx): boolean {
+  throw new Error("Not Implemented");
 }
 
-export function isTransferTx(subject: ContractTx) {
-
+export function isTransferTx(subject: ContractTx): boolean {
+  throw new Error("Not Implemented");
 }
-
-export function getStepType(txOrSig: ContractTx | Eip2612Data) {
-  if (isEip2612Data(txOrSig)) return "permit";
-  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "approval";
-  if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
-  return "unknown";
-};
 
 export type PaymentTokenOptions = "usdc" | "native";
 
