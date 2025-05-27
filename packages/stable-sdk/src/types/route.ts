@@ -99,13 +99,9 @@ interface TransferProgressEvents {
   "transfer-redeemed": TransferRedeemedEventData;
 }
 
-interface TransferProgressEventEmitter extends EventEmitter {
+export interface TransferProgressEventEmitter extends EventEmitter {
   on<K extends keyof TransferProgressEvents>(event: K, listener: (payload: TransferProgressEvents[K]) => void): this;
   emit<K extends keyof TransferProgressEvents>(event: K, payload: TransferProgressEvents[K]): boolean;
-}
-
-class TransferProgressEmitter extends (EventEmitter as { new(): TransferProgressEventEmitter }) {
-
 }
 export interface Route {
   corridor: Corridor;
@@ -139,7 +135,7 @@ export interface Route {
 
   steps: RouteExecutionStep[];
 
-  progress: TransferProgressEmitter;
+  progress: TransferProgressEventEmitter;
   workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx, Permit | undefined>;
 }
 
