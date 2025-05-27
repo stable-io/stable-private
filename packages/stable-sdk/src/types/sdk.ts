@@ -7,7 +7,7 @@ import { createWalletClient } from "viem";
 import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { Address, Amount, Chain, Network, TxHash } from "./general.js";
 import { Intent } from "./intent.js";
-import { Route, RouteSearchOptions, RoutesResult } from "./route.js";
+import { Route } from "./route.js";
 import { EvmPlatformSigner } from "./signer.js";
 import { Url } from "@stable-io/utils";
 import { Redeem } from "./redeem.js";
@@ -39,7 +39,7 @@ export abstract class SDK<N extends Network> {
   public abstract setSigner(signer: SDKOptions<N>["signer"]): void;
   public abstract getSigner(
     chain: keyof EvmDomains
-  ): ReturnType<typeof createWalletClient>;
+  ): ViemWalletClient;
 
   public abstract getRpcUrl(domain: keyof EvmDomains): Url;
 
@@ -49,4 +49,31 @@ export abstract class SDK<N extends Network> {
     destFromBlock: bigint,
     avaxFromBlock?: bigint,
   ): Promise<Redeem>;
+}
+
+export type ViemWalletClient = ReturnType<typeof createWalletClient>;
+
+export interface RoutesResult {
+  all: Route[];
+  fastest: number;
+  cheapest: number;
+}
+
+export type PaymentTokenOptions = "usdc" | "native";
+
+export interface RouteSearchOptions {
+  // A single property "paymentToken" will select
+  // the token used to pay for all fees.
+  // (relayer, gas, gas-dropoff...)
+
+  // defaults to usdc.
+  paymentToken?: PaymentTokenOptions;
+
+  // How much change in the relay fee is tolerated between the moment the
+  // relay is quoted until the relay is executed.
+  relayFeeMaxChangeMargin?: number;
+
+  // Ideas...
+  // allowSigningMessages?: boolean;
+  // allowSwitchingChains: boolean;
 }

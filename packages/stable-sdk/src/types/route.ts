@@ -14,7 +14,8 @@ import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
 import { ContractTx, Eip2612Data } from "@stable-io/cctp-sdk-evm";
-import { TransferProgressEventEmitter } from "src/progress.js";
+import { TransferProgressEventEmitter } from "../progressEmitter.js";
+import { TransactionEventEmitter } from "../transactionEmitter.js";
 
 type StepTypes = "permit" | "pre-approval" | "transfer";
 
@@ -24,7 +25,7 @@ export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
 export interface Route {
   corridor: Corridor;
 
-  estimatedDuration: number; // miliseconds probably
+  estimatedDuration: number; // seconds
 
   estimatedTotalCost: Usd;
 
@@ -53,8 +54,13 @@ export interface Route {
 
   steps: RouteExecutionStep[];
 
-  progress: TransferProgressEventEmitter;
   workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx, Permit | undefined>;
+
+  /**
+   * Tracking:
+   */
+  transactionListener: TransactionEventEmitter;
+  progress: TransferProgressEventEmitter;
 }
 
 interface BaseRouteExecutionStep {
@@ -111,29 +117,3 @@ export function isTransferTx(subject: ContractTx): boolean {
   throw new Error("Not Implemented");
 }
 
-export type PaymentTokenOptions = "usdc" | "native";
-
-export interface RouteSearchOptions {
-  // A single property "paymentToken" will select
-  // the token used to pay for all fees.
-  // (relayer, gas, gas-dropoff...)
-
-  // defaults to usdc.
-  paymentToken?: PaymentTokenOptions;
-
-  // How much change in the relay fee is tolerated between the moment the
-  // relay is quoted until the relay is executed.
-  relayFeeMaxChangeMargin?: number;
-
-  // Ideas...
-  // allowSigningMessages?: boolean;
-  // allowSwitchingChains: boolean;
-}
-
-type IndexNumber = number;
-
-export interface RoutesResult {
-  all: Route[];
-  fastest: IndexNumber;
-  cheapest: IndexNumber;
-}
