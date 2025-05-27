@@ -8,7 +8,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import StableSDK from "../src/index.js";
 import { Address } from "viem";
 import dotenv from "dotenv";
-import { eth, EvmDomains } from "@stable-io/cctp-sdk-definitions";
+import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
+import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 
 dotenv.config();
 const privateKey = process.env.EVM_PRIVATE_KEY as Address;
@@ -95,6 +96,22 @@ for (const route of selectedRoutes) {
     route.intent.targetChain,
     route.intent.recipient,
   ));
+
+  console.info("Searching for redeem");
+
+  const lastBlockOnTarget = (await ViemEvmClient.fromNetworkAndDomain(
+    "Testnet",
+    route.intent.targetChain,
+    // rpc url.
+  ).getLatestBlock());
+
+  const redeem = await sdk.findRedeem(
+    route.intent.sourceChain,
+    txHashes.at(-1)!,
+    lastBlockOnTarget,
+  );
+
+  console.info(`Transfer redeemed on tx ${redeem.transactionHash}`);
 }
 
 function getTestnetScannerAddressUrl<D extends keyof EvmDomains>(
