@@ -238,6 +238,7 @@ export default function Home() {
                       <div className="left">
                         <ChainSelect
                           title="From"
+                          chains={availableChains}
                           selectedChain={sourceChain}
                           onSelect={setSourceChain}
                         />
@@ -303,6 +304,7 @@ export default function Home() {
                       <div className="left">
                         <ChainSelect
                           title="To"
+                          chains={availableChains}
                           selectedChain={targetChain}
                           onSelect={setTargetChain}
                         />
