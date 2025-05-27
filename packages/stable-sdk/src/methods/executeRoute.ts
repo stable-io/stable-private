@@ -7,7 +7,7 @@ import { Permit } from "@stable-io/cctp-sdk-evm";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import type { Network } from "@stable-io/cctp-sdk-definitions";
 import { evmGasToken } from "@stable-io/cctp-sdk-definitions";
-import { isContractTx, Route, SDK, TxHash, isEip2612Data } from "../types/index.js";
+import { isContractTx, Route, SDK, getStepType, isEip2612Data } from "../types/index.js";
 import { encoding } from "@stable-io/utils";
 
 const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("atomic");
@@ -31,9 +31,12 @@ export const $executeRoute =
     );
 
     const txHashes = [] as string[];
-    let lastResult: Permit | TxHash | undefined;
+    let permit: Permit | undefined = undefined;
     while (true) {
-      const { value: txOrSig, done } = await route.workflow.next(lastResult);
+      const { value: txOrSig, done } = await route.workflow.next(permit);
+      permit = undefined;
+
+      const stepType = getStepType(txOrSig);
 
       if (isContractTx(txOrSig)) {
         const callData = `0x${Buffer.from(txOrSig.data).toString("hex")}` as const;
@@ -58,16 +61,17 @@ export const $executeRoute =
 
         await client.client.waitForTransactionReceipt({ hash: tx });
         txHashes.push(tx);
-        lastResult = undefined;
+
+        // route.progress.emit(...)
       } else if (isEip2612Data(txOrSig)) {
         const signature = await signer.signTypedData({
           account: signer.account!,
           ...txOrSig,
         });
 
-        lastResult = {
+        permit = {
           signature: Buffer.from(encoding.stripPrefix("0x", signature), "hex"),
-          // It's possible to overrides the following values by changing them
+          // It's possible to override the following values by changing them
           // before signing the message.
           // We need to pass them back to the cctp-sdk so that it can know
           // what changes we made.
