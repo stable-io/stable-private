@@ -9,11 +9,9 @@ import { keccak256 } from "@stable-io/utils";
 import { signatureItem, uint256Item } from "@stable-io/cctp-sdk-definitions";
 import type { CallData } from "./platform.js";
 import { EvmAddress } from "./address.js";
+import { selectorOf } from "./utils.js";
 
 export const wordSize = 32;
-export const selectorLength = 4;
-export const selectorOf = (funcSig: string) =>
-  keccak256(funcSig).subarray(0, selectorLength) as CallData;
 
 export const selectorItem = (funcSig: string) => ({
   name: "selector",
