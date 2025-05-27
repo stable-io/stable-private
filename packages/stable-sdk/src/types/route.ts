@@ -13,7 +13,8 @@ import { Permit } from "@stable-io/cctp-sdk-evm";
 import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
-import { ContractTx, Eip2612Data } from "@stable-io/cctp-sdk-evm";
+import { ContractTx, Eip2612Data, selectorOf } from "@stable-io/cctp-sdk-evm";
+import { encoding } from "@stable-io/utils";
 import { TransferProgressEventEmitter } from "../progressEmitter.js";
 import { TransactionEventEmitter } from "../transactionEmitter.js";
 
@@ -110,10 +111,27 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
 }
 
 export function isApprovalTx(subject: ContractTx): boolean {
-  throw new Error("Not Implemented");
+  const transferFuncSelector = selectorOf("approve()");
+  return encoding.bytes.equals(
+    subject.data.subarray(0, transferFuncSelector.length),
+    transferFuncSelector
+  );
 }
 
 export function isTransferTx(subject: ContractTx): boolean {
-  throw new Error("Not Implemented");
+  /**
+   * Warning: this implementation is brittle at best.
+   *          "exec768" selector can be used for other things (such as governance atm).
+   *          On the SDK we only need to differentiate from an approval tx, so we'll
+   *          tolerate the tech debt.
+   *          This can be solved in many ways when the time comes, eg:
+   *            - parsing the next byte to check is a one of the transfer variants
+   *            - try/catching a call to parseTransferTxCalldata
+   */
+  const transferFuncSelector = selectorOf("exec768()");
+  return encoding.bytes.equals(
+    subject.data.subarray(0, transferFuncSelector.length),
+    transferFuncSelector
+  );
 }
 
