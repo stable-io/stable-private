@@ -10,7 +10,7 @@ import { viemChainOf } from "@stable-io/cctp-sdk-viem";
 import { Url } from "@stable-io/utils";
 
 import { $checkHasEnoughFunds } from "./methods/checkHasEnoughFunds.js";
-import { $executeRoute } from "./methods/executeRoute.js";
+import { $executeRoute } from "./methods/executeRoute/index.js";
 import { $findRoutes } from "./methods/findRoutes.js";
 import { $findRedeem } from "./methods/findRedeem.js";
 import { $getBalance } from "./methods/getBalance.js";

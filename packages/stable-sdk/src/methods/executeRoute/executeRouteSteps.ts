@@ -9,43 +9,13 @@ import { Permit, ContractTx } from "@stable-io/cctp-sdk-evm";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import type { Network, EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { evmGasToken } from "@stable-io/cctp-sdk-definitions";
-import { isContractTx, Route, SDK, getStepType, isEip2612Data, ViemWalletClient, TxHash, StepType } from "../types/index.js";
 import { encoding } from "@stable-io/utils";
+import { isContractTx, Route, getStepType, isEip2612Data, ViemWalletClient, TxHash, StepType } from "../../types/index.js";
 import { TransferProgressEvent } from "src/progressEmitter.js";
 
 const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("atomic");
 
-export type ExecuteRouteDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl" | "getSigner">;
-
-export const $executeRoute =
-  <N extends Network>({
-    getSigner,
-    getNetwork,
-    getRpcUrl,
-  }: ExecuteRouteDeps<N>): SDK<N>["executeRoute"] =>
-  async (route: Route) => {
-    const signer = getSigner(route.intent.sourceChain);
-    const network = getNetwork();
-    const rpcUrl = getRpcUrl(route.intent.sourceChain);
-    const client = ViemEvmClient.fromNetworkAndDomain(
-      network,
-      route.intent.sourceChain,
-      rpcUrl,
-    );
-
-    const transactions = await executeRouteSteps(route, signer, client);
-
-    // const attestation = await findCctpTransferAttestation();
-    route.progress.emit("transfer-confirmed", {});
-
-    // const redeem = await findTransferRedeem();
-    route.progress.emit("transfer-redeemed", {});
-
-
-    return transactions;
-  };
-
-async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
+export async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
   route: Route, signer: ViemWalletClient, client: ViemEvmClient<N, D>
 ): Promise<TxHash[]> {
   const txHashes = [] as string[];

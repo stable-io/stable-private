@@ -30,7 +30,7 @@ const sdk = new StableSDK({
 
 const intent = {
   sourceChain: "Ethereum" as const,
-  targetChain: "Arbitrum" as const,
+  targetChain: "Optimism" as const,
   /**
    * @todo: why not just use usdc here?
    */
@@ -55,7 +55,7 @@ console.info(`Transfers from ${intent.sourceChain} to ${intent.targetChain}.`);
 console.info(`Sender: ${sender}`);
 console.info(`Recipient: ${recipient}`);
 
-const selectedRoutes = [routes.all[3]];
+const selectedRoutes = [routes.all[1]];
 
 for (const route of selectedRoutes) {
   const hasBalance = await sdk.checkHasEnoughFunds(route);
@@ -105,10 +105,17 @@ for (const route of selectedRoutes) {
     // rpc url.
   ).getLatestBlock());
 
+  const lastAvaxBlock = (await ViemEvmClient.fromNetworkAndDomain(
+    "Testnet",
+    "Avalanche",
+    // rpc url.
+  ).getLatestBlock());
+
   const redeem = await sdk.findRedeem(
     route.intent.sourceChain,
     txHashes.at(-1)!,
     lastBlockOnTarget,
+    lastAvaxBlock,
   );
 
   console.info(`Transfer redeemed on tx ${redeem.transactionHash}`);
