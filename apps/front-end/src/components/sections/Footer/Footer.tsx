@@ -9,7 +9,7 @@ export const Footer = () => (
           <a href="https://x.com/stable_io" target="_blank">
             <button className="social-media-btn">
               <Image
-                src="./imgs/x-logo.svg"
+                src="/imgs/x-logo.svg"
                 alt=""
                 unoptimized
                 height={14}

@@ -22,7 +22,7 @@ export const ChainSelectButton = ({
     />
     <span>{selectedChain}</span>
     <Image
-      src="./imgs/arrow-down.svg"
+      src="/imgs/arrow-down.svg"
       alt=""
       className="arrow"
       unoptimized

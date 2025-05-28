@@ -5,8 +5,8 @@ const Document = () => (
     <Head>
       <meta charSet="utf-8" />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      <link rel="shortcut icon" href="./imgs/favicon-hi.png" />
-      <link rel="icon" sizes="196x196" href="./imgs/favicon-hi.png" />
+      <link rel="shortcut icon" href="/imgs/favicon-hi.png" />
+      <link rel="icon" sizes="196x196" href="/imgs/favicon-hi.png" />
       <meta
         itemProp="name"
         content="Stable | Move USDC across networks with high speed and minimal costs"
