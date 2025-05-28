@@ -5,13 +5,13 @@ export class TransferProgressEmitter extends (EventEmitter as { new(): TransferP
 }
 
 export interface TransferProgressEventEmitter extends EventEmitter {
-  on<K extends keyof TransferProgressEvents>(event: K, listener: (payload: TransferProgressEvents[K]) => void): this;
-  emit<K extends keyof TransferProgressEvents>(event: K, payload: TransferProgressEvents[K]): boolean;
+  on<K extends keyof TransferProgressEvent>(event: K, listener: (payload: TransferProgressEvent[K]) => void): this;
+  emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean;
 }
 
 // events related to the steps of the transfer, not necessarily
 // transactions.
-interface TransferProgressEvents {
+export interface TransferProgressEvent {
 
   // step 1 (non might be present).
   "permit-signed": PermitSignedEventData;

@@ -9,8 +9,9 @@ import { Permit, ContractTx } from "@stable-io/cctp-sdk-evm";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import type { Network, EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { evmGasToken } from "@stable-io/cctp-sdk-definitions";
-import { isContractTx, Route, SDK, getStepType, isEip2612Data, ViemWalletClient, TxHash } from "../types/index.js";
+import { isContractTx, Route, SDK, getStepType, isEip2612Data, ViemWalletClient, TxHash, StepType } from "../types/index.js";
 import { encoding } from "@stable-io/utils";
+import { TransferProgressEvent } from "src/progressEmitter.js";
 
 const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("atomic");
 
@@ -32,10 +33,16 @@ export const $executeRoute =
       rpcUrl,
     );
 
-    const txHashes = await executeRouteSteps(route, signer, client);
+    const transactions = await executeRouteSteps(route, signer, client);
+
+    // const attestation = await findCctpTransferAttestation();
+    route.progress.emit("transfer-confirmed", {});
+
+    // const redeem = await findTransferRedeem();
+    route.progress.emit("transfer-redeemed", {});
 
 
-    return txHashes;
+    return transactions;
   };
 
 async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
@@ -61,10 +68,8 @@ async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
 
       route.transactionListener.emit("transaction-included", {});
 
-      route.progress.emit(
-        stepType === "pre-approval" ? "approval-sent" : "transfer-sent",
-        {},
-      );
+      const eventName = getEventNameFromStepType(stepType);
+      route.progress.emit(eventName, {});
 
     } else if (isEip2612Data(txOrSig)) {
       const signature = await signer.signTypedData({
@@ -112,4 +117,16 @@ function buildEvmTxParameters (tx: ContractTx, chain: ViemChain, account: ViemAc
     maxFeePerGas: fromGwei(40),
     maxPriorityFeePerGas: fromGwei(15),
   };
+}
+
+
+function getEventNameFromStepType (stepType: StepType): keyof TransferProgressEvent {
+  switch (stepType) {
+    case "pre-approval":
+      return "approval-sent";
+    case "transfer":
+      return "transfer-sent";
+    default:
+      throw new Error(`Unknown Event For Step Type: ${stepType}`);
+  }
 }

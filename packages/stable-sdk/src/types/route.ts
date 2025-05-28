@@ -18,7 +18,7 @@ import { encoding } from "@stable-io/utils";
 import { TransferProgressEventEmitter } from "../progressEmitter.js";
 import { TransactionEventEmitter } from "../transactionEmitter.js";
 
-type StepTypes = "permit" | "pre-approval" | "transfer";
+export type StepType = "permit" | "pre-approval" | "transfer";
 
 export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
 
@@ -65,7 +65,7 @@ export interface Route {
 }
 
 interface BaseRouteExecutionStep {
-  type: StepTypes;
+  type: StepType;
   chain: keyof EvmDomains;
   platform: SupportedPlatform;
   // This is the estimated cost of executing this step on-chain.
@@ -93,7 +93,7 @@ export interface TransferStep extends BaseRouteExecutionStep {
  * @param txOrSig at the moment cctp-sdk returns either a contract transaction to sign and send
  *                or a eip2612 message to sign and return to it.
  */
-export function getStepType(txOrSig: ContractTx | Eip2612Data): StepTypes {
+export function getStepType(txOrSig: ContractTx | Eip2612Data): StepType {
   if (isEip2612Data(txOrSig)) return "permit";
   if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approval";
   if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
