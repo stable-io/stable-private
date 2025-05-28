@@ -1,7 +1,13 @@
 import { EventEmitter } from "node:events";
 
 export class TransferProgressEmitter extends (EventEmitter as { new(): TransferProgressEventEmitter }) {
-
+  emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean {
+    const result = super.emit(event, payload);
+    if (result) {
+      super.emit('step-completed', { name: event, data: payload });
+    }
+    return result;
+  }
 }
 
 export interface TransferProgressEventEmitter extends EventEmitter {
@@ -25,6 +31,8 @@ export interface TransferProgressEvent {
 
   // step 4
   "transfer-redeemed": TransferRedeemedEventData;
+
+  "step-completed": StepCompletedEventData<keyof TransferProgressEvent>;
 }
 
 /**
@@ -50,3 +58,8 @@ export type TransferConfirmedEventData = {
 export type TransferRedeemedEventData = {
 
 };
+
+export interface StepCompletedEventData<K extends keyof TransferProgressEvent> {
+  name: K;
+  data: TransferProgressEvent[K];
+}
