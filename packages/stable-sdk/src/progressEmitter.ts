@@ -19,19 +19,22 @@ export interface TransferProgressEventEmitter extends EventEmitter {
 // transactions.
 export interface TransferProgressEvent {
 
-  // step 1 (non might be present).
+  // Approval:
   "permit-signed": PermitSignedEventData;
   "approval-sent": ApprovalSentEventData;
 
-  // step 2
+  // Transfer:
   "transfer-sent": TransferSentEventData;
 
-  // step 3
   "transfer-confirmed": TransferConfirmedEventData;
 
-  // step 4
+  "hop-redeemed": HopRedeemedEventData;
+
+  "hop-confirmed": HopConfirmedEventData;
+
   "transfer-redeemed": TransferRedeemedEventData;
 
+  // Catch all:
   "step-completed": StepCompletedEventData<keyof TransferProgressEvent>;
 }
 
@@ -39,6 +42,9 @@ export interface TransferProgressEvent {
  * Transfer Life Cycle Events
  */
 
+/**
+ * Approval:
+ */
 export type PermitSignedEventData = {
 
 };
@@ -46,6 +52,10 @@ export type PermitSignedEventData = {
 export type ApprovalSentEventData = {
 
 };
+
+/**
+ * Transfer:
+ */
 
 export type TransferSentEventData = {
 
@@ -59,6 +69,20 @@ export type TransferRedeemedEventData = {
 
 };
 
+/**
+ * Hop:
+ */
+export type HopRedeemedEventData = {
+
+};
+
+export type HopConfirmedEventData = {
+
+};
+
+/**
+ * Catch all:
+ */
 export interface StepCompletedEventData<K extends keyof TransferProgressEvent> {
   name: K;
   data: TransferProgressEvent[K];

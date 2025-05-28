@@ -2,16 +2,15 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
+import { UniversalAddress } from "@stable-io/cctp-sdk-definitions";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import type { Network } from "@stable-io/cctp-sdk-definitions";
-import { evmGasToken } from "@stable-io/cctp-sdk-definitions";
+import { avaxRouterContractAddress } from "@stable-io/cctp-sdk-cctpr-definitions";
 import { Route, SDK } from "../../types/index.js";
 
 import { executeRouteSteps } from "./executeRouteSteps.js";
-import { findTransferAttestation } from "./findTransferAttestation.js";
+import { Attestation, findTransferAttestation } from "./findTransferAttestation.js";
 import { findTransferRedeem } from "./findTransferRedeem.js";
-
 
 export type ExecuteRouteDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl" | "getSigner">;
 
@@ -31,13 +30,83 @@ export const $executeRoute =
       rpcUrl,
     );
 
-    const transactions = await executeRouteSteps(route, signer, client);
+    /**
+     * @todo: we could get and return signatures along with the transactions and
+     *        we'd be providing all infromation the integrator may possibly need.
+     * @todo: review return value of executeRouteSteps. Having only the tx hashes
+     *        makes it hard/unreliable to know which is the transfer transaction.
+     *        For the time being we can get our way by getting the last tx, but
+     *        this wouldn't resist integrating protocols with multiple transactions.
+     */
+    const userTransactions = await executeRouteSteps(route, signer, client);
+    const transferTx = userTransactions.at(-1)!; // there's always 1 or 2 hashes.
 
-    const attestation = await findTransferAttestation();
+    const attestations = [] as Attestation[];
+    const redeems = [] as any[];
+
+    const attestation = await findTransferAttestation(
+      network,
+      route.intent.sourceChain,
+      transferTx,
+    );
+    attestations.push(attestation);
     route.progress.emit("transfer-confirmed", {});
 
-    const redeem = await findTransferRedeem();
-    route.progress.emit("transfer-redeemed", {});
+    const avaxRouterAddress = avaxRouterContractAddress[network];
 
-    return transactions;
+    if (!avaxRouterAddress) {
+      throw new Error(`Avalanche Router not deployed in network: ${network}`)
+    }
+    const isAvaxHop = attestation.destinationCaller === avaxRouterAddress &&
+      attestation.targetChain === "Avalanche";
+
+    if (isAvaxHop) {
+      const lastAvaxBlockPromise = new Promise(() => {throw new Error("Not Implemented")});
+    }
+
+    /**
+     * Note that we use attestation.targetChain to find the redeem
+     * because in the case of avax hop, there's an intermediate
+     * redeem on avalanche.
+     */
+    const redeem = await findTransferRedeem(
+      network,
+      getRpcUrl(attestation.targetChain),
+      attestation,
+    );
+    redeems.push(redeem);
+
+    /**
+     * If it's avax hop, then we have redeemed the first
+     * leg of the avax hop, and we need to find the second
+     * transfer.
+     * 
+     * Note that:
+     * - "transfer-confirmed" is emitted when circle attests the first
+     *   leg since this materializes the transfer.
+     * - "transfer-redeemed", in contrast, is emitted when the transfer
+     *   makes it to the target user, which means after the second
+     *   transaction in the avax-hop case.
+     */
+    if (isAvaxHop) {
+      // not tested yet.
+      // route.progress.emit("hop-redeemed", {});
+
+      // const secondHopAttestation = await findTransferAttestation(
+      //   network,
+      //   attestation.
+      // );
+      // attestations.push(secondHopAttestation);
+      // route.progress.emit("hop-confirmed", {});
+
+      // const secondHopRedeem = await findTransferRedeem();
+      // redeems.push(secondHopRedeem);
+      // route.progress.emit("transfer-redeemed", {}); // uses hopRedeem
+    }
+
+    else {
+      route.progress.emit("transfer-redeemed", {}); // uses redeem
+    }
+
+    return { userTransactions, attestations, redeems } as any;
   };

@@ -7,7 +7,7 @@ import { parseAbiItem } from "viem/utils";
 import { deserialize } from "binary-layout";
 import { Hex } from "viem";
 import { routerHookDataLayout } from "@stable-io/cctp-sdk-cctpr-evm";
-import { Redeem } from "src/types/redeem.js";
+import { Redeem } from "../types/redeem.js";
 
 export type findRedeemDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl">;
 
@@ -58,6 +58,8 @@ export const $findRedeem =
     if (!isEvmDomain(decodedMessage.destinationDomain)) {
       throw new Error(`Unsupported destination domain: ${decodedMessage.destinationDomain}`);
     }
+
+    // ===========================
     const { destinationDomain, destinationCaller } = decodedMessage;
 
     // TODO: Remove this eventually
