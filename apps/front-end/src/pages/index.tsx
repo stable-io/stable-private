@@ -114,8 +114,8 @@ const Home = () => {
             <h3>Transfer Complete</h3>
             {/* @todo: Add explorer link */}
             <p>
-              Your USDC has been successfully bridged to {targetChain}. You
-              can now view it in your wallet or explore the transaction on{" "}
+              Your USDC has been successfully bridged to {targetChain}. You can
+              now view it in your wallet or explore the transaction on{" "}
               <a href={explorerUrl} target="_blank">
                 our explorer
               </a>
