@@ -13,13 +13,13 @@ export const availableChains = [
 export type AvailableChains = (typeof availableChains)[number];
 
 export const chainLogos = {
-  Ethereum: "./imgs/eth-logo.svg",
-  Arbitrum: "./imgs/arb-logo.svg",
-  Optimism: "./imgs/op-logo.svg",
-  Base: "./imgs/tmp/base-logo.png",
-  Polygon: "./imgs/tmp/pol-logo.png",
-  Unichain: "./imgs/uni-logo.png",
-  Avalanche: "./imgs/tmp/ava-logo.png",
+  Ethereum: "/imgs/eth-logo.svg",
+  Arbitrum: "/imgs/arb-logo.svg",
+  Optimism: "/imgs/op-logo.svg",
+  Base: "/imgs/tmp/base-logo.png",
+  Polygon: "/imgs/tmp/pol-logo.png",
+  Unichain: "/imgs/uni-logo.png",
+  Avalanche: "/imgs/tmp/ava-logo.png",
 } as const satisfies Record<AvailableChains, string>;
 
 export type GasDropoffLevel = "zero" | "low" | "avg" | "high";

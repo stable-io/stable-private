@@ -25,7 +25,7 @@ export const Header = () => (
       </ul>
       <button className="hamburger-menu">
         <Image
-          src="./imgs/hamburger-menu.svg"
+          src="/imgs/hamburger-menu.svg"
           alt=""
           unoptimized
           height={20}

@@ -143,7 +143,7 @@ const Home = () => {
                 <div className="right">
                   <div className="wallet-chip">
                     <Image
-                      src="./imgs/metamask-logo.svg"
+                      src="/imgs/metamask-logo.svg"
                       alt="MetaMask"
                       className="wallet-icon"
                       unoptimized
@@ -163,7 +163,7 @@ const Home = () => {
 
               <div className="amount-section">
                 <Image
-                  src="./imgs/usdc-icon.svg"
+                  src="/imgs/usdc-icon.svg"
                   alt="USDC"
                   className="usdc-icon"
                   unoptimized
@@ -186,7 +186,7 @@ const Home = () => {
             <div className="divider">
               <div className="icon-circle">
                 <Image
-                  src="./imgs/arrow-long-down.svg"
+                  src="/imgs/arrow-long-down.svg"
                   alt=""
                   className="arrow-icon"
                   unoptimized
@@ -209,7 +209,7 @@ const Home = () => {
                 <div className="right">
                   <div className="wallet-chip">
                     <Image
-                      src="./imgs/metamask-logo.svg"
+                      src="/imgs/metamask-logo.svg"
                       alt="MetaMask"
                       className="wallet-icon"
                       unoptimized
@@ -228,7 +228,7 @@ const Home = () => {
                   <span className="label">Destination gas</span>
                   <div className="tooltip">
                     <Image
-                      src="./imgs/tooltip.svg"
+                      src="/imgs/tooltip.svg"
                       alt=""
                       className="tooltip-icon"
                       unoptimized
@@ -285,7 +285,7 @@ const Home = () => {
                 <div className="route-summary">
                   <div className="left">
                     <Image
-                      src="./imgs/route.svg"
+                      src="/imgs/route.svg"
                       alt=""
                       className="route-icon"
                       unoptimized
@@ -300,7 +300,7 @@ const Home = () => {
                   <div className="right">
                     <div className="meta">
                       <Image
-                        src="./imgs/gas.svg"
+                        src="/imgs/gas.svg"
                         className="icon"
                         alt="Gas fees"
                         unoptimized
@@ -311,7 +311,7 @@ const Home = () => {
                     </div>
                     <div className="meta">
                       <Image
-                        src="./imgs/time.svg"
+                        src="/imgs/time.svg"
                         className="icon"
                         alt="Duration"
                         unoptimized
@@ -344,7 +344,7 @@ const Home = () => {
                 <span className="label">You receive</span>
                 <span className="value">
                   <Image
-                    src="./imgs/usdc-icon.svg"
+                    src="/imgs/usdc-icon.svg"
                     alt="USDC"
                     className="usdc-icon"
                     unoptimized
