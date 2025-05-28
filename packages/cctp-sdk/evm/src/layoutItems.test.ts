@@ -7,8 +7,8 @@ import { EvmAddress } from "./address.js";
 import {
   abiEncodedBytesItem,
   evmAddressItem,
-  selectorOf,
 } from "./layoutItems.js";
+import { selectorOf } from "./utils.js";
 
 describe("layoutItems", () => {
   describe("selectorOf", () => {

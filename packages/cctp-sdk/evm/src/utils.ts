@@ -83,7 +83,7 @@ export function dateToUnixTimestamp(date: Date): bigint {
   return BigInt(Math.floor(date.getTime() / 1000));
 }
 
-const selectorLength = 4;
+export const selectorLength = 4;
 export const selectorOf = (funcSig: string) =>
   keccak256(funcSig).subarray(0, selectorLength) as CallData;
 
