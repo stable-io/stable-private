@@ -39,7 +39,7 @@ export const $executeRoute =
      *        For the time being we can get our way by getting the last tx, but
      *        this wouldn't resist integrating protocols with multiple transactions.
      */
-    const userTransactions = await executeRouteSteps(route, signer, client);
+    const userTransactions = await executeRouteSteps(network, route, signer, client);
     const transferTx = userTransactions.at(-1)!; // there's always 1 or 2 hashes.
 
     const attestations = [] as CctpAttestation[];

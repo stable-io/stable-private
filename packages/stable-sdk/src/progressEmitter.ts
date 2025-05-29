@@ -1,4 +1,9 @@
 import { EventEmitter } from "node:events";
+import { encoding } from "@stable-io/utils";
+import { Permit } from "@stable-io/cctp-sdk-evm";
+import { Hex } from "./types/index.js";
+import { CctpAttestation } from "./methods/executeRoute/findTransferAttestation.js";
+import { Redeem } from "./types/redeem.js";
 
 export class TransferProgressEmitter extends (EventEmitter as { new(): TransferProgressEventEmitter }) {
   emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean {
@@ -45,12 +50,20 @@ export interface TransferProgressEvent {
 /**
  * Approval:
  */
-export type PermitSignedEventData = {
+export type PermitSignedEventData = Omit<Permit, "signature"> & {
+  signature: Hex;
+};
 
+export function parsePermitEventData(permit: Permit): PermitSignedEventData {
+  return {
+    ...permit,
+    signature: `0x${encoding.hex.encode(permit.signature)}`,
+  }
 };
 
 export type ApprovalSentEventData = {
-
+  transactionHash: Hex;
+  approvalAmount: bigint;
 };
 
 /**
@@ -58,27 +71,24 @@ export type ApprovalSentEventData = {
  */
 
 export type TransferSentEventData = {
-
+  transactionHash: Hex;
+  approvalType: "Permit" | "Preapproval" | "Gasless",
+  gasDropOff: bigint;
+  usdcAmount: number;
+  recipient: Hex;
+  quoted: "onChainUsdc" | "onChainGas" | "offChain";
 };
 
-export type TransferConfirmedEventData = {
+export type TransferConfirmedEventData = CctpAttestation;
 
-};
-
-export type TransferRedeemedEventData = {
-
-};
+export type TransferRedeemedEventData = Redeem;
 
 /**
  * Hop:
  */
-export type HopRedeemedEventData = {
+export type HopRedeemedEventData = Redeem;
 
-};
-
-export type HopConfirmedEventData = {
-
-};
+export type HopConfirmedEventData = CctpAttestation;
 
 /**
  * Catch all:
