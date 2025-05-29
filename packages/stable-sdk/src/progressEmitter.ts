@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 export class TransferProgressEmitter extends (EventEmitter as { new(): TransferProgressEventEmitter }) {
   emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean {
     const result = super.emit(event, payload);
-    if (result) {
+    if (!result) {
       super.emit('step-completed', { name: event, data: payload });
     }
     return result;

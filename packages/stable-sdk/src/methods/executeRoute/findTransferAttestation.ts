@@ -13,7 +13,7 @@ export async function findTransferAttestation<N extends Network>(
   network: N,
   sourceChain: keyof EvmDomains,
   transactionHash: TxHash,
-): Promise<Attestation> {
+): Promise<CctpAttestation> {
   let response: v2.GetMessagesResponse;
   while (true) {
     response = await v2.fetchMessagesFactory(network)(
@@ -32,16 +32,16 @@ export async function findTransferAttestation<N extends Network>(
   return message.cctpVersion === 1 ? parseV1Attestation(message) : parseV2Attestation(message);
 }
 
-export type Attestation = V1Attestation | V2Attestation;
+export type CctpAttestation = CctpV1Attestation | CctpV2Attestation;
 
-export type V1Attestation = {
+export type CctpV1Attestation = {
   cctpVersion: 1;
   nonce: bigint;
   sender: Address;
   recipient: Address;
   destinationCaller: Address;
-  sourceChain: keyof EvmDomains;
-  targetChain: keyof EvmDomains;
+  sourceDomain: keyof EvmDomains;
+  targetDomain: keyof EvmDomains;
   messageBody: {
     burnToken: Address;
     mintRecipient: Address;
@@ -50,7 +50,7 @@ export type V1Attestation = {
   };
 };
 
-function parseV1Attestation(message: v2.ApiResponseMessage): V1Attestation {
+function parseV1Attestation(message: v2.ApiResponseMessage): CctpV1Attestation {
   const attestation = deserialize(v1.burnMessageLayout(), message.message);
   return {
     cctpVersion: 1,
@@ -58,8 +58,8 @@ function parseV1Attestation(message: v2.ApiResponseMessage): V1Attestation {
     sender: toEvmAddress(attestation.sender),
     recipient: toEvmAddress(attestation.recipient),
     destinationCaller: toEvmAddress(attestation.destinationCaller),
-    sourceChain: attestation.sourceDomain as keyof EvmDomains,
-    targetChain: attestation.destinationDomain as keyof EvmDomains,
+    sourceDomain: attestation.sourceDomain as keyof EvmDomains,
+    targetDomain: attestation.destinationDomain as keyof EvmDomains,
     messageBody: {
       burnToken: toEvmAddress(attestation.messageBody.burnToken),
       mintRecipient: toEvmAddress(attestation.messageBody.mintRecipient),
@@ -72,14 +72,14 @@ function parseV1Attestation(message: v2.ApiResponseMessage): V1Attestation {
   };
 };
 
-export type V2Attestation = {
+export type CctpV2Attestation = {
   cctpVersion: 2;
   nonce: Hex; // 32 bytes hex string
   sender: Address;
   recipient: Address;
   destinationCaller: Address;
-  sourceChain: keyof EvmDomains;
-  targetChain: keyof EvmDomains;
+  sourceDomain: keyof EvmDomains;
+  targetDomain: keyof EvmDomains;
   messageBody: {
     burnToken: Address;
     mintRecipient: Address;
@@ -94,7 +94,7 @@ export type V2Attestation = {
   finalityThresholdExecuted: number;
 };
 
-function parseV2Attestation(message: v2.ApiResponseMessage): V2Attestation {
+function parseV2Attestation(message: v2.ApiResponseMessage): CctpV2Attestation {
   const attestation = deserialize(v2.burnMessageLayout(), message.message);
   return {
     cctpVersion: 2,
@@ -102,8 +102,8 @@ function parseV2Attestation(message: v2.ApiResponseMessage): V2Attestation {
     sender: toEvmAddress(attestation.sender),
     recipient: toEvmAddress(attestation.recipient),
     destinationCaller: toEvmAddress(attestation.destinationCaller),
-    sourceChain: attestation.sourceDomain as keyof EvmDomains,
-    targetChain: attestation.destinationDomain as keyof EvmDomains,
+    sourceDomain: attestation.sourceDomain as keyof EvmDomains,
+    targetDomain: attestation.destinationDomain as keyof EvmDomains,
     minFinalityThreshold: attestation.minFinalityThreshold,
     finalityThresholdExecuted: attestation.finalityThresholdExecuted,
     messageBody: {

@@ -9,8 +9,9 @@ import { avaxRouterContractAddress } from "@stable-io/cctp-sdk-cctpr-definitions
 import { Route, SDK } from "../../types/index.js";
 
 import { executeRouteSteps } from "./executeRouteSteps.js";
-import { Attestation, findTransferAttestation } from "./findTransferAttestation.js";
+import { CctpAttestation, findTransferAttestation } from "./findTransferAttestation.js";
 import { findTransferRedeem } from "./findTransferRedeem.js";
+import { Redeem } from "src/types/redeem.js";
 
 export type ExecuteRouteDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl" | "getSigner">;
 
@@ -41,8 +42,8 @@ export const $executeRoute =
     const userTransactions = await executeRouteSteps(route, signer, client);
     const transferTx = userTransactions.at(-1)!; // there's always 1 or 2 hashes.
 
-    const attestations = [] as Attestation[];
-    const redeems = [] as any[];
+    const attestations = [] as CctpAttestation[];
+    const redeems = [] as Redeem[];
 
     const attestation = await findTransferAttestation(
       network,
@@ -50,16 +51,12 @@ export const $executeRoute =
       transferTx,
     );
     attestations.push(attestation);
-    route.progress.emit("transfer-confirmed", {});
+    route.progress.emit("transfer-confirmed", attestation);
 
     const avaxRouterAddress = avaxRouterContractAddress[network];
 
     const isAvaxHop = attestation.destinationCaller === avaxRouterAddress &&
-      attestation.targetChain === "Avalanche";
-
-    if (isAvaxHop) {
-      const lastAvaxBlockPromise = new Promise(() => {throw new Error("Not Implemented")});
-    }
+      attestation.targetDomain === "Avalanche";
 
     /**
      * Note that we use attestation.targetChain to find the redeem
@@ -68,7 +65,7 @@ export const $executeRoute =
      */
     const redeem = await findTransferRedeem(
       network,
-      getRpcUrl(attestation.targetChain),
+      getRpcUrl(attestation.targetDomain),
       attestation,
     );
     redeems.push(redeem);
@@ -86,23 +83,27 @@ export const $executeRoute =
      *   transaction in the avax-hop case.
      */
     if (isAvaxHop) {
-      // not tested yet.
-      // route.progress.emit("hop-redeemed", {});
+      route.progress.emit("hop-redeemed", redeem); // uses redeem
 
-      // const secondHopAttestation = await findTransferAttestation(
-      //   network,
-      //   attestation.
-      // );
-      // attestations.push(secondHopAttestation);
-      // route.progress.emit("hop-confirmed", {});
+      const secondHopAttestation = await findTransferAttestation(
+        network,
+        attestation.targetDomain,
+        redeem.transactionHash,
+      );
+      attestations.push(secondHopAttestation);
+      route.progress.emit("hop-confirmed", secondHopAttestation); // uses hop attestation
 
-      // const secondHopRedeem = await findTransferRedeem();
-      // redeems.push(secondHopRedeem);
-      // route.progress.emit("transfer-redeemed", {}); // uses hopRedeem
+      const secondHopRedeem = await findTransferRedeem(
+        network,
+        getRpcUrl(secondHopAttestation.targetDomain),
+        secondHopAttestation,
+      );
+      redeems.push(secondHopRedeem);
+      route.progress.emit("transfer-redeemed", secondHopRedeem); // uses hopRedeem
     }
 
     else {
-      route.progress.emit("transfer-redeemed", {}); // uses redeem
+      route.progress.emit("transfer-redeemed", redeem); // uses redeem
     }
 
     return { userTransactions, attestations, redeems } as any;

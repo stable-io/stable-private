@@ -7,10 +7,11 @@ import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import { domainIdOf, v1, v2 } from "@stable-io/cctp-sdk-definitions";
 import { TODO, Url } from "@stable-io/utils";
 import type { Network } from "../../types/index.js";
-import type { Attestation } from "./findTransferAttestation.js";
+import type { CctpAttestation } from "./findTransferAttestation.js";
 import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { parseAbiItem } from "viem/utils";
 import type { Hex } from "viem";
+import type { Redeem } from "src/types/redeem.js";
 
 /**
  * @todo: Should be configured by chain.
@@ -20,36 +21,36 @@ const REDEEM_SCAN_BLOCKS_BUFFER = 15n;
 export async function findTransferRedeem<N extends Network>(
   network: N,
   rpcUrl: Url,
-  attestation: Attestation,
-) {
+  attestation: CctpAttestation,
+): Promise<Redeem> {
   const viemEvmClient = ViemEvmClient.fromNetworkAndDomain(
     network,
-    attestation.targetChain,
+    attestation.targetDomain,
     rpcUrl,
   );
   
   let fromBlock = await viemEvmClient.getLatestBlock() - REDEEM_SCAN_BLOCKS_BUFFER;
   while (true) {
-    console.log("getting logs from block", fromBlock.toString());
-    const logs = attestation.cctpVersion === 1 ?
-      await getV1RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetChain, fromBlock) :
-      await getV2RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetChain, fromBlock);
+    const [latestBlock, logs] = await Promise.all([
+      viemEvmClient.getLatestBlock(),
+      attestation.cctpVersion === 1 ?
+        getV1RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetDomain, fromBlock) :
+        await getV2RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetDomain, fromBlock),
+    ]);
 
-    const filteredLogs = logs.filter(log => log.args.sourceDomain === domainIdOf(attestation.sourceChain));
+    const filteredLogs = logs.filter(log => log.args.sourceDomain === domainIdOf(attestation.sourceDomain));
     if (filteredLogs.length > 1) {
       throw new Error(`Found multiple ${filteredLogs.length} redeem logs for the same nonce.`);
     }
 
-    if (filteredLogs.length > 0) return filteredLogs[0].transactionHash;
+    if (filteredLogs.length > 0) return { 
+      destinationDomain: attestation.targetDomain,
+      transactionHash: filteredLogs[0].transactionHash
+    };
 
-    const lastBlockScanned = logs.reduce((max, log) => {
-      if (log.blockNumber > max) return log.blockNumber;
-      return max;
-    }, fromBlock);
+    fromBlock = latestBlock;
 
-    fromBlock = lastBlockScanned + 1n;
-
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 };
 
