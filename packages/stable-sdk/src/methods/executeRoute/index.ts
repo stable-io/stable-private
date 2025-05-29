@@ -54,9 +54,6 @@ export const $executeRoute =
 
     const avaxRouterAddress = avaxRouterContractAddress[network];
 
-    if (!avaxRouterAddress) {
-      throw new Error(`Avalanche Router not deployed in network: ${network}`)
-    }
     const isAvaxHop = attestation.destinationCaller === avaxRouterAddress &&
       attestation.targetChain === "Avalanche";
 

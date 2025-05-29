@@ -45,7 +45,7 @@ export const supportedDomains = constMap(contractAddressEntries, [0, 1]);
 export type SupportedDomain<N extends Network> = ReturnType<typeof supportedDomains<N>>[number];
 
 export const avaxRouterContractAddress = {
-  Mainnet: undefined, //TODO
+  Mainnet: "0x", //TODO
   Testnet: "0xdd7F26F2bA98DdAb89fdC041a3dB096aBd9CEFf6",
 } as const satisfies Record<Network, `0x${string}` | undefined>;
 
