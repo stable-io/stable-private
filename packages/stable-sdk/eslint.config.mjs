@@ -28,4 +28,14 @@ const overrides = [
   },
 ];
 
-export default [...eslintConfig, ignoreConfig, tsConfig, ...overrides];
+const nodeEventsOverride = [
+  {
+    files: ["src/transactionEmitter.ts", "src/progressEmitter.ts"],
+    rules: {
+      "node/prefer-global": "off",
+      "unicorn/prefer-node-protocol": "off",
+    },
+  },
+];
+
+export default [...eslintConfig, ignoreConfig, tsConfig, ...overrides, ...nodeEventsOverride];

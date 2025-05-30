@@ -13,6 +13,7 @@ import { encoding } from "@stable-io/utils";
 import { parseTransferTxCalldata } from "@stable-io/cctp-sdk-cctpr-evm";
 import { isContractTx, Route, getStepType, isEip2612Data, ViemWalletClient, TxHash, Hex } from "../../types/index.js";
 import { ApprovalSentEventData, TransferSentEventData, parsePermitEventData } from "../../progressEmitter.js";
+import { TxSentEventData } from "../../transactionEmitter.js";
 
 const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("atomic");
 
@@ -28,11 +29,10 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
     const stepType = getStepType(txOrSig);
 
     if (stepType !== "sign-permit" && isContractTx(txOrSig)) {
-      const tx = await signer.sendTransaction(
-        buildEvmTxParameters(txOrSig, signer.chain!, signer.account!),
-      );
+      const txParameters = buildEvmTxParameters(txOrSig, signer.chain!, signer.account!);
+      const tx = await signer.sendTransaction(txParameters);
 
-      route.transactionListener.emit("transaction-sent", tx);
+      route.transactionListener.emit("transaction-sent", parseTxSentEventData(tx, txParameters));
 
       const receipt = await client.client.waitForTransactionReceipt({ hash: tx });
       txHashes.push(tx);
@@ -67,13 +67,25 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
   return txHashes;
 }
 
+export type EvmTxParameters = {
+  from: Hex;
+  value: bigint | undefined;
+  chain: ViemChain;
+  account: ViemAccount;
+  to: Hex;
+  data: Hex;
+  gas: bigint;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+};
+
 function buildEvmTxParameters(tx: ContractTx, chain: ViemChain, account: ViemAccount) {
   const callData = `0x${Buffer.from(tx.data).toString("hex")}` as const;
   const txValue = tx.value
     ? BigInt(tx.value.toUnit("atomic").toString())
     : undefined;
   return {
-    from: tx.from?.unwrap(),
+    from: tx.from?.unwrap() as Hex,
     value: txValue,
     chain: chain,
     account: account,
@@ -130,7 +142,7 @@ function parseApprovalTransactionEventData(
 }
 
 function parseTransferTransactionEventData(
-  network: Network, contractTx: ContractTx, txHash: Hex
+  network: Network, contractTx: ContractTx, txHash: Hex,
 ): TransferSentEventData {
   const transferData = parseTransferTxCalldata(network)(contractTx.data);
   // there's plenty other params on the call data we could extract if we wished to.
@@ -143,3 +155,18 @@ function parseTransferTransactionEventData(
     quoted: transferData.quoteVariant.type,
   };
 }
+
+export function parseTxSentEventData(tx: Hex, parameters: EvmTxParameters): TxSentEventData {
+  return {
+    transactionHash: tx,
+    parameters: {
+      from: parameters.from,
+      to: parameters.to,
+      data: parameters.data,
+      value: parameters.value ?? BigInt(0),
+      gas: parameters.gas,
+      maxFeePerGas: parameters.maxFeePerGas,
+      maxPriorityFeePerGas: parameters.maxPriorityFeePerGas,
+    },
+  };
+};

@@ -1,4 +1,5 @@
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
+import { Hex, TransactionReceipt } from "viem";
 
 export class TransactionEmitter extends (EventEmitter as { new(): TransactionEventEmitter }) {
   emit<K extends keyof TransactionEvents>(event: K, payload: TransactionEvents[K]): boolean {
@@ -26,12 +27,19 @@ interface TransactionEvents {
   "*": TransactionEventData<keyof TransactionEvents>;
 }
 
-export type TxIncludedEventData = {
-
-};
+export type TxIncludedEventData = TransactionReceipt;
 
 export type TxSentEventData = {
-
+  transactionHash: Hex;
+  parameters: {
+    from: Hex;
+    to: Hex;
+    data: Hex;
+    value: bigint;
+    gas: bigint;
+    maxFeePerGas: bigint;
+    maxPriorityFeePerGas: bigint;
+  };
 };
 
 export interface TransactionEventData<K extends keyof TransactionEvents> {
