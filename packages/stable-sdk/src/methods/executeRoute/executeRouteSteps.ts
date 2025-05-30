@@ -95,9 +95,9 @@ function buildEvmTxParameters(tx: ContractTx, chain: ViemChain, account: ViemAcc
      * @todo: Proper gas calculation will be necessary at some point...
      *        we could consider using the gasEstimation field of the corresponding step.
      */
-    gas: fromGwei(0.001),
+    gas: fromGwei(0.01),
     maxFeePerGas: fromGwei(40),
-    maxPriorityFeePerGas: fromGwei(15),
+    maxPriorityFeePerGas: fromGwei(20),
   };
 }
 

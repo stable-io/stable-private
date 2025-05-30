@@ -57,8 +57,8 @@ export type ViemWalletClient = ReturnType<typeof createWalletClient>;
 
 export interface RoutesResult {
   all: Route[];
-  fastest: number;
-  cheapest: number;
+  fastest: Route;
+  cheapest: Route;
 }
 
 export type PaymentTokenOptions = "usdc" | "native";

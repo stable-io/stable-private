@@ -82,8 +82,8 @@ export const $findRoutes =
       await cctprEvm.getCorridors(viemEvmClient, intent.targetChain, gasDropoff as TODO);
 
     const routes: Route[] = [];
-    let fastest = -1;
-    let cheapest = -1;
+    let fastest: Route | undefined;
+    let cheapest: Route | undefined;
     for (const corridor of corridorStats) {
       if (corridor.cost.fast !== undefined && /**
          * The corridor is fast. We need to double check that the transfer amount
@@ -102,18 +102,17 @@ export const $findRoutes =
         routeSearchOptions.relayFeeMaxChangeMargin,
       );
       for (const newRoute of newRoutes) {
-        const index = routes.length;
         if (
-          fastest === -1 ||
-          newRoute.estimatedDuration < routes[fastest].estimatedDuration
+          !fastest ||
+          newRoute.estimatedDuration < fastest.estimatedDuration
         ) {
-          fastest = index;
+          fastest = newRoute;
         }
         if (
-          cheapest === -1 ||
-          newRoute.estimatedTotalCost.lt(routes[cheapest].estimatedTotalCost)
+          !cheapest ||
+          newRoute.estimatedTotalCost.lt(cheapest.estimatedTotalCost)
         ) {
-          cheapest = index;
+          cheapest = newRoute;
         }
 
         routes.push(newRoute);
@@ -122,8 +121,8 @@ export const $findRoutes =
 
     return {
       all: routes,
-      fastest,
-      cheapest,
+      fastest: fastest!,
+      cheapest: cheapest!,
     };
   };
 

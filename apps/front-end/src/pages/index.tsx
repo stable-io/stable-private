@@ -92,7 +92,7 @@ const Home = () => {
         {},
       )
       .then((result) => {
-        setRoute(result.all[result.fastest]);
+        setRoute(result.fastest);
       })
       .catch((error: unknown) => {
         console.error(error);
