@@ -12,7 +12,6 @@ import { Url } from "@stable-io/utils";
 import { $checkHasEnoughFunds } from "./methods/checkHasEnoughFunds.js";
 import { $executeRoute } from "./methods/executeRoute/index.js";
 import { $findRoutes } from "./methods/findRoutes.js";
-import { $findRedeem } from "./methods/findRedeem.js";
 import { $getBalance } from "./methods/getBalance.js";
 import { SDK, SDKOptions } from "./types/sdk.js";
 import { Network } from "./types/general.js";
@@ -60,11 +59,6 @@ export class StableSDK<N extends Network> extends SDK<N> {
   });
 
   public getBalance = $getBalance({
-    getNetwork: this.getNetwork.bind(this),
-    getRpcUrl: this.getRpcUrl.bind(this),
-  });
-
-  public findRedeem = $findRedeem({
     getNetwork: this.getNetwork.bind(this),
     getRpcUrl: this.getRpcUrl.bind(this),
   });

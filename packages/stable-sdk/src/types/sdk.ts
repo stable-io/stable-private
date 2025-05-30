@@ -42,13 +42,6 @@ export abstract class SDK<N extends Network> {
   ): ViemWalletClient;
 
   public abstract getRpcUrl(domain: keyof EvmDomains): Url;
-
-  public abstract findRedeem(
-    sourceChain: keyof EvmDomains,
-    transactionHash: TxHash,
-    destFromBlock: bigint,
-    avaxFromBlock?: bigint,
-  ): Promise<Redeem>;
 }
 
 export type ViemWalletClient = ReturnType<typeof createWalletClient>;
