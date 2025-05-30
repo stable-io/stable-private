@@ -8,6 +8,7 @@ import type { KindWithAtomic } from "@stable-io/amount";
 import { Amount } from "@stable-io/amount";
 import type { Network } from "@stable-io/cctp-sdk-definitions";
 import { amountItem } from "@stable-io/cctp-sdk-definitions";
+import { keccak256 } from "@stable-io/utils";
 import { EvmAddress } from "./address.js";
 import type { ContractTx, EvmClient, CallData } from "./platform.js";
 import {
@@ -17,7 +18,6 @@ import {
   paddedSlotItem,
   abiEncodedBytesItem,
 } from "./layoutItems.js";
-
 export async function getTokenBalance<const K extends KindWithAtomic>(
   client: EvmClient,
   token:  EvmAddress,
@@ -82,6 +82,10 @@ export function dateToUnixTimestamp(date: Date): bigint {
 
   return BigInt(Math.floor(date.getTime() / 1000));
 }
+
+export const selectorLength = 4;
+export const selectorOf = (funcSig: string) =>
+  keccak256(funcSig).subarray(0, selectorLength) as CallData;
 
 export const init = <N extends Network>(network: N) => ({
   getTokenBalance,

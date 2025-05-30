@@ -81,17 +81,18 @@ export type MessageStatus = "complete" | "pending_confirmations";
 // For v1 messages the nonce is an integer, for v2 messages the nonce is a 32 byte hex hash
 export type CCTPNonce = Brand<string, "CCTPNonce">;
 
+export type ApiResponseMessage = {
+  message: Uint8Array;
+  eventNonce: CCTPNonce;
+  attestation: Uint8Array;
+  decodedMessage?: TODO;
+  cctpVersion: ApiVersion;
+  status: MessageStatus;
+};
+
 export type GetMessagesResponse = Readonly<{
   status: "success";
-  messages: ReadonlyArray<{
-    message: Uint8Array;
-    eventNonce: CCTPNonce;
-    attestation: Uint8Array;
-    /* @todo: Define this properly later, but it is optional if empty or if it fails to decode */
-    decodedMessage?: TODO;
-    cctpVersion: ApiVersion;
-    status: MessageStatus;
-  }>;
+  messages: ReadonlyArray<ApiResponseMessage>;
 } | {
   status: "not_found";
   /* @todo: Not sure what the error code is */

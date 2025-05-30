@@ -31,6 +31,10 @@ import {
 import { EvmAddress, init as initEvm } from "@stable-io/cctp-sdk-evm";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import { TODO } from "@stable-io/utils";
+
+import { TransferProgressEmitter } from "../progressEmitter.js";
+import { TransactionEmitter } from "../transactionEmitter.js";
+
 import type {
   Fee,
   SDK,
@@ -78,8 +82,8 @@ export const $findRoutes =
       await cctprEvm.getCorridors(viemEvmClient, intent.targetChain, gasDropoff as TODO);
 
     const routes: Route[] = [];
-    let fastest = -1;
-    let cheapest = -1;
+    let fastest: Route | undefined;
+    let cheapest: Route | undefined;
     for (const corridor of corridorStats) {
       if (corridor.cost.fast !== undefined && /**
          * The corridor is fast. We need to double check that the transfer amount
@@ -98,18 +102,17 @@ export const $findRoutes =
         routeSearchOptions.relayFeeMaxChangeMargin,
       );
       for (const newRoute of newRoutes) {
-        const index = routes.length;
         if (
-          fastest === -1 ||
-          newRoute.estimatedDuration < routes[fastest].estimatedDuration
+          !fastest ||
+          newRoute.estimatedDuration < fastest.estimatedDuration
         ) {
-          fastest = index;
+          fastest = newRoute;
         }
         if (
-          cheapest === -1 ||
-          newRoute.estimatedTotalCost.lt(routes[cheapest].estimatedTotalCost)
+          !cheapest ||
+          newRoute.estimatedTotalCost.lt(cheapest.estimatedTotalCost)
         ) {
-          cheapest = index;
+          cheapest = newRoute;
         }
 
         routes.push(newRoute);
@@ -118,8 +121,8 @@ export const $findRoutes =
 
     return {
       all: routes,
-      fastest,
-      cheapest,
+      fastest: fastest!,
+      cheapest: cheapest!,
     };
   };
 
@@ -205,7 +208,7 @@ async function buildCorridorRoutes<
     : { maxRelayFee: maxRelayFee as GasTokenOf<S, keyof EvmDomains> };
 
   const corridorSteps = [
-    getCorridorStep(corridor.corridor, intent.sourceChain),
+    buildTransferStep(corridor.corridor, intent.sourceChain),
   ];
 
   const sharedRouteData = {
@@ -228,6 +231,8 @@ async function buildCorridorRoutes<
     ...sharedRouteData,
     requiresMessageSignature: false,
     steps: routeWithApprovalSteps,
+    transactionListener: new TransactionEmitter(),
+    progress: new TransferProgressEmitter(),
     estimatedTotalCost: await calculateTotalCost(
       routeWithApprovalSteps,
       corridorFees,
@@ -260,6 +265,8 @@ async function buildCorridorRoutes<
       routeWithPermitSteps,
       corridorFees,
     ),
+    transactionListener: new TransactionEmitter(),
+    progress: new TransferProgressEmitter(),
     workflow: cctprEvm.transfer(
       evmClient,
       sender,
@@ -311,14 +318,14 @@ function getCorridorFees<N extends Network, S extends keyof EvmDomains>(
   return { corridorFees, maxRelayFee, maxFastFeeUsdc };
 }
 
-function getCorridorStep(
+function buildTransferStep(
   corridor: Corridor,
   sourceChain: keyof EvmDomains,
 ): RouteExecutionStep {
   const sharedTxData = {
     platform: "Evm" as const,
     chain: sourceChain,
-    type: "sign-and-send-transaction" as const,
+    type: "transfer" as const,
   };
   switch (corridor) {
     /**
@@ -394,7 +401,7 @@ async function composeStepsWithApproval<
     approvalSteps.push({
       platform: "Evm",
       chain: sourceDomain,
-      type: "sign-and-send-transaction",
+      type: "pre-approve",
       gasCostEstimation: EVM_APPROVAL_TX_GAS_COST_APROXIMATE,
     });
   }
@@ -427,7 +434,7 @@ function composeStepsWithPermit(
 ): RouteExecutionStep[] {
   const signPermitStep: RouteExecutionStep = {
     platform: "Evm",
-    type: "sign-message",
+    type: "sign-permit",
     chain: sourceChain,
     gasCostEstimation: 0n,
   };

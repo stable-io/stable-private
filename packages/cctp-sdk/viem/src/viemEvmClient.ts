@@ -43,7 +43,6 @@ import {
   sonic           as sonicMainnet,
   sonicTestnet    as sonicTestnet,
 } from "viem/chains";
-import { Amount, KindWithAtomic } from "@stable-io/amount";
 
 export const viemChainOf = {
   Mainnet: {

@@ -32,15 +32,7 @@ const sdk = new StableSDK({
 const intent = {
   sourceChain: "Ethereum" as const,
   targetChain: "Polygon" as const,
-  /**
-   * @todo: why not just use usdc here?
-   */
   amount: "1",
-  /**
-   * @todo:
-   * sender and recipient should be optional for searching routes
-   * (we can simply default to 0x000...).
-   */
   sender: someone,
   recipient: someoneElse,
 };

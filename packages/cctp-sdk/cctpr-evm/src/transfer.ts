@@ -140,11 +140,12 @@ export const transfer = <N extends Network>(network: N) => {
       throw new Error("Costs exceed input amount");
 
     let permit: Permit | undefined;
-    if (usdcAllowance.lt(requiredAllowance)) {
-      permit = yield (opts?.usePermit
-        ? composePermitMsg(client, usdcAddr, sender, cctprAddress, requiredAllowance)
-        : composeApproveTx(usdcAddr, sender, cctprAddress, requiredAllowance)
-      );
+    if (opts?.usePermit) {
+      if (usdcAllowance.lt(requiredAllowance)) {
+        permit = yield composePermitMsg(client, usdcAddr, sender, cctprAddress, requiredAllowance);
+      }
+    } else if (usdcAllowance.lt(requiredAllowance)) {
+      yield composeApproveTx(usdcAddr, sender, cctprAddress, requiredAllowance);
     }
 
     const recipientUniversal = recipient.toUniversalAddress();

@@ -9,51 +9,22 @@ import {
   EvmDomains,
   GasTokenOf,
 } from "@stable-io/cctp-sdk-definitions";
+import { Permit, ContractTx, Eip2612Data, selectorOf } from "@stable-io/cctp-sdk-evm";
 import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
-import { ContractTx, Eip2612Data } from "@stable-io/cctp-sdk-evm";
+import { encoding } from "@stable-io/utils";
+import { TransferProgressEventEmitter } from "../progressEmitter.js";
+import { TransactionEventEmitter } from "../transactionEmitter.js";
 
-type StepTypes = "sign-message" | "sign-and-send-transaction";
+export type StepType = "sign-permit" | "pre-approve" | "transfer";
 
 export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
-
-interface BaseRouteExecutionStep {
-  // id: string; // unique for all steps in a route
-  type: StepTypes;
-  chain: keyof EvmDomains;
-  platform: SupportedPlatform;
-  // This is the estimated cost to send the transaction.
-  // in this step.
-  // Expressed in gas token units
-  gasCostEstimation: bigint;
-}
-
-export interface SignMessageStep extends BaseRouteExecutionStep {
-  type: "sign-message";
-  // data: UnsignedMessage; // see existing type on cctp-sdk
-}
-
-export interface SignAndSendTxStep extends BaseRouteExecutionStep {
-  type: "sign-and-send-transaction";
-  // data: UnsignedTx; // see existing type on cctp-sdk
-}
-
-export type RouteExecutionStep = SignMessageStep | SignAndSendTxStep;
-
-// TODO: This depends on the network, evm case is ContractTx and UnsignedMessage
-type ExecutionStepResult = any;
-
-export type RouteWorkflow = AsyncGenerator<
-  RouteExecutionStep,
-  void,
-  ExecutionStepResult
->;
 
 export interface Route {
   corridor: Corridor;
 
-  estimatedDuration: number; // miliseconds probably
+  estimatedDuration: number; // seconds
 
   estimatedTotalCost: Usd;
 
@@ -82,8 +53,52 @@ export interface Route {
 
   steps: RouteExecutionStep[];
 
-  workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx>;
+  workflow: AsyncGenerator<ContractTx | Eip2612Data, ContractTx, Permit | undefined>;
+
+  /**
+   * Tracking:
+   */
+  transactionListener: TransactionEventEmitter;
+  progress: TransferProgressEventEmitter;
 }
+
+interface BaseRouteExecutionStep {
+  type: StepType;
+  chain: keyof EvmDomains;
+  platform: SupportedPlatform;
+  // This is the estimated cost of executing this step on-chain.
+  // value=0 for permits
+  // Expressed in gas token units
+  gasCostEstimation: bigint;
+};
+
+export type RouteExecutionStep = SignPermitStep | PreApproveStep | TransferStep;
+
+export const SIGN_PERMIT = "sign-permit" as const;
+export interface SignPermitStep extends BaseRouteExecutionStep {
+  type: typeof SIGN_PERMIT;
+};
+
+export const PRE_APPROVE = "pre-approve" as const;
+export interface PreApproveStep extends BaseRouteExecutionStep {
+  type: typeof PRE_APPROVE;
+};
+
+export interface TransferStep extends BaseRouteExecutionStep {
+  type: "transfer";
+};
+
+/**
+ *
+ * @param txOrSig at the moment cctp-sdk returns either a contract transaction to sign and send
+ *                or a eip2612 message to sign and return to it.
+ */
+export function getStepType(txOrSig: ContractTx | Eip2612Data): StepType {
+  if (isEip2612Data(txOrSig)) return "sign-permit";
+  if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
+  if (isContractTx(txOrSig)) return "pre-approve";
+  throw new Error("Unknown Step Type");
+};
 
 export function isContractTx(subject: unknown): subject is ContractTx {
   if (typeof subject !== "object" || subject === null) return false;
@@ -95,31 +110,27 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
   return "domain" in subject && "types" in subject && "message" in subject;
 }
 
-export interface RouteSearchOptions {
-  // A single property "paymentToken" will select
-  // the token used to pay for all fees.
-  // (relayer, gas, gas-dropoff...)
-
-  // defaults to usdc.
-  paymentToken?: "usdc" | "native";
-
-  // How much change in the relay fee is tolerated between the moment the
-  // relay is quoted until the relay is executed.
-  relayFeeMaxChangeMargin?: number;
-
-  // Ideas...
-  // allowSigningMessages?: boolean;
-  // allowSwitchingChains: boolean;
+export function isApprovalTx(subject: ContractTx): boolean {
+  const approvalFuncSelector = selectorOf("approve()");
+  return encoding.bytes.equals(
+    subject.data.subarray(0, approvalFuncSelector.length),
+    approvalFuncSelector,
+  );
 }
 
-type IndexNumber = number;
-
-export interface RoutesResult {
-  all: Route[];
-  fastest: IndexNumber;
-  cheapest: IndexNumber;
+export function isTransferTx(subject: ContractTx): boolean {
+  /**
+   * Warning: this implementation is brittle at best.
+   *          "exec768" selector can be used for other things (such as governance atm).
+   *          On the SDK we only need to differentiate from an approval tx, so we'll
+   *          tolerate the tech debt.
+   *          This can be solved in many ways when the time comes, eg:
+   *            - parsing the next byte to check is a one of the transfer variants
+   *            - try/catching a call to parseTransferTxCalldata
+   */
+  const approvalFuncSelector = selectorOf("exec768()");
+  return encoding.bytes.equals(
+    subject.data.subarray(0, approvalFuncSelector.length),
+    approvalFuncSelector,
+  );
 }
-
-export type TransferOptions = RouteSearchOptions & {
-  strategy: "cheapest" | "fastest";
-};

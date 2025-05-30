@@ -19,10 +19,8 @@ const Home = () => {
   const gasDropoffDesired = gasDropoffs[gasDropoffLevel];
   const [route, setRoute] = useState<Route | undefined>();
   const [isInProgress, setIsInProgress] = useState(false);
-  const [txHashes, setTxHashes] = useState<readonly string[] | undefined>();
-  const explorerUrl = txHashes
-    ? getExplorerUrl("Testnet", txHashes.at(-1)!)
-    : "#";
+  const [txHash, setTxHash] = useState<string | undefined>();
+  const explorerUrl = txHash ? getExplorerUrl("Testnet", txHash) : "#";
 
   const [sourceChain, setSourceChain] = useState<AvailableChains>(
     availableChains[0],
@@ -60,11 +58,11 @@ const Home = () => {
       return;
     }
     setIsInProgress(true);
-    setTxHashes(undefined);
+    setTxHash(undefined);
     stable
       .executeRoute(route)
-      .then((txHashes) => {
-        setTxHashes(txHashes);
+      .then(({ transferHash }) => {
+        setTxHash(transferHash);
         updateBalance();
       })
       .catch((error: unknown) => {
@@ -94,7 +92,7 @@ const Home = () => {
         {},
       )
       .then((result) => {
-        setRoute(result.all[result.fastest]);
+        setRoute(result.fastest);
       })
       .catch((error: unknown) => {
         console.error(error);
@@ -108,7 +106,7 @@ const Home = () => {
           Stable | Move USDC across networks with high speed and minimal costs
         </title>
       </Head>
-      {txHashes && (
+      {txHash && (
         <div className="top">
           <div className="alert alert-success">
             <h3>Transfer Complete</h3>

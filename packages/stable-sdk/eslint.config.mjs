@@ -19,4 +19,22 @@ const tsConfig = {
   },
 };
 
-export default [...eslintConfig, ignoreConfig, tsConfig];
+const overrides = [
+  {
+    files: ["examples/*"],
+    rules: {
+      "unicorn/no-console-spaces": "off",
+    },
+  },
+];
+
+const nodeEventsOverride = [
+  {
+    files: ["src/*"],
+    rules: {
+      "unicorn/prefer-node-protocol": "off",
+    },
+  },
+];
+
+export default [...eslintConfig, ignoreConfig, tsConfig, ...overrides, ...nodeEventsOverride];

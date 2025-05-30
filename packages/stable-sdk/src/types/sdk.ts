@@ -7,10 +7,11 @@ import { createWalletClient } from "viem";
 import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { Address, Amount, Chain, Network, TxHash } from "./general.js";
 import { Intent } from "./intent.js";
-import { Route, RouteSearchOptions, RoutesResult } from "./route.js";
+import { Route } from "./route.js";
 import { EvmPlatformSigner } from "./signer.js";
 import { Url } from "@stable-io/utils";
 import { Redeem } from "./redeem.js";
+import { CctpAttestation } from "src/methods/executeRoute/findTransferAttestation.js";
 
 export interface SDKOptions<N extends Network> {
   network: N;
@@ -30,23 +31,51 @@ export abstract class SDK<N extends Network> {
 
   public abstract checkHasEnoughFunds(route: Route): Promise<boolean>;
 
-  public abstract executeRoute(route: Route): Promise<TxHash[]>;
+  public abstract executeRoute(route: Route): Promise<{
+    transactions: TxHash[];
+    attestations: CctpAttestation[];
+    redeems: Redeem[];
+    transferHash: TxHash;
+    redeemHash: TxHash;
+  }>;
+
   public abstract getBalance(
     address: Address,
     chains: (keyof EvmDomains)[],
   ): Promise<Record<keyof EvmDomains, Amount>>;
 
   public abstract setSigner(signer: SDKOptions<N>["signer"]): void;
+
   public abstract getSigner(
     chain: keyof EvmDomains
-  ): ReturnType<typeof createWalletClient>;
+  ): ViemWalletClient;
 
   public abstract getRpcUrl(domain: keyof EvmDomains): Url;
+}
 
-  public abstract findRedeem(
-    sourceChain: keyof EvmDomains,
-    transactionHash: TxHash,
-    destFromBlock: bigint,
-    avaxFromBlock?: bigint,
-  ): Promise<Redeem>;
+export type ViemWalletClient = ReturnType<typeof createWalletClient>;
+
+export interface RoutesResult {
+  all: Route[];
+  fastest: Route;
+  cheapest: Route;
+}
+
+export type PaymentTokenOptions = "usdc" | "native";
+
+export interface RouteSearchOptions {
+  // A single property "paymentToken" will select
+  // the token used to pay for all fees.
+  // (relayer, gas, gas-dropoff...)
+
+  // defaults to usdc.
+  paymentToken?: PaymentTokenOptions;
+
+  // How much change in the relay fee is tolerated between the moment the
+  // relay is quoted until the relay is executed.
+  relayFeeMaxChangeMargin?: number;
+
+  // Ideas...
+  // allowSigningMessages?: boolean;
+  // allowSwitchingChains: boolean;
 }

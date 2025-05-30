@@ -1690,10 +1690,12 @@ __metadata:
     "@stable-io/cctp-sdk-viem": "workspace:^"
     "@stable-io/map-utils": "workspace:^"
     "@stable-io/utils": "workspace:^"
+    "@types/events": "npm:^3"
     "@types/jest": "npm:^29.5.14"
     dotenv: "npm:^16.5.0"
     eslint: "npm:^9.15.0"
     eslint-config: "workspace:^"
+    events: "npm:^3.3.0"
     jest: "npm:^29.7.0"
     ts-jest: "npm:^29.2.6"
     tsx: "npm:^4.19.4"
@@ -1803,6 +1805,13 @@ __metadata:
   version: 1.0.7
   resolution: "@types/estree@npm:1.0.7"
   checksum: 10c0/be815254316882f7c40847336cd484c3bc1c3e34f710d197160d455dc9d6d050ffbf4c3bc76585dba86f737f020ab20bdb137ebe0e9116b0c86c7c0342221b8c
+  languageName: node
+  linkType: hard
+
+"@types/events@npm:^3":
+  version: 3.0.3
+  resolution: "@types/events@npm:3.0.3"
+  checksum: 10c0/3a56f8c51eb4ebc0d05dcadca0c6636c816acc10216ce36c976fad11e54a01f4bb979a07211355686015884753b37f17d74bfdc7aaf4ebb027c1e8a501c7b21d
   languageName: node
   linkType: hard
 
@@ -3874,6 +3883,13 @@ __metadata:
   version: 5.0.1
   resolution: "eventemitter3@npm:5.0.1"
   checksum: 10c0/4ba5c00c506e6c786b4d6262cfbce90ddc14c10d4667e5c83ae993c9de88aa856033994dd2b35b83e8dc1170e224e66a319fa80adc4c32adcd2379bbc75da814
+  languageName: node
+  linkType: hard
+
+"events@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: 10c0/d6b6f2adbccbcda74ddbab52ed07db727ef52e31a61ed26db9feb7dc62af7fc8e060defa65e5f8af9449b86b52cc1a1f6a79f2eafcf4e62add2b7a1fa4a432f6
   languageName: node
   linkType: hard
 
