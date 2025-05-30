@@ -27,7 +27,7 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
 
     const stepType = getStepType(txOrSig);
 
-    if (stepType !== "permit" && isContractTx(txOrSig)) {
+    if (stepType !== "sign-permit" && isContractTx(txOrSig)) {
       const tx = await signer.sendTransaction(
         buildEvmTxParameters(txOrSig, signer.chain!, signer.account!),
       );
@@ -43,7 +43,7 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
       const { eventName, eventData } = buildTransactionEventData(network, stepType, txOrSig, tx);
       route.progress.emit(eventName, eventData);
 
-    } else if (stepType === "permit" && isEip2612Data(txOrSig)) {
+    } else if (stepType === "sign-permit" && isEip2612Data(txOrSig)) {
       const signature = await signer.signTypedData({
         account: signer.account!,
         ...txOrSig,
@@ -94,7 +94,7 @@ function buildEvmTxParameters (tx: ContractTx, chain: ViemChain, account: ViemAc
 
 function buildTransactionEventData(
   network: Network,
-  stepType: "pre-approval" | "transfer",
+  stepType: "pre-approve" | "transfer",
   contractTx: ContractTx,
   txHash: Hex,
 ): {
@@ -105,7 +105,7 @@ function buildTransactionEventData(
   eventData: TransferSentEventData;
 } {
 
-  if (stepType === "pre-approval") {
+  if (stepType === "pre-approve") {
     return { eventName: "approval-sent", eventData: parseApprovalTransactionEventData(contractTx, txHash) };
   } else if (stepType === "transfer") {
     return { eventName: "transfer-sent", eventData: parseTransferTransactionEventData(network, contractTx, txHash) };

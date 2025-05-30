@@ -402,7 +402,7 @@ async function composeStepsWithApproval<
     approvalSteps.push({
       platform: "Evm",
       chain: sourceDomain,
-      type: "pre-approval",
+      type: "pre-approve",
       gasCostEstimation: EVM_APPROVAL_TX_GAS_COST_APROXIMATE,
     });
   }
@@ -435,7 +435,7 @@ function composeStepsWithPermit(
 ): RouteExecutionStep[] {
   const signPermitStep: RouteExecutionStep = {
     platform: "Evm",
-    type: "permit",
+    type: "sign-permit",
     chain: sourceChain,
     gasCostEstimation: 0n,
   };

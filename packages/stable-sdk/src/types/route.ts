@@ -18,7 +18,7 @@ import { encoding } from "@stable-io/utils";
 import { TransferProgressEventEmitter } from "../progressEmitter.js";
 import { TransactionEventEmitter } from "../transactionEmitter.js";
 
-export type StepType = "permit" | "pre-approval" | "transfer";
+export type StepType = "sign-permit" | "pre-approve" | "transfer";
 
 export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
 
@@ -76,12 +76,14 @@ interface BaseRouteExecutionStep {
 
 export type RouteExecutionStep = SignPermitStep | PreApproveStep | TransferStep;
 
+export const SIGN_PERMIT = "sign-permit" as const;
 export interface SignPermitStep extends BaseRouteExecutionStep {
-  type: "permit";
+  type: typeof SIGN_PERMIT;
 };
 
+export const PRE_APPROVE = "pre-approve" as const;
 export interface PreApproveStep extends BaseRouteExecutionStep {
-  type: "pre-approval";
+  type: typeof PRE_APPROVE;
 };
 
 export interface TransferStep extends BaseRouteExecutionStep {
@@ -94,8 +96,8 @@ export interface TransferStep extends BaseRouteExecutionStep {
  *                or a eip2612 message to sign and return to it.
  */
 export function getStepType(txOrSig: ContractTx | Eip2612Data): StepType {
-  if (isEip2612Data(txOrSig)) return "permit";
-  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approval";
+  if (isEip2612Data(txOrSig)) return "sign-permit";
+  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approve";
   if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
   throw new Error("Unknown Step Type");
 };
@@ -113,8 +115,8 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
 export function isApprovalTx(subject: ContractTx): boolean {
   const approvalFuncSelector = selectorOf("approve()");
   return encoding.bytes.equals(
-    subject.data.subarray(0, transferFuncSelector.length),
-    transferFuncSelector
+    subject.data.subarray(0, approvalFuncSelector.length),
+    approvalFuncSelector
   );
 }
 
@@ -128,10 +130,10 @@ export function isTransferTx(subject: ContractTx): boolean {
    *            - parsing the next byte to check is a one of the transfer variants
    *            - try/catching a call to parseTransferTxCalldata
    */
-  const transferFuncSelector = selectorOf("exec768()");
+  const approvalFuncSelector = selectorOf("exec768()");
   return encoding.bytes.equals(
-    subject.data.subarray(0, transferFuncSelector.length),
-    transferFuncSelector
+    subject.data.subarray(0, approvalFuncSelector.length),
+    approvalFuncSelector
   );
 }
 
