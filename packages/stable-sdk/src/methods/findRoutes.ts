@@ -32,8 +32,8 @@ import { EvmAddress, init as initEvm } from "@stable-io/cctp-sdk-evm";
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
 import { TODO } from "@stable-io/utils";
 
-import { TransferProgressEmitter } from "src/progressEmitter.js";
-import { TransactionEmitter } from "src/transactionEmitter.js";
+import { TransferProgressEmitter } from "../progressEmitter.js";
+import { TransactionEmitter } from "../transactionEmitter.js";
 
 import type {
   Fee,
