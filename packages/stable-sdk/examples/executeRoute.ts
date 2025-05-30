@@ -58,7 +58,7 @@ for (const route of selectedRoutes) {
     console.info(`Transaction Event: ${e.name}.`);
     // console.info(`Data: ${stringify(e.data)}\n`);
   });
-  
+
   logRouteInfo(route);
   console.info("Executing route...");
 

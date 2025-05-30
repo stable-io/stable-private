@@ -23,7 +23,7 @@ const overrides = [
   {
     files: ["examples/*"],
     rules: {
-      "unicorn/no-console-spaces": off,
+      "unicorn/no-console-spaces": "off",
     },
   },
 ];
