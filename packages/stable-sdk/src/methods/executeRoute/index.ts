@@ -22,12 +22,13 @@ export const $executeRoute =
     getRpcUrl,
   }: ExecuteRouteDeps<N>): SDK<N>["executeRoute"] =>
   async (route: Route) => {
-    const signer = getSigner(route.intent.sourceChain);
+    const { sourceChain } = route.intent;
+    const signer = await getSigner(sourceChain);
     const network = getNetwork();
-    const rpcUrl = getRpcUrl(route.intent.sourceChain);
+    const rpcUrl = getRpcUrl(sourceChain);
     const client = ViemEvmClient.fromNetworkAndDomain(
       network,
-      route.intent.sourceChain,
+      sourceChain,
       rpcUrl,
     );
 
@@ -47,7 +48,7 @@ export const $executeRoute =
 
     const attestation = await findTransferAttestation(
       network,
-      route.intent.sourceChain,
+      sourceChain,
       transferTx,
     );
     attestations.push(attestation);
