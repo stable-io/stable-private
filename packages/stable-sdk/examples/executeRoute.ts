@@ -31,21 +31,9 @@ const sdk = new StableSDK({
 const intent = {
   sourceChain: "Ethereum" as const,
   targetChain: "Optimism" as const,
-  /**
-   * @todo: why not just use usdc here?
-   */
   amount: "0.01",
-  /**
-   * @todo:
-   * sender and recipient should be optional for searching routes
-   * (we can simply default to 0x000...).
-   * @todo:
-   * do we really need the sender if we get the wallet client?
-   * after all, sender can"t be anyone but the signer :shrug:
-   */
   sender,
   recipient,
-
   gasDropoffDesired: 0n,
 };
 
@@ -57,7 +45,7 @@ console.info(`Recipient: ${recipient}`);
 
 const selectedRoutes = [routes.all[3]];
 
-for (const route of selectedRoutes) {
+for (const route of selectedRoutes) {  
   const hasBalance = await sdk.checkHasEnoughFunds(route);
   if (!hasBalance) {
     console.info(`${route.intent.sender} doesn't have enough balance to pay for the transfer`);
@@ -84,56 +72,8 @@ for (const route of selectedRoutes) {
   }
 
   console.info("Executing route...");
-  const txHashes = await sdk.executeRoute(route);
+  const { transactions, attestations, redeems, transferHash, redeemHash } = await sdk.executeRoute(route);
 
-  console.info("Route Executed. See transfer at:");
-  console.info(
-    `https://wormholescan.io/#/tx/${txHashes.at(-1)}?network=Testnet`,
-  );
-  console.info(`https://sepolia.etherscan.io/tx/${txHashes.at(-1)}`);
-
-  console.info(getTestnetScannerAddressUrl(
-    route.intent.targetChain,
-    route.intent.recipient,
-  ));
-
-  console.info("Searching for redeem");
-
-  const lastBlockOnTarget = (await ViemEvmClient.fromNetworkAndDomain(
-    "Testnet",
-    route.intent.targetChain,
-    // rpc url.
-  ).getLatestBlock());
-
-  const lastAvaxBlock = (await ViemEvmClient.fromNetworkAndDomain(
-    "Testnet",
-    "Avalanche",
-    // rpc url.
-  ).getLatestBlock());
-
-  const redeem = await sdk.findRedeem(
-    route.intent.sourceChain,
-    txHashes.at(-1)!,
-    lastBlockOnTarget,
-    lastAvaxBlock,
-  );
-
-  console.info(`Transfer redeemed on tx ${redeem.transactionHash}`);
-}
-
-function getTestnetScannerAddressUrl<D extends keyof EvmDomains>(
-  domain: D,
-  addr: string,
-): string {
-  const scanners: Partial<Record<keyof EvmDomains, string>> = {
-    ["Ethereum"]: "https://sepolia.etherscan.io/address/",
-    ["Arbitrum"]: "https://sepolia.arbiscan.io/address/",
-    ["Optimism"]: "https://sepolia-optimism.etherscan.io/address/",
-  };
-
-  const baseUrl = scanners[domain];
-
-  if (!baseUrl) return "unknown scanner address";
-
-  return `${baseUrl}${addr}`;
+  console.info(`Transfer Sent: `, transferHash);
+  console.info(`Transfer Redeemed: `, redeemHash);
 }

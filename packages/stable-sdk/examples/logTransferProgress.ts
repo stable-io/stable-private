@@ -90,7 +90,6 @@ for (const route of selectedRoutes) {
    * (like the examples the above);
    */
 
-  
   console.info(`Executing route ${route.corridor} with -${route.steps.length}- steps`);
   await sdk.executeRoute(route);
 

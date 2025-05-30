@@ -38,8 +38,8 @@ export const $executeRoute =
      *        For the time being we can get our way by getting the last tx, but
      *        this wouldn't resist integrating protocols with multiple transactions.
      */
-    const userTransactions = await executeRouteSteps(network, route, signer, client);
-    const transferTx = userTransactions.at(-1)!; // there's always 1 or 2 hashes.
+    const transactions = await executeRouteSteps(network, route, signer, client);
+    const transferTx = transactions.at(-1)!; // there's always 1 or 2 hashes.
 
     const attestations = [] as CctpAttestation[];
     const redeems = [] as Redeem[];
@@ -105,5 +105,11 @@ export const $executeRoute =
       route.progress.emit("transfer-redeemed", redeem); // uses redeem
     }
 
-    return { userTransactions, attestations, redeems } as any;
+    return {
+      transactions,
+      attestations,
+      redeems,
+      transferHash: transactions.at(-1)!,
+      redeemHash: redeems.at(-1)!.transactionHash,
+    };
   };

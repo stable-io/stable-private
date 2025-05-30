@@ -11,6 +11,7 @@ import { Route } from "./route.js";
 import { EvmPlatformSigner } from "./signer.js";
 import { Url } from "@stable-io/utils";
 import { Redeem } from "./redeem.js";
+import { CctpAttestation } from "src/methods/executeRoute/findTransferAttestation.js";
 
 export interface SDKOptions<N extends Network> {
   network: N;
@@ -30,13 +31,21 @@ export abstract class SDK<N extends Network> {
 
   public abstract checkHasEnoughFunds(route: Route): Promise<boolean>;
 
-  public abstract executeRoute(route: Route): Promise<TxHash[]>;
+  public abstract executeRoute(route: Route): Promise<{
+    transactions: TxHash[],
+    attestations: CctpAttestation[],
+    redeems: Redeem[],
+    transferHash: TxHash,
+    redeemHash: TxHash,
+  }>;
+
   public abstract getBalance(
     address: Address,
     chains: (keyof EvmDomains)[],
   ): Promise<Record<keyof EvmDomains, Amount>>;
 
   public abstract setSigner(signer: SDKOptions<N>["signer"]): void;
+  
   public abstract getSigner(
     chain: keyof EvmDomains
   ): ViemWalletClient;
