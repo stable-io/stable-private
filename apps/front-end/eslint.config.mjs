@@ -8,7 +8,7 @@ const compat = new FlatCompat({
 
 const ignoreConfig = {
   name: "front-end:ignore",
-  ignores: ["coverage/", ".next/", "next-env.d.ts"],
+  ignores: ["coverage/", ".next/", "next-env.d.ts", "dist/"],
 };
 
 const tsConfig = {
