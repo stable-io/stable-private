@@ -50,38 +50,38 @@ for (const route of selectedRoutes) {
   }
 
   route.progress.on("step-completed", (event) => {
-    console.log(`Received step-completed event "${event.name}". Data: ${stringify(event.data)}`);
+    console.info(`Received step-completed event "${event.name}". Data: ${stringify(event.data)}`);
   });
 
   /**
    * Alternatively you can listen to a specific event
    */
   // route.progress.on("permit-signed", (e) => {
-  //   console.log("permit signed!")
+  //   console.info("permit signed!")
   // });
 
   // route.progress.on("approval-sent", (e) => {
-  //   console.log("approval sent!");
+  //   console.info("approval sent!");
   // });
 
   // route.progress.on("transfer-sent", (e) => {
-  //   console.log("transfer sent!");
+  //   console.info("transfer sent!");
   // });
 
   // route.progress.on("transfer-confirmed", (e) => {
-  //   console.log("transfer included!");
+  //   console.info("transfer included!");
   // });
 
   // route.progress.on("hop-redeemed", () => {
-  //   console.log("hop redeemed!");
+  //   console.info("hop redeemed!");
   // });
 
   // route.progress.on("hop-confirmed", () => {
-  //   console.log("hop confirmed");
+  //   console.info("hop confirmed");
   // });
 
   // route.progress.on("transfer-redeemed", (e) => {
-  //   console.log("transfer redeemed!");
+  //   console.info("transfer redeemed!");
   // });
 
   /**

@@ -57,18 +57,18 @@ const selectedRoutes = [routes.all[1]];
 
 for (const route of selectedRoutes) {
   route.transactionListener.on("transaction-sent", (e) => {
-    console.log("transaction sent!");
+    console.info("transaction sent!");
   });
 
   route.transactionListener.on("transaction-included", (e) => {
-    console.log("transaction included!");
+    console.info("transaction included!");
   });
 
   /**
    * Alternatively you can listen to all transaction events with a single handler:
    */
   route.transactionListener.on("*", (event) => {
-    console.log(`Received transaction event "${event.name}". Data: ${JSON.stringify(event.data)}`);
+    console.info(`Received transaction event "${event.name}". Data: ${JSON.stringify(event.data)}`);
   });
 
   console.info(`Executing route ${route.corridor} with -${route.steps.length}- steps`);

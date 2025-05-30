@@ -23,16 +23,15 @@ const overrides = [
   {
     files: ["examples/*"],
     rules: {
-      "no-console": "off",
+      "unicorn/no-console-spaces": off,
     },
   },
 ];
 
 const nodeEventsOverride = [
   {
-    files: ["src/transactionEmitter.ts", "src/progressEmitter.ts"],
+    files: ["src/*"],
     rules: {
-      "node/prefer-global": "off",
       "unicorn/prefer-node-protocol": "off",
     },
   },
