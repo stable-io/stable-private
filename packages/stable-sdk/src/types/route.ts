@@ -111,7 +111,7 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
 }
 
 export function isApprovalTx(subject: ContractTx): boolean {
-  const transferFuncSelector = selectorOf("approve()");
+  const approvalFuncSelector = selectorOf("approve()");
   return encoding.bytes.equals(
     subject.data.subarray(0, transferFuncSelector.length),
     transferFuncSelector
