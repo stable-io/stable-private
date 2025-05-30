@@ -45,7 +45,7 @@ console.info(`Recipient: ${recipient}`);
 
 const selectedRoutes = [routes.all[3]];
 
-for (const route of selectedRoutes) {  
+for (const route of selectedRoutes) {
   const hasBalance = await sdk.checkHasEnoughFunds(route);
   if (!hasBalance) {
     console.info(`${route.intent.sender} doesn't have enough balance to pay for the transfer`);
@@ -72,8 +72,14 @@ for (const route of selectedRoutes) {
   }
 
   console.info("Executing route...");
-  const { transactions, attestations, redeems, transferHash, redeemHash } = await sdk.executeRoute(route);
+  const {
+    transactions,
+    attestations,
+    redeems,
+    transferHash,
+    redeemHash,
+  } = await sdk.executeRoute(route);
 
-  console.info(`Transfer Sent: `, transferHash);
-  console.info(`Transfer Redeemed: `, redeemHash);
+  console.info(`Transfer Sent:`, transferHash);
+  console.info(`Transfer Redeemed:`, redeemHash);
 }

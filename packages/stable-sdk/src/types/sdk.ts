@@ -32,11 +32,11 @@ export abstract class SDK<N extends Network> {
   public abstract checkHasEnoughFunds(route: Route): Promise<boolean>;
 
   public abstract executeRoute(route: Route): Promise<{
-    transactions: TxHash[],
-    attestations: CctpAttestation[],
-    redeems: Redeem[],
-    transferHash: TxHash,
-    redeemHash: TxHash,
+    transactions: TxHash[];
+    attestations: CctpAttestation[];
+    redeems: Redeem[];
+    transferHash: TxHash;
+    redeemHash: TxHash;
   }>;
 
   public abstract getBalance(
@@ -45,7 +45,7 @@ export abstract class SDK<N extends Network> {
   ): Promise<Record<keyof EvmDomains, Amount>>;
 
   public abstract setSigner(signer: SDKOptions<N>["signer"]): void;
-  
+
   public abstract getSigner(
     chain: keyof EvmDomains
   ): ViemWalletClient;
