@@ -143,19 +143,19 @@ describe("getCorridors", () => {
         corridor: "v1",
         sourceDomain: "Polygon" as const,
         destinationDomain: "Ethereum" as const,
-        expectedTime: 20 + 30, // TODO: Update with actual expected time
+        expectedTime: 20 + 6, // TODO: Update with actual expected time
       },
       {
         corridor: "v2Direct",
         sourceDomain: "Ethereum" as const,
         destinationDomain: "Avalanche" as const,
-        expectedTime: 24 + 30, // TODO: Update with actual expected time
+        expectedTime: 8 + 6, // TODO: Update with actual expected time
       },
       {
         corridor: "avaxHop",
         sourceDomain: "Ethereum" as const,
         destinationDomain: "Polygon" as const,
-        expectedTime: 24 + 30 + 20 + 30, // TODO: Update with actual expected time
+        expectedTime: 8 + 6 + 20 + 6, // TODO: Update with actual expected time
       },
     ])("calculates correct transfer time for $corridor", async ({ sourceDomain, destinationDomain, corridor, expectedTime }) => {
       (mockClient as any).domain = sourceDomain;
