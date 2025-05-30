@@ -95,8 +95,8 @@ export interface TransferStep extends BaseRouteExecutionStep {
  */
 export function getStepType(txOrSig: ContractTx | Eip2612Data): StepType {
   if (isEip2612Data(txOrSig)) return "sign-permit";
-  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approve";
   if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
+  if (isContractTx(txOrSig)) return "pre-approve";
   throw new Error("Unknown Step Type");
 };
 
