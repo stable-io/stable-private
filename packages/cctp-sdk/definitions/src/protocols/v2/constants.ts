@@ -73,7 +73,7 @@ export const isFastDomain = (domain: Domain): domain is FastDomain =>
 // TODO: review numbers and add slow transfer numbers
 export const attestationTimeEstimates = {
   Mainnet: {
-    Ethereum:  8,
+    Ethereum:   8,
     Avalanche:  8,
     Arbitrum:   8,
     Base:       8,
