@@ -55,7 +55,7 @@ console.info(`Transfers from ${intent.sourceChain} to ${intent.targetChain}.`);
 console.info(`Sender: ${sender}`);
 console.info(`Recipient: ${recipient}`);
 
-const selectedRoutes = [routes.all[1]];
+const selectedRoutes = [routes.all[3]];
 
 for (const route of selectedRoutes) {
   const hasBalance = await sdk.checkHasEnoughFunds(route);

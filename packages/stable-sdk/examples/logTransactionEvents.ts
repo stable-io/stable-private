@@ -76,4 +76,3 @@ for (const route of selectedRoutes) {
 
   console.info("Done.");
 }
-

@@ -8,6 +8,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import StableSDK from "../src/index.js";
 import { Address } from "viem";
 import dotenv from "dotenv";
+import { bigintReplacer } from "../src/utils";
 
 dotenv.config();
 const privateKey = process.env.EVM_PRIVATE_KEY as Address;
@@ -16,9 +17,7 @@ const account = privateKeyToAccount(privateKey);
 const sender = account.address;
 const recipient = account.address;
 
-const rpcUrls = {
-  Ethereum: "https://ethereum-sepolia.rpc.subquery.network/public",
-};
+const rpcUrls = {};
 
 const sdk = new StableSDK({
   network: "Testnet",
@@ -29,21 +28,9 @@ const sdk = new StableSDK({
 const intent = {
   sourceChain: "Ethereum" as const,
   targetChain: "Optimism" as const,
-  /**
-   * @todo: why not just use usdc here?
-   */
   amount: "0.01",
-  /**
-   * @todo:
-   * sender and recipient should be optional for searching routes
-   * (we can simply default to 0x000...).
-   * @todo:
-   * do we really need the sender if we get the wallet client?
-   * after all, sender can"t be anyone but the signer :shrug:
-   */
   sender,
   recipient,
-
   gasDropoffDesired: 0n,
 };
 
@@ -53,7 +40,7 @@ console.info(`Transfers from ${intent.sourceChain} to ${intent.targetChain}.`);
 console.info(`Sender: ${sender}`);
 console.info(`Recipient: ${recipient}`);
 
-const selectedRoutes = [routes.all[1]];
+const selectedRoutes = [routes.all[3]];
 
 for (const route of selectedRoutes) {
   const hasBalance = await sdk.checkHasEnoughFunds(route);
@@ -62,44 +49,54 @@ for (const route of selectedRoutes) {
     continue;
   }
 
-  /**
-   * Alternatively you can listen to all transaction events with a single handler:
-   */
-  route.transactionListener.on("*", (event) => {
-    console.log(`Received transaction event "${event.name}". Data: ${JSON.stringify(event.data)}`);
-  });
-
-  route.progress.on("permit-signed", (e) => {
-    console.log("permit signed!")
-  });
-
-  route.progress.on("approval-sent", (e) => {
-    console.log("approval sent!");
-  });
-
-  route.progress.on("transfer-sent", (e) => {
-    console.log("transfer sent!");
-  });
-
-  route.progress.on("transfer-confirmed", (e) => {
-    console.log("transfer included!");
-  });
-
-  route.progress.on("transfer-redeemed", (e) => {
-    console.log("transfer redeemed!");
-  });
-
-  /**
-   * Alternatively you can listen to all events with a single handler:
-   */
-
   route.progress.on("step-completed", (event) => {
-    console.log(`Received step-completed event "${event.name}". Data: ${JSON.stringify(event.data)}`);
+    console.log(`Received step-completed event "${event.name}". Data: ${stringify(event.data)}`);
   });
 
+  /**
+   * Alternatively you can listen to a specific event
+   */
+  // route.progress.on("permit-signed", (e) => {
+  //   console.log("permit signed!")
+  // });
+
+  // route.progress.on("approval-sent", (e) => {
+  //   console.log("approval sent!");
+  // });
+
+  // route.progress.on("transfer-sent", (e) => {
+  //   console.log("transfer sent!");
+  // });
+
+  // route.progress.on("transfer-confirmed", (e) => {
+  //   console.log("transfer included!");
+  // });
+
+  // route.progress.on("hop-redeemed", () => {
+  //   console.log("hop redeemed!");
+  // });
+
+  // route.progress.on("hop-confirmed", () => {
+  //   console.log("hop confirmed");
+  // });
+
+  // route.progress.on("transfer-redeemed", (e) => {
+  //   console.log("transfer redeemed!");
+  // });
+
+  /**
+   * Alternatively you can listen to all events with a single handler.
+   * It will only emit all events that don't have a listener for that specific event
+   * (like the examples the above);
+   */
+
+  
   console.info(`Executing route ${route.corridor} with -${route.steps.length}- steps`);
   await sdk.executeRoute(route);
 
   console.info("Done.");
 }
 
+function stringify(obj: any) {
+  return JSON.stringify(obj, bigintReplacer);
+}
