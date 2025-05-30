@@ -4,9 +4,7 @@ import { Hex, TransactionReceipt } from "viem";
 export class TransactionEmitter extends (EventEmitter as { new(): TransactionEventEmitter }) {
   emit<K extends keyof TransactionEvents>(event: K, payload: TransactionEvents[K]): boolean {
     const result = super.emit(event, payload);
-    if (result) {
-      super.emit("*", { name: event, data: payload });
-    }
+    super.emit("*", { name: event, data: payload });
     return result;
   }
 }
