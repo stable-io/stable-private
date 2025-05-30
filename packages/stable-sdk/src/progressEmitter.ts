@@ -1,23 +1,32 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { encoding } from "@stable-io/utils";
 import { Permit } from "@stable-io/cctp-sdk-evm";
 import { Hex } from "./types/index.js";
 import { CctpAttestation } from "./methods/executeRoute/findTransferAttestation.js";
 import { Redeem } from "./types/redeem.js";
 
-export class TransferProgressEmitter extends (EventEmitter as { new(): TransferProgressEventEmitter }) {
-  emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean {
+export class TransferProgressEmitter extends (
+  EventEmitter as { new(): TransferProgressEventEmitter }
+) {
+  emit<
+    K extends keyof TransferProgressEvent,
+  >(event: K, payload: TransferProgressEvent[K]): boolean {
     const result = super.emit(event, payload);
     if (!result) {
-      super.emit('step-completed', { name: event, data: payload });
+      super.emit("step-completed", { name: event, data: payload });
     }
     return result;
   }
 }
 
 export interface TransferProgressEventEmitter extends EventEmitter {
-  on<K extends keyof TransferProgressEvent>(event: K, listener: (payload: TransferProgressEvent[K]) => void): this;
-  emit<K extends keyof TransferProgressEvent>(event: K, payload: TransferProgressEvent[K]): boolean;
+  on<
+    K extends keyof TransferProgressEvent,
+  >(event: K, listener: (payload: TransferProgressEvent[K]) => void): this;
+
+  emit<
+    K extends keyof TransferProgressEvent,
+  >(event: K, payload: TransferProgressEvent[K]): boolean;
 }
 
 // events related to the steps of the transfer, not necessarily
@@ -58,7 +67,7 @@ export function parsePermitEventData(permit: Permit): PermitSignedEventData {
   return {
     ...permit,
     signature: `0x${encoding.hex.encode(permit.signature)}`,
-  }
+  };
 };
 
 export type ApprovalSentEventData = {
@@ -72,7 +81,7 @@ export type ApprovalSentEventData = {
 
 export type TransferSentEventData = {
   transactionHash: Hex;
-  approvalType: "Permit" | "Preapproval" | "Gasless",
+  approvalType: "Permit" | "Preapproval" | "Gasless";
   gasDropOff: bigint;
   usdcAmount: number;
   recipient: Hex;

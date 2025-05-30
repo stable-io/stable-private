@@ -19,4 +19,13 @@ const tsConfig = {
   },
 };
 
-export default [...eslintConfig, ignoreConfig, tsConfig];
+const overrides = [
+  {
+    files: ["examples/*"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+];
+
+export default [...eslintConfig, ignoreConfig, tsConfig, ...overrides];

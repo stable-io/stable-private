@@ -112,7 +112,7 @@ function parseV2Attestation(message: v2.ApiResponseMessage): CctpV2Attestation {
       amount: attestation.messageBody.amount.toString(),
       messageSender: toEvmAddress(attestation.messageBody.messageSender),
       maxFee: attestation.messageBody.maxFee.toString(),
-      feeExecuted: attestation.messageBody.feeExecuted?.toString(),
+      feeExecuted: attestation.messageBody.feeExecuted.toString(),
       expirationBlock: attestation.messageBody.expirationBlock.toString(),
       hookData: encoding.hex.encode(attestation.messageBody.hookData),
     },

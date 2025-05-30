@@ -73,7 +73,7 @@ export const $executeRoute =
      * If it's avax hop, then we have redeemed the first
      * leg of the avax hop, and we need to find the second
      * transfer.
-     * 
+     *
      * Note that:
      * - "transfer-confirmed" is emitted when circle attests the first
      *   leg since this materializes the transfer.

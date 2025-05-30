@@ -4,11 +4,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
-import { domainIdOf, v1, v2 } from "@stable-io/cctp-sdk-definitions";
+import { domainIdOf, v1, v2, EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { TODO, Url } from "@stable-io/utils";
 import type { Network } from "../../types/index.js";
 import type { CctpAttestation } from "./findTransferAttestation.js";
-import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { parseAbiItem } from "viem/utils";
 import type { Hex } from "viem";
 import type { Redeem } from "src/types/redeem.js";
@@ -23,29 +22,30 @@ export async function findTransferRedeem<N extends Network>(
   rpcUrl: Url,
   attestation: CctpAttestation,
 ): Promise<Redeem> {
+  const { cctpVersion, nonce, sourceDomain, targetDomain } = attestation;
   const viemEvmClient = ViemEvmClient.fromNetworkAndDomain(
     network,
-    attestation.targetDomain,
+    targetDomain,
     rpcUrl,
   );
-  
+
   let fromBlock = await viemEvmClient.getLatestBlock() - REDEEM_SCAN_BLOCKS_BUFFER;
   while (true) {
     const [latestBlock, logs] = await Promise.all([
       viemEvmClient.getLatestBlock(),
-      attestation.cctpVersion === 1 ?
-        getV1RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetDomain, fromBlock) :
-        await getV2RedeemLogs(network, viemEvmClient, attestation.nonce, attestation.targetDomain, fromBlock),
+      cctpVersion === 1 ?
+        getV1RedeemLogs(network, viemEvmClient, nonce, targetDomain, fromBlock) :
+        await getV2RedeemLogs(network, viemEvmClient, nonce, targetDomain, fromBlock),
     ]);
 
-    const filteredLogs = logs.filter(log => log.args.sourceDomain === domainIdOf(attestation.sourceDomain));
+    const filteredLogs = logs.filter(log => log.args.sourceDomain === domainIdOf(sourceDomain));
     if (filteredLogs.length > 1) {
       throw new Error(`Found multiple ${filteredLogs.length} redeem logs for the same nonce.`);
     }
 
-    if (filteredLogs.length > 0) return { 
-      destinationDomain: attestation.targetDomain,
-      transactionHash: filteredLogs[0].transactionHash
+    if (filteredLogs.length > 0) return {
+      destinationDomain: targetDomain,
+      transactionHash: filteredLogs[0].transactionHash,
     };
 
     fromBlock = latestBlock;
@@ -68,6 +68,7 @@ async function getV1RedeemLogs<
   targetChain: keyof EvmDomains,
   fromBlock: bigint,
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const destContract = (v1.contractAddressOf as TODO)(network, targetChain, 0, 1);
 
   return await viemEvmClient.client.getLogs({
@@ -76,7 +77,7 @@ async function getV1RedeemLogs<
     fromBlock,
     args: {
       nonce,
-    }
+    },
   });
 };
 
@@ -94,6 +95,7 @@ async function getV2RedeemLogs<
   targetChain: keyof EvmDomains,
   fromBlock: bigint,
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const destContract = (v2.contractAddressOf as TODO)(network, targetChain, 0, 1);
 
   return await viemEvmClient.client.getLogs({
@@ -102,7 +104,6 @@ async function getV2RedeemLogs<
     fromBlock,
     args: {
       nonce,
-    }
+    },
   });
 };
-

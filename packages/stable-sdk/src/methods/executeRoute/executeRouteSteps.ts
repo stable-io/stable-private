@@ -17,7 +17,7 @@ import { ApprovalSentEventData, TransferSentEventData, parsePermitEventData } fr
 const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("atomic");
 
 export async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
-  network: N, route: Route, signer: ViemWalletClient, client: ViemEvmClient<N, D>
+  network: N, route: Route, signer: ViemWalletClient, client: ViemEvmClient<N, D>,
 ): Promise<TxHash[]> {
   const txHashes = [] as string[];
   let permit: Permit | undefined = undefined;
@@ -39,10 +39,8 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
 
       route.transactionListener.emit("transaction-included", receipt);
 
-
       const { eventName, eventData } = buildTransactionEventData(network, stepType, txOrSig, tx);
       route.progress.emit(eventName, eventData);
-
     } else if (stepType === "sign-permit" && isEip2612Data(txOrSig)) {
       const signature = await signer.signTypedData({
         account: signer.account!,
@@ -69,7 +67,7 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
   return txHashes;
 }
 
-function buildEvmTxParameters (tx: ContractTx, chain: ViemChain, account: ViemAccount) {
+function buildEvmTxParameters(tx: ContractTx, chain: ViemChain, account: ViemAccount) {
   const callData = `0x${Buffer.from(tx.data).toString("hex")}` as const;
   const txValue = tx.value
     ? BigInt(tx.value.toUnit("atomic").toString())
@@ -91,7 +89,6 @@ function buildEvmTxParameters (tx: ContractTx, chain: ViemChain, account: ViemAc
   };
 }
 
-
 function buildTransactionEventData(
   network: Network,
   stepType: "pre-approve" | "transfer",
@@ -104,20 +101,22 @@ function buildTransactionEventData(
   eventName: "transfer-sent";
   eventData: TransferSentEventData;
 } {
-
-  if (stepType === "pre-approve") {
-    return { eventName: "approval-sent", eventData: parseApprovalTransactionEventData(contractTx, txHash) };
-  } else if (stepType === "transfer") {
-    return { eventName: "transfer-sent", eventData: parseTransferTransactionEventData(network, contractTx, txHash) };
-  }
-
-  // never.
-  throw new Error(`Unknown step type: ${stepType}`);
+  return stepType === "pre-approve"
+? {
+      eventName: "approval-sent",
+      eventData: parseApprovalTransactionEventData(contractTx, txHash),
+    }
+: {
+      eventName: "transfer-sent",
+      eventData: parseTransferTransactionEventData(network, contractTx, txHash),
+    };
 }
 
 const approveAbi = parseAbiItem("function approve(address, uint256) view returns (bool)");
 
-function parseApprovalTransactionEventData (contractTx: ContractTx, txHash: Hex): ApprovalSentEventData {
+function parseApprovalTransactionEventData(
+  contractTx: ContractTx, txHash: Hex,
+): ApprovalSentEventData {
   const callData = `0x${Buffer.from(contractTx.data).toString("hex")}` as const;
   const approvalAmount = decodeFunctionData({
     abi: [approveAbi],
@@ -130,7 +129,9 @@ function parseApprovalTransactionEventData (contractTx: ContractTx, txHash: Hex)
   };
 }
 
-function parseTransferTransactionEventData (network: Network, contractTx: ContractTx, txHash: Hex): TransferSentEventData {
+function parseTransferTransactionEventData(
+  network: Network, contractTx: ContractTx, txHash: Hex
+): TransferSentEventData {
   const transferData = parseTransferTxCalldata(network)(contractTx.data);
   // there's plenty other params on the call data we could extract if we wished to.
   return {

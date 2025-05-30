@@ -9,11 +9,10 @@ import {
   EvmDomains,
   GasTokenOf,
 } from "@stable-io/cctp-sdk-definitions";
-import { Permit } from "@stable-io/cctp-sdk-evm";
+import { Permit, ContractTx, Eip2612Data, selectorOf } from "@stable-io/cctp-sdk-evm";
 import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
-import { ContractTx, Eip2612Data, selectorOf } from "@stable-io/cctp-sdk-evm";
 import { encoding } from "@stable-io/utils";
 import { TransferProgressEventEmitter } from "../progressEmitter.js";
 import { TransactionEventEmitter } from "../transactionEmitter.js";
@@ -21,7 +20,6 @@ import { TransactionEventEmitter } from "../transactionEmitter.js";
 export type StepType = "sign-permit" | "pre-approve" | "transfer";
 
 export type Fee = Usdc | GasTokenOf<keyof EvmDomains>;
-
 
 export interface Route {
   corridor: Corridor;
@@ -87,11 +85,11 @@ export interface PreApproveStep extends BaseRouteExecutionStep {
 };
 
 export interface TransferStep extends BaseRouteExecutionStep {
-  type: "transfer"
+  type: "transfer";
 };
 
 /**
- * 
+ *
  * @param txOrSig at the moment cctp-sdk returns either a contract transaction to sign and send
  *                or a eip2612 message to sign and return to it.
  */
@@ -116,7 +114,7 @@ export function isApprovalTx(subject: ContractTx): boolean {
   const approvalFuncSelector = selectorOf("approve()");
   return encoding.bytes.equals(
     subject.data.subarray(0, approvalFuncSelector.length),
-    approvalFuncSelector
+    approvalFuncSelector,
   );
 }
 
@@ -133,7 +131,6 @@ export function isTransferTx(subject: ContractTx): boolean {
   const approvalFuncSelector = selectorOf("exec768()");
   return encoding.bytes.equals(
     subject.data.subarray(0, approvalFuncSelector.length),
-    approvalFuncSelector
+    approvalFuncSelector,
   );
 }
-

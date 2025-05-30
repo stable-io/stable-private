@@ -62,10 +62,6 @@ export const $findRedeem =
     // ===========================
     const { destinationDomain, destinationCaller } = decodedMessage;
 
-    // TODO: Remove this eventually
-    if (avaxRouterContractAddress[network] === undefined) {
-      throw new Error(`Avalanche router contract address not deployed in ${network}`);
-    }
     const avaxRouter = new UniversalAddress(avaxRouterContractAddress[network], "Evm");
     const isAvaxHop = destinationCaller.equals(avaxRouter) && destinationDomain === "Avalanche";
     if (isAvaxHop && avaxFromBlock === undefined) {
