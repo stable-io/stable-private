@@ -20,9 +20,7 @@ const Home = () => {
   const [route, setRoute] = useState<Route | undefined>();
   const [isInProgress, setIsInProgress] = useState(false);
   const [txHash, setTxHash] = useState<string | undefined>();
-  const explorerUrl = txHash
-    ? getExplorerUrl("Testnet", txHash)
-    : "#";
+  const explorerUrl = txHash ? getExplorerUrl("Testnet", txHash) : "#";
 
   const [sourceChain, setSourceChain] = useState<AvailableChains>(
     availableChains[0],
