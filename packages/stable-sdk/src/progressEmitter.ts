@@ -1,4 +1,4 @@
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import { encoding } from "@stable-io/utils";
 import { Permit } from "@stable-io/cctp-sdk-evm";
 import { Hex } from "./types/index.js";

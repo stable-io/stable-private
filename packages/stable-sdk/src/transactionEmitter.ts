@@ -1,4 +1,4 @@
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 
 export class TransactionEmitter extends (EventEmitter as { new(): TransactionEventEmitter }) {
   emit<K extends keyof TransactionEvents>(event: K, payload: TransactionEvents[K]): boolean {
