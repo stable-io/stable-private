@@ -1,0 +1,122 @@
+---
+description:
+globs: *.tsx,*.ts,*.js,*.jsx
+alwaysApply: false
+---
+# Async Call Pattern Rule
+
+Rule for enforcing proper async call patterns and preventing floating promises.
+
+<rule>
+name: async_call_patterns
+description: Enforce proper handling of async calls and prevent floating promises
+filters:
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match async function calls
+  - type: content
+    pattern: "\\w+\\(\\)(?!\\s*\\.(then|catch|finally))"
+  # Match useEffect with async calls
+  - type: content
+    pattern: "useEffect\\(.*\\w+\\(\\)"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "useEffect\\(.*\\w+\\(\\).*\\)"
+        message: "Async calls in useEffect must be properly handled. Use 'void' for fire-and-forget or add proper error handling."
+
+  - type: suggest
+    message: |
+      **Handle async calls properly:**
+
+      ### ✅ Fire-and-Forget Pattern (useEffect)
+      ```typescript
+      // Good: Explicit void for fire-and-forget
+      useEffect(() => {
+        void updateBalance(); // Explicitly mark as ignored
+      }, [updateBalance]);
+
+      // Good: IIFE with proper error handling
+      useEffect(() => {
+        (async () => {
+          try {
+            await updateBalance();
+          } catch (error) {
+            console.error('Failed to update balance:', error);
+          }
+        })();
+      }, [updateBalance]);
+      ```
+
+      ### ✅ Promise Chain Pattern
+      ```typescript
+      // Good: Proper promise chain
+      const handleTransfer = () => {
+        stable
+          .executeRoute(route)
+          .then(({ transferHash }) => {
+            setTxHash(transferHash);
+            void updateBalance(); // Fire-and-forget
+          })
+          .catch((error: unknown) => {
+            console.error(error);
+          })
+          .finally(() => {
+            setIsInProgress(false);
+          });
+      };
+      ```
+
+      ### ✅ Async/Await Pattern
+      ```typescript
+      // Good: Async function with proper error handling
+      const handleTransfer = async () => {
+        try {
+          setIsInProgress(true);
+          const { transferHash } = await stable.executeRoute(route);
+          setTxHash(transferHash);
+          void updateBalance(); // Fire-and-forget
+        } catch (error: unknown) {
+          console.error(error);
+        } finally {
+          setIsInProgress(false);
+        }
+      };
+      ```
+
+      ### ❌ Floating Promise Anti-patterns
+      ```typescript
+      // Bad: Floating promise in useEffect
+      useEffect(() => {
+        updateBalance(); // Linter error: floating promise
+      }, [updateBalance]);
+
+      // Bad: Unhandled async call
+      const handleClick = () => {
+        fetchData(); // No error handling
+      };
+      ```
+
+      ### Guidelines
+      - Use `void` operator for intentional fire-and-forget calls
+      - Always handle errors in async operations
+      - Prefer async/await over promise chains for complex logic
+      - Use promise chains for simple transformations
+      - Never ignore floating promise linter warnings
+
+examples:
+  - input: |
+      useEffect(() => {
+        updateBalance();
+      }, [updateBalance]);
+    output: |
+      useEffect(() => {
+        void updateBalance();
+      }, [updateBalance]);
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

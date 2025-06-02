@@ -1,0 +1,80 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Avoid Unnecessary Comments
+
+Rule for eliminating code smell comments and promoting self-documenting code.
+
+<rule>
+name: avoid_unnecessary_comments
+description: Enforce minimal comment usage and promote clean, self-documenting code
+filters:
+  # Match comment patterns that could be avoided
+  - type: content
+    pattern: "//\\s*(TODO|FIXME|HACK|NOTE):"
+  # Match obvious comments in any language
+  - type: content
+    pattern: "(//|#|/\\*)\\s*(Set|Get|Create|Update|Delete|Initialize|Listen for|Handle)"
+
+actions:
+  - type: suggest
+    message: |
+      **Avoid unnecessary comments** - they are often a code smell indicating unclear code.
+
+      ### When Comments Are Acceptable
+      - **External context**: Links to resources, API documentation, or external requirements
+      - **Workarounds**: Explaining why non-obvious code is necessary
+      - **TODO items**: Marking future work (but prefer issue tracking)
+      - **Tool configuration**: ESLint disable rules, coverage ignores, etc.
+
+      ### Self-Documenting Code Patterns
+      ```typescript
+      // ❌ Obvious comments
+      // Listen for transfer transaction sent
+      route.transactionListener.on("transaction-sent", handleTxSent);
+
+      // Initialize the state
+      const [isLoading, setIsLoading] = useState(false);
+
+      // ✅ Self-documenting with descriptive names
+      const handleTransferTransactionSent = (eventData) => setTransferTxHash(eventData.transactionHash);
+      route.transactionListener.on("transaction-sent", handleTransferTransactionSent);
+
+      const [isTransferInProgress, setIsTransferInProgress] = useState(false);
+      ```
+
+      ### Acceptable Comment Examples
+      ```typescript
+      // ✅ External context
+      // See: https://docs.circle.com/cctp/reference/api-reference
+      const attestationResponse = await fetch(cctpApiUrl);
+
+      // ✅ Workaround explanation
+      // Viem requires explicit chain ID string conversion for wallet client
+      primaryWallet.getWalletClient(chain.id.toString(10))
+
+      // ✅ Tool configuration
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const result = (v1.contractAddressOf as TODO)(network, targetChain);
+      ```
+
+      ### Code Quality Principles
+      - Use descriptive variable and function names
+      - Extract complex logic into well-named functions
+      - Group related state and operations logically
+      - Keep functions small and focused on single responsibilities
+
+examples:
+  - input: |
+      // Set up event listener for redeem success
+      route.progress.on("transfer-redeemed", handleRedeem);
+    output: |
+      const handleTransferRedeemed = (redeemData) => setRedeemTxHash(redeemData.transactionHash);
+      route.progress.on("transfer-redeemed", handleTransferRedeemed);
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

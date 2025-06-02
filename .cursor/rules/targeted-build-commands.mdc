@@ -1,0 +1,82 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Targeted Build Commands
+
+Rule for using efficient build commands instead of building the entire monorepo unnecessarily.
+
+<rule>
+name: targeted_build_commands
+description: Use efficient, targeted build commands for faster development feedback
+filters:
+  # Match build commands in terminal or documentation
+  - type: content
+    pattern: "(?i)(yarn\\s+build|npm\\s+run\\s+build)"
+  # Match when suggesting build verification
+  - type: content
+    pattern: "(?i)(verify|check|build|compile).*build"
+
+actions:
+  - type: suggest
+    message: |
+      **Use targeted build commands** for faster development feedback:
+
+      ### For TypeScript Checking (Fastest)
+      ```bash
+      # ✅ Next.js TypeScript check only
+      cd apps/front-end && yarn build:check
+
+      # ✅ Individual package TypeScript check
+      yarn workspace @stable-io/sdk run build:check
+      ```
+
+      ### For Individual Package Builds
+      ```bash
+      # ✅ Build specific package
+      yarn workspace @stable-io/sdk build
+      yarn workspace @stable-io/front-end build
+
+      # ✅ Build from package directory
+      cd packages/stable-sdk && yarn build
+      cd apps/front-end && yarn build
+      ```
+
+      ### When to Use Full Monorepo Build
+      ```bash
+      # ❌ Usually unnecessary for development
+      yarn build  # Builds everything
+
+      # ✅ Only use when:
+      # - Debugging cross-package build issues
+      # - Setting up CI/CD
+      # - Publishing/releasing
+      # - First-time setup after dependency changes
+      ```
+
+      ### Command Priority (fastest to slowest)
+      1. **TypeScript check**: `yarn build:check` (seconds)
+      2. **Single package**: `yarn workspace <pkg> build` (10-30s)
+      3. **Full monorepo**: `yarn build` (minutes)
+
+      ### Package-Specific Patterns
+      - **Next.js apps**: Use `build:check` for TS verification, `build` for full build
+      - **SDK packages**: Use `build` to generate dist files for testing
+      - **Shared utilities**: Use `build` when changes affect dependents
+
+examples:
+  - input: |
+      # Verify the build works
+      yarn build
+    output: |
+      # Verify TypeScript compilation
+      cd apps/front-end && yarn build:check
+
+      # Or for full build verification of specific package
+      cd apps/front-end && yarn build
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

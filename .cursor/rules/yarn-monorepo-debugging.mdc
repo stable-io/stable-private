@@ -1,0 +1,80 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Yarn Monorepo Debugging
+
+First steps for debugging build/lint issues in Yarn monorepos.
+
+<rule>
+name: yarn_monorepo_debugging
+description: First steps for debugging build/lint issues in Yarn monorepos
+filters:
+  # Match build/lint errors and dependency issues
+  - type: error
+    pattern: "(?i)(build|lint|compile|dependency|package).*error"
+  # Match when working with package.json or yarn.lock
+  - type: file_extension
+    pattern: "\\.(json|lock)$"
+  # Match TypeScript/JavaScript files with import issues
+  - type: content
+    pattern: "(?i)(import|require).*error"
+  # Match module resolution errors
+  - type: content
+    pattern: "(?i)cannot find module"
+
+actions:
+  - type: suggest
+    message: |
+      When debugging build or lint issues in this Yarn monorepo, **ALWAYS** try these steps first from the root directory:
+
+      ### First Debugging Steps
+      1. **Ensure all dependencies are installed:**
+         ```bash
+         yarn install
+         ```
+
+      2. **Build all packages to ensure they're up to date:**
+         ```bash
+         yarn build
+         ```
+
+      ### Why This Helps
+      - Packages in monorepos can get out of sync with each other
+      - One package might depend on build artifacts from another
+      - Missing or outdated dependencies can cause cascading failures
+      - Building from root ensures all cross-package dependencies are resolved
+
+      ### Common Scenarios
+      ```bash
+      # ❌ Error: Cannot find module '@my-org/shared-utils'
+      # ❌ Build failed in packages/web-app
+      # ❌ TypeScript errors about missing types
+
+      # ✅ Solution: Run from root directory
+      yarn install
+      yarn build
+      ```
+
+      ### Additional Debugging Steps
+      If issues persist after the first steps:
+      - Check if the specific package has its own build command
+      - Verify workspace dependencies in package.json files
+      - Look for TypeScript path mapping issues
+      - Check for circular dependencies between packages
+      - Verify the package is properly listed in the root package.json workspaces
+
+examples:
+  - input: |
+      Error: Cannot find module '@my-org/shared-utils'
+      Build failed in packages/web-app
+      TypeScript errors about missing types
+    output: |
+      Run `yarn install` and `yarn build` from root first.
+      The shared-utils package may not be built or installed properly.
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

@@ -1,0 +1,138 @@
+---
+description:
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+# State Reset Patterns
+
+Rule for using single reset functions instead of multiple individual state resets.
+
+<rule>
+name: state_reset_patterns
+description: Use single reset functions for cleaner state management when resetting multiple related state variables
+filters:
+  # Match React component files
+  - type: file_extension
+    pattern: "\\.(tsx|jsx|ts|js)$"
+  # Match multiple setState calls
+  - type: content
+    pattern: "set\\w+\\(.*\\);\\s*set\\w+\\(.*\\);\\s*set\\w+\\(.*\\);"
+  # Match undefined/null/false resets
+  - type: content
+    pattern: "set\\w+\\((undefined|null|false|''|\"\")\\)"
+
+actions:
+  - type: suggest
+    message: |
+      **Use single reset functions** for cleaner state management when resetting multiple related state variables:
+
+      ### Pattern 1: Dedicated Reset Function
+      ```tsx
+      // ✅ Single reset function for related state
+      const resetTransferState = useCallback(() => {
+        setTransferTxHash(undefined);
+        setRedeemTxHash(undefined);
+        setIsInProgress(false);
+        setErrorMessage(undefined);
+      }, []);
+
+      const handleTransfer = () => {
+        resetTransferState(); // Clean single call
+        // ... rest of transfer logic
+      };
+      ```
+
+      ### Pattern 2: State Object with Single Setter
+      ```tsx
+      // ✅ Single state object for related data
+      const [transferState, setTransferState] = useState({
+        transferTxHash: undefined,
+        redeemTxHash: undefined,
+        isInProgress: false,
+        errorMessage: undefined
+      });
+
+      const resetTransferState = () => {
+        setTransferState({
+          transferTxHash: undefined,
+          redeemTxHash: undefined,
+          isInProgress: false,
+          errorMessage: undefined
+        });
+      };
+      ```
+
+      ### Pattern 3: useReducer for Complex State
+      ```tsx
+      // ✅ useReducer for complex state management
+      const transferReducer = (state, action) => {
+        switch (action.type) {
+          case 'RESET':
+            return { transferTxHash: undefined, redeemTxHash: undefined, isInProgress: false };
+          case 'START_TRANSFER':
+            return { ...state, isInProgress: true };
+          case 'SET_TRANSFER_HASH':
+            return { ...state, transferTxHash: action.payload };
+          default:
+            return state;
+        }
+      };
+
+      const [transferState, dispatch] = useReducer(transferReducer, {
+        transferTxHash: undefined,
+        redeemTxHash: undefined,
+        isInProgress: false
+      });
+
+      const resetTransferState = () => dispatch({ type: 'RESET' });
+      ```
+
+      ### ❌ Patterns to Avoid
+      ```tsx
+      // ❌ Multiple individual resets scattered throughout code
+      const handleTransfer = () => {
+        setTransferTxHash(undefined);
+        setRedeemTxHash(undefined);
+        setIsInProgress(true);
+        setErrorMessage(undefined);
+        // ... more logic ...
+
+        executeRoute().catch(() => {
+          setTransferTxHash(undefined);  // Repeated resets
+          setRedeemTxHash(undefined);
+          setIsInProgress(false);
+          setErrorMessage("Transfer failed");
+        });
+      };
+      ```
+
+      ### When to Use Each Pattern
+      - **Reset function**: 2-4 related state variables, simple reset logic
+      - **State object**: Closely related data that changes together
+      - **useReducer**: Complex state transitions, multiple state update patterns
+
+      ### Benefits
+      - **Consistency**: Single source of truth for reset logic
+      - **Maintainability**: Easy to update reset behavior
+      - **Readability**: Clear intent with descriptive function names
+      - **DRY**: Avoid repeating reset logic throughout component
+
+examples:
+  - input: |
+      setTransferTxHash(undefined);
+      setRedeemTxHash(undefined);
+      setIsInProgress(false);
+    output: |
+      const resetTransferState = useCallback(() => {
+        setTransferTxHash(undefined);
+        setRedeemTxHash(undefined);
+        setIsInProgress(false);
+      }, []);
+
+      // Usage:
+      resetTransferState();
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

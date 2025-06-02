@@ -1,0 +1,121 @@
+---
+description:
+globs: *.tsx,*.jsx
+alwaysApply: false
+---
+# React Event Listener Cleanup
+
+Rule for implementing proper event listener cleanup in React components.
+
+<rule>
+name: react_event_listener_cleanup
+description: Enforce proper cleanup of event listeners in React components to prevent memory leaks
+filters:
+  # Match React component files
+  - type: file_extension
+    pattern: "\\.(tsx|jsx)$"
+  # Match event listener patterns
+  - type: content
+    pattern: "\\.on\\(|addEventListener\\(|addListener\\("
+  # Match SDK event emitter usage
+  - type: content
+    pattern: "(progress|transactionListener)\\.on\\("
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "\\.on\\(.*=>.*\\)"
+        message: "Event listeners in React components must implement cleanup to prevent memory leaks"
+
+  - type: suggest
+    message: |
+      **Always implement event listener cleanup** in React components to prevent memory leaks:
+
+      ### Pattern 1: useEffect with Cleanup
+      ```tsx
+      // ✅ Proper cleanup in useEffect
+      useEffect(() => {
+        if (!route) return;
+
+        const handleTransferRedeemed = (data) => {
+          setRedeemTxHash(data.transactionHash);
+          updateBalance();
+        };
+
+        route.progress.on("transfer-redeemed", handleTransferRedeemed);
+
+        // Cleanup function
+        return () => {
+          route.progress.off("transfer-redeemed", handleTransferRedeemed);
+        };
+      }, [route, updateBalance]);
+      ```
+
+      ### Pattern 2: Manual Cleanup in Event Handlers
+      ```tsx
+      // ✅ Manual cleanup when component unmounts or state changes
+      const handleTransfer = useCallback(() => {
+        if (!route) return;
+
+        // Store references for cleanup
+        const handleTxSent = (data) => setTransferTxHash(data.transactionHash);
+        const handleRedeemed = (data) => setRedeemTxHash(data.transactionHash);
+
+        route.transactionListener.on("transaction-sent", handleTxSent);
+        route.progress.on("transfer-redeemed", handleRedeemed);
+
+        // Clean up when transfer completes
+        executeRoute(route).finally(() => {
+          route.transactionListener.off("transaction-sent", handleTxSent);
+          route.progress.off("transfer-redeemed", handleRedeemed);
+        });
+      }, [route]);
+      ```
+
+      ### ❌ Memory Leak Patterns to Avoid
+      ```tsx
+      // ❌ No cleanup - causes memory leaks
+      route.progress.on("transfer-redeemed", (data) => {
+        setRedeemTxHash(data.transactionHash);
+      });
+
+      // ❌ Anonymous functions can't be removed
+      useEffect(() => {
+        route.progress.on("transfer-redeemed", (data) => setRedeemTxHash(data.transactionHash));
+        // Can't clean up anonymous function!
+      }, [route]);
+      ```
+
+      ### SDK Event Emitter Cleanup Patterns
+      - **Route progress events**: Clean up when route changes or component unmounts
+      - **Transaction listeners**: Clean up when transfer completes or component unmounts
+      - **Wallet events**: Clean up when wallet disconnects or component unmounts
+
+      ### Memory Leak Prevention Checklist
+      - [ ] Named function references (not anonymous)
+      - [ ] Cleanup in useEffect return function
+      - [ ] Remove listeners on component unmount
+      - [ ] Remove listeners when dependencies change
+      - [ ] Handle cleanup in error cases
+
+examples:
+  - input: |
+      route.progress.on("transfer-redeemed", (data) => {
+        setRedeemTxHash(data.transactionHash);
+      });
+    output: |
+      useEffect(() => {
+        if (!route) return;
+
+        const handleTransferRedeemed = (data) => setRedeemTxHash(data.transactionHash);
+        route.progress.on("transfer-redeemed", handleTransferRedeemed);
+
+        return () => {
+          route.progress.off("transfer-redeemed", handleTransferRedeemed);
+        };
+      }, [route]);
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

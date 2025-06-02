@@ -1,0 +1,87 @@
+---
+description:
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+# TypeScript SDK Pattern Rule
+
+Rule for enforcing proper TypeScript patterns when working with the Stable SDK.
+
+<rule>
+name: typescript_sdk_patterns
+description: Guide proper TypeScript patterns for Stable SDK usage
+filters:
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match SDK imports
+  - type: content
+    pattern: "import.*@stable-io/sdk"
+  # Match complex InstanceType patterns
+  - type: content
+    pattern: "InstanceType<typeof.*SDK"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "InstanceType<typeof import\\(.*\\)\\.default>"
+        message: "Avoid complex InstanceType patterns. Use direct import and generic typing instead."
+
+  - type: suggest
+    message: |
+      **Use clean SDK typing patterns:**
+
+      ### ✅ Preferred SDK Type Patterns
+      ```typescript
+      // Good: Direct import with generic
+      import type Stable from "@stable-io/sdk";
+
+      interface Props {
+        stable?: Stable<"Testnet">;  // Clean and readable
+      }
+
+      // Good: Context typing
+      interface StableSdkContextValue {
+        stable?: Stable<"Testnet">;
+        address?: string;
+        isConnected: boolean;
+      }
+      ```
+
+      ### ❌ Avoid Complex Type Gymnastics
+      ```typescript
+      // Bad: Complex InstanceType pattern
+      stable?: InstanceType<typeof import("@stable-io/sdk").default>;
+
+      // Bad: Using any to avoid typing issues
+      stable?: any;
+      ```
+
+      ### SDK Import Guidelines
+      - Use `import Stable from "@stable-io/sdk"` for class import
+      - Use `import type { Route } from "@stable-io/sdk"` for type imports
+      - Always specify network generic: `Stable<"Testnet">` or `Stable<"Mainnet">`
+      - Prefer direct SDK context over prop drilling
+
+      ### Common Patterns
+      ```typescript
+      // Context Provider
+      const stable = useMemo(() =>
+        signer ? new Stable({ network: "Testnet", signer }) : undefined,
+        [signer]
+      );
+
+      // Hook Usage
+      const { stable } = useStableSdkContext();
+      ```
+
+examples:
+  - input: |
+      stable?: InstanceType<typeof import("@stable-io/sdk").default>;
+    output: |
+      stable?: Stable<"Testnet">;
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

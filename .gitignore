@@ -7,7 +7,9 @@
 *.pem
 
 # Editor
-.cursor/
+.cursor/*
+!.cursor/rules/
+.cursor/rules/*.private.mdc
 .idea/
 .tmp/
 .vscode/
@@ -19,7 +21,7 @@ node_modules/
 npm-debug.log*
 
 # Yarn
-.yarn/
+.yarn/*
 !.yarn/patches/
 !.yarn/plugins/
 !.yarn/releases/
