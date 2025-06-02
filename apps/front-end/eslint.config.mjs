@@ -61,6 +61,23 @@ const filteredNextCoreWebVitals = removeConflictingPlugins(
 );
 const filteredNextTypescript = removeConflictingPlugins(nextTypescriptConfig);
 
+const importRestrictionsConfig = {
+  name: "front-end:import-restrictions",
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["src/*", "**/src/*", "../../../*"],
+            message: "Use @/* alias for cross-directory imports instead of literal 'src/' paths. Use relative imports (../) only up to 2 levels deep."
+          }
+        ]
+      }
+    ]
+  }
+};
+
 const flatConfig = [
   ...filteredNextCoreWebVitals,
   ...filteredNextTypescript,
@@ -68,6 +85,7 @@ const flatConfig = [
   ignoreConfig,
   tsConfig,
   tsxConfig,
+  importRestrictionsConfig,
   prettierConfig,
 ];
 

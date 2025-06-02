@@ -1,7 +1,7 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { DynamicProvider } from "@/providers/DynamicProvider";
-import { Layout } from "@/components/sections/Layout";
+import { Layout } from "@/components";
 import "@/styles/globals.css";
 
 const App = ({ Component, pageProps }: AppProps) => (
