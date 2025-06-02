@@ -1,12 +1,14 @@
-import type { Network, Route } from "@stable-io/sdk";
+import { isEthereumWallet } from "@dynamic-labs/ethereum";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import type { EvmPlatformSigner, Network, Route } from "@stable-io/sdk";
+import Stable from "@stable-io/sdk";
 import Head from "next/head";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { ChainSelect } from "@/components";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChainSelect, WalletChip } from "@/components";
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
 import { availableChains, gasDropoffs } from "@/constants";
-import { account, stable } from "@/context";
-import { formatNumber, truncateAddress } from "@/utils";
+import { formatNumber } from "@/utils";
 
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
@@ -28,17 +30,45 @@ const Home = () => {
   const [targetChain, setTargetChain] = useState<AvailableChains>(
     availableChains[1],
   );
+  const dynamicContext = useDynamicContext();
+  const { primaryWallet } = dynamicContext;
+  const address = useMemo(() => primaryWallet?.address, [primaryWallet]);
+  const signer: EvmPlatformSigner | undefined = useMemo(
+    () =>
+      primaryWallet && isEthereumWallet(primaryWallet)
+        ? {
+            platform: "Evm" as const,
+            getWalletClient: (chain) =>
+              primaryWallet.getWalletClient(chain.id.toString(10)),
+          }
+        : undefined,
+    [primaryWallet],
+  );
+  const stable = useMemo(
+    () =>
+      signer
+        ? new Stable({
+            network: "Testnet",
+            signer,
+          })
+        : undefined,
+    [signer],
+  );
 
   const updateBalance = useCallback(() => {
+    if (!address) {
+      setBalance(0);
+      return;
+    }
     stable
-      .getBalance(account.address, [sourceChain])
+      ?.getBalance(address, [sourceChain])
       .then((balances) => {
         setBalance(Number.parseFloat(balances[sourceChain]));
       })
       .catch((error: unknown) => {
         console.error(error);
       });
-  }, [sourceChain]);
+  }, [address, sourceChain, stable]);
 
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
 
@@ -48,13 +78,27 @@ const Home = () => {
   //   setAmount(maxAmount);
   // };
 
+  const handleSelectSourceChain = (chain: AvailableChains): void => {
+    setSourceChain(chain);
+    if (targetChain === chain) {
+      setTargetChain(sourceChain);
+    }
+  };
+
+  const handleSelectTargetChain = (chain: AvailableChains): void => {
+    setTargetChain(chain);
+    if (sourceChain === chain) {
+      setSourceChain(targetChain);
+    }
+  };
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newAmount = Number.parseFloat(e.target.value) || 0;
     setAmount(newAmount);
   };
 
   const handleTransfer = () => {
-    if (!route) {
+    if (!route || !stable) {
       return;
     }
     setIsInProgress(true);
@@ -78,6 +122,9 @@ const Home = () => {
   }, [updateBalance]);
 
   useEffect(() => {
+    if (!address || !stable) {
+      return;
+    }
     setRoute(undefined);
     stable
       .findRoutes(
@@ -85,8 +132,8 @@ const Home = () => {
           sourceChain,
           targetChain,
           amount: amount.toString(10),
-          sender: account.address,
-          recipient: account.address,
+          sender: address,
+          recipient: address,
           gasDropoffDesired,
         },
         {},
@@ -97,7 +144,7 @@ const Home = () => {
       .catch((error: unknown) => {
         console.error(error);
       });
-  }, [amount, gasDropoffDesired, sourceChain, targetChain]);
+  }, [address, amount, gasDropoffDesired, sourceChain, stable, targetChain]);
 
   return (
     <>
@@ -135,24 +182,11 @@ const Home = () => {
                     title="From"
                     chains={availableChains}
                     selectedChain={sourceChain}
-                    onSelect={setSourceChain}
+                    onSelect={handleSelectSourceChain}
                   />
                 </div>
                 <div className="right">
-                  <div className="wallet-chip">
-                    <Image
-                      src="/imgs/metamask-logo.svg"
-                      alt="MetaMask"
-                      className="wallet-icon"
-                      unoptimized
-                      height={16}
-                      width={16}
-                    />
-                    <span className="address">
-                      {truncateAddress(account.address)}
-                    </span>
-                    <button className="edit-btn">Edit</button>
-                  </div>
+                  <WalletChip address={address} />
                   <div className="balance">
                     <span>Balance: {formatNumber(balance)} USDC</span>
                   </div>
@@ -201,24 +235,11 @@ const Home = () => {
                     title="To"
                     chains={availableChains}
                     selectedChain={targetChain}
-                    onSelect={setTargetChain}
+                    onSelect={handleSelectTargetChain}
                   />
                 </div>
                 <div className="right">
-                  <div className="wallet-chip">
-                    <Image
-                      src="/imgs/metamask-logo.svg"
-                      alt="MetaMask"
-                      className="wallet-icon"
-                      unoptimized
-                      height={16}
-                      width={16}
-                    />
-                    <span className="address">
-                      {truncateAddress(account.address)}
-                    </span>
-                    <button className="edit-btn">Edit</button>
-                  </div>
+                  <WalletChip address={address} />
                 </div>
               </div>
               <div className="gas-settings">

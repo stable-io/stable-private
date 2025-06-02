@@ -3,7 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { createWalletClient } from "viem";
+import type { WalletClient as ViemWalletClient } from "viem";
 import { EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { Address, Amount, Chain, Network, TxHash } from "./general.js";
 import { Intent } from "./intent.js";
@@ -11,7 +11,9 @@ import { Route } from "./route.js";
 import { EvmPlatformSigner } from "./signer.js";
 import { Url } from "@stable-io/utils";
 import { Redeem } from "./redeem.js";
-import { CctpAttestation } from "src/methods/executeRoute/findTransferAttestation.js";
+import { CctpAttestation } from "../methods/executeRoute/findTransferAttestation.js";
+
+export type { WalletClient as ViemWalletClient } from "viem";
 
 export interface SDKOptions<N extends Network> {
   network: N;
@@ -45,15 +47,10 @@ export abstract class SDK<N extends Network> {
   ): Promise<Record<keyof EvmDomains, Amount>>;
 
   public abstract setSigner(signer: SDKOptions<N>["signer"]): void;
-
-  public abstract getSigner(
-    chain: keyof EvmDomains
-  ): ViemWalletClient;
+  public abstract getSigner(chain: keyof EvmDomains): Promise<ViemWalletClient>;
 
   public abstract getRpcUrl(domain: keyof EvmDomains): Url;
 }
-
-export type ViemWalletClient = ReturnType<typeof createWalletClient>;
 
 export interface RoutesResult {
   all: Route[];

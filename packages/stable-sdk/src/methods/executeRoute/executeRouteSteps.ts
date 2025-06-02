@@ -5,8 +5,8 @@
 
 import { Chain as ViemChain, Account as ViemAccount, parseAbiItem, decodeFunctionData } from "viem";
 
-import { Permit, ContractTx, CallData } from "@stable-io/cctp-sdk-evm";
-import { ViemEvmClient } from "@stable-io/cctp-sdk-viem";
+import { Permit, ContractTx } from "@stable-io/cctp-sdk-evm";
+import { ViemEvmClient, viemChainOf } from "@stable-io/cctp-sdk-viem";
 import type { Network, EvmDomains } from "@stable-io/cctp-sdk-definitions";
 import { evmGasToken } from "@stable-io/cctp-sdk-definitions";
 import { encoding } from "@stable-io/utils";
@@ -20,6 +20,7 @@ const fromGwei = (gwei: number) => evmGasToken(gwei, "nEvmGasToken").toUnit("ato
 export async function executeRouteSteps<N extends Network, D extends keyof EvmDomains>(
   network: N, route: Route, signer: ViemWalletClient, client: ViemEvmClient<N, D>,
 ): Promise<TxHash[]> {
+  const viemChainId = viemChainOf[network][route.intent.sourceChain].id;
   const txHashes = [] as string[];
   let permit: Permit | undefined = undefined;
   while (true) {
@@ -30,6 +31,7 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
 
     if (stepType !== "sign-permit" && isContractTx(txOrSig)) {
       const txParameters = buildEvmTxParameters(txOrSig, signer.chain!, signer.account!);
+      await signer.switchChain({ id: viemChainId });
       const tx = await signer.sendTransaction(txParameters);
 
       route.transactionListener.emit("transaction-sent", parseTxSentEventData(tx, txParameters));
