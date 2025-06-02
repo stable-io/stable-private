@@ -11,8 +11,8 @@ const ignoreConfig = {
   ignores: ["coverage/", ".next/", "next-env.d.ts", "dist/"],
 };
 
-const tsConfig = {
-  name: "front-end:ts",
+const tsParserConfig = {
+  name: "front-end:ts-parser",
   languageOptions: {
     parserOptions: {
       projectService: {
@@ -26,6 +26,24 @@ const tsConfig = {
         ],
       },
     },
+  },
+};
+
+const tsRulesConfig = {
+  name: "front-end:ts-rules",
+  files: ["**/*.ts", "**/*.tsx"],
+  rules: {
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        alphabetize: {
+          order: "asc",
+        },
+      },
+    ],
   },
 };
 
@@ -81,9 +99,10 @@ const importRestrictionsConfig = {
 const flatConfig = [
   ...filteredNextCoreWebVitals,
   ...filteredNextTypescript,
-  ...eslintConfig,
   ignoreConfig,
-  tsConfig,
+  ...eslintConfig,
+  tsParserConfig,
+  tsRulesConfig,
   tsxConfig,
   importRestrictionsConfig,
   prettierConfig,
