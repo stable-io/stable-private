@@ -1,75 +1,40 @@
-import { isEthereumWallet } from "@dynamic-labs/ethereum";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import type { EvmPlatformSigner, Network, Route } from "@stable-io/sdk";
-import Stable from "@stable-io/sdk";
+import type { Network } from "@stable-io/sdk";
 import Head from "next/head";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { ChainSelect, WalletChip } from "@/components";
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
-import { availableChains, gasDropoffs } from "@/constants";
+import { availableChains } from "@/constants";
 import { formatNumber } from "@/utils";
+import { useStableContext } from "@/providers";
+import { useBalance, useRoutes } from "@/hooks";
 
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
 
 const Home = () => {
-  const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState(0);
   const [gasDropoffLevel, setGasDropoffLevel] =
     useState<GasDropoffLevel>("zero");
-  const gasDropoffDesired = gasDropoffs[gasDropoffLevel];
-  const [route, setRoute] = useState<Route | undefined>();
-  const [isInProgress, setIsInProgress] = useState(false);
-  const [txHash, setTxHash] = useState<string | undefined>();
-  const explorerUrl = txHash ? getExplorerUrl("Testnet", txHash) : "#";
-
   const [sourceChain, setSourceChain] = useState<AvailableChains>(
     availableChains[0],
   );
   const [targetChain, setTargetChain] = useState<AvailableChains>(
     availableChains[1],
   );
-  const dynamicContext = useDynamicContext();
-  const { primaryWallet } = dynamicContext;
-  const address = useMemo(() => primaryWallet?.address, [primaryWallet]);
-  const signer: EvmPlatformSigner | undefined = useMemo(
-    () =>
-      primaryWallet && isEthereumWallet(primaryWallet)
-        ? {
-            platform: "Evm" as const,
-            getWalletClient: (chain) =>
-              primaryWallet.getWalletClient(chain.id.toString(10)),
-          }
-        : undefined,
-    [primaryWallet],
-  );
-  const stable = useMemo(
-    () =>
-      signer
-        ? new Stable({
-            network: "Testnet",
-            signer,
-          })
-        : undefined,
-    [signer],
-  );
+  const [isInProgress, setIsInProgress] = useState(false);
+  const [txHash, setTxHash] = useState<string | undefined>();
 
-  const updateBalance = useCallback(() => {
-    if (!address) {
-      setBalance(0);
-      return;
-    }
-    stable
-      ?.getBalance(address, [sourceChain])
-      .then((balances) => {
-        setBalance(Number.parseFloat(balances[sourceChain]));
-      })
-      .catch((error: unknown) => {
-        console.error(error);
-      });
-  }, [address, sourceChain, stable]);
+  const { address, stable } = useStableContext();
+  const { balance, updateBalance } = useBalance({ sourceChain });
+  const { route } = useRoutes({
+    sourceChain,
+    targetChain,
+    amount,
+    gasDropoffLevel,
+  });
 
+  const explorerUrl = txHash ? getExplorerUrl("Testnet", txHash) : "#";
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
 
   // @todo: Subtract expected fees
@@ -107,7 +72,7 @@ const Home = () => {
       .executeRoute(route)
       .then(({ transferHash }) => {
         setTxHash(transferHash);
-        updateBalance();
+        void updateBalance();
       })
       .catch((error: unknown) => {
         console.error(error);
@@ -116,35 +81,6 @@ const Home = () => {
         setIsInProgress(false);
       });
   };
-
-  useEffect(() => {
-    updateBalance();
-  }, [updateBalance]);
-
-  useEffect(() => {
-    if (!address || !stable) {
-      return;
-    }
-    setRoute(undefined);
-    stable
-      .findRoutes(
-        {
-          sourceChain,
-          targetChain,
-          amount: amount.toString(10),
-          sender: address,
-          recipient: address,
-          gasDropoffDesired,
-        },
-        {},
-      )
-      .then((result) => {
-        setRoute(result.fastest);
-      })
-      .catch((error: unknown) => {
-        console.error(error);
-      });
-  }, [address, amount, gasDropoffDesired, sourceChain, stable, targetChain]);
 
   return (
     <>
@@ -211,6 +147,7 @@ const Home = () => {
                   // max={maxAmount} // @todo
                   step="0.000001"
                 />
+                {/* @todo */}
                 {/* <button className="max-button" onClick={handleMaxAmount}>MAX</button> */}
               </div>
             </div>
@@ -351,6 +288,7 @@ const Home = () => {
                 <span className="label">Estimated time</span>
                 <span className="value">~{estimatedDuration} seconds</span>
               </div>
+              {/* @todo */}
               {/* <div className="row">
                     <span className="label">Bridge fee</span>
                     <span className="value">$2.00</span>
