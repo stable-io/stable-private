@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+
 import type { AvailableChains } from "@/constants";
 import { useStableContext } from "@/providers";
 
@@ -6,7 +7,15 @@ interface UseBalanceProps {
   sourceChain: AvailableChains;
 }
 
-export const useBalance = ({ sourceChain }: UseBalanceProps) => {
+interface UseBalanceReturn {
+  balance: number;
+  isLoading: boolean;
+  updateBalance: () => Promise<void>;
+}
+
+export const useBalance = ({
+  sourceChain,
+}: UseBalanceProps): UseBalanceReturn => {
   const { stable, address } = useStableContext();
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);

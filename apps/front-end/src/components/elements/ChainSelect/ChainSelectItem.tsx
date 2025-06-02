@@ -1,4 +1,6 @@
 import Image from "next/image";
+import type { JSX } from "react";
+
 import type { AvailableChains } from "@/constants";
 import { chainLogos } from "@/constants";
 
@@ -7,7 +9,10 @@ export interface ChainSelectItemProps {
   onSelect: (chain: AvailableChains) => void;
 }
 
-export const ChainSelectItem = ({ chain, onSelect }: ChainSelectItemProps) => (
+export const ChainSelectItem = ({
+  chain,
+  onSelect,
+}: ChainSelectItemProps): JSX.Element => (
   <li onClick={() => onSelect(chain)}>
     <Image
       src={chainLogos[chain]}

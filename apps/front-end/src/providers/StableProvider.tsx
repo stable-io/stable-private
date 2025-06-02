@@ -7,6 +7,7 @@ import {
   useContext,
   useMemo,
   type PropsWithChildren,
+  type JSX,
 } from "react";
 
 interface StableContextValue {
@@ -17,7 +18,9 @@ interface StableContextValue {
 
 const StableContext = createContext<StableContextValue | undefined>(undefined);
 
-export const StableProvider = ({ children }: PropsWithChildren) => {
+export const StableProvider = ({
+  children,
+}: PropsWithChildren): JSX.Element => {
   const { primaryWallet } = useDynamicContext();
 
   const address = useMemo(() => primaryWallet?.address, [primaryWallet]);

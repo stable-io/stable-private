@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
 import type { Route } from "@stable-io/sdk";
+import { useCallback, useEffect, useState } from "react";
+
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
 import { gasDropoffs } from "@/constants";
 import { useStableContext } from "@/providers";
@@ -11,12 +12,19 @@ interface UseRoutesProps {
   gasDropoffLevel: GasDropoffLevel;
 }
 
+interface UseRoutesReturn {
+  route: Route | undefined;
+  isLoading: boolean;
+  error: string | undefined;
+  findRoutes: () => Promise<void>;
+}
+
 export const useRoutes = ({
   sourceChain,
   targetChain,
   amount,
   gasDropoffLevel,
-}: UseRoutesProps) => {
+}: UseRoutesProps): UseRoutesReturn => {
   const { stable, address } = useStableContext();
   const [route, setRoute] = useState<Route | undefined>();
   const [isLoading, setIsLoading] = useState(false);

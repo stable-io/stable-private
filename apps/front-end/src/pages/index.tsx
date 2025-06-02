@@ -2,17 +2,19 @@ import type { Network } from "@stable-io/sdk";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import type { JSX } from "react";
+
 import { ChainSelect, WalletChip } from "@/components";
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
 import { availableChains } from "@/constants";
-import { formatNumber } from "@/utils";
-import { useStableContext } from "@/providers";
 import { useBalance, useRoutes } from "@/hooks";
+import { useStableContext } from "@/providers";
+import { formatNumber } from "@/utils";
 
 const getExplorerUrl = (network: Network, txHash: string): string =>
   `https://wormholescan.io/#/tx/${txHash}?network=${network}`;
 
-const Home = () => {
+const Home = (): JSX.Element => {
   const [amount, setAmount] = useState(0);
   const [gasDropoffLevel, setGasDropoffLevel] =
     useState<GasDropoffLevel>("zero");
@@ -57,12 +59,12 @@ const Home = () => {
     }
   };
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newAmount = Number.parseFloat(e.target.value) || 0;
     setAmount(newAmount);
   };
 
-  const handleTransfer = () => {
+  const handleTransfer = (): void => {
     if (!route || !stable) {
       return;
     }

@@ -1,9 +1,8 @@
-import { env } from "@/env";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ComponentProps, PropsWithChildren } from "react";
+import type { ComponentProps, PropsWithChildren, JSX } from "react";
 import { http } from "viem";
 import {
   sepolia as ethereumTestnet,
@@ -18,6 +17,8 @@ import {
 } from "viem/chains";
 import type { Transport } from "wagmi";
 import { createConfig, WagmiProvider } from "wagmi";
+
+import { env } from "@/env";
 
 const chains = [
   ethereumTestnet,
@@ -49,7 +50,9 @@ const settings: ComponentProps<typeof DynamicContextProvider>["settings"] = {
   walletConnectors: [EthereumWalletConnectors],
 };
 
-export const DynamicProvider = ({ children }: PropsWithChildren) => (
+export const DynamicProvider = ({
+  children,
+}: PropsWithChildren): JSX.Element => (
   <DynamicContextProvider settings={settings}>
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
