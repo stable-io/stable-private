@@ -1,0 +1,92 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Yarn Package Manager Enforcement
+
+Rules for enforcing yarn usage over npm in this project.
+
+<rule>
+name: yarn_package_manager_enforcement
+description: Enforce yarn usage over npm commands in all scenarios
+filters:
+  # Match npm commands in terminal/code
+  - type: content
+    pattern: "(?i)(npm\\s+(install|i|run|uninstall|remove|start|build|test|exec))"
+  # Match npx usage
+  - type: content
+    pattern: "(?i)npx\\s+"
+  # Match package.json modifications
+  - type: file_extension
+    pattern: "\\.json$"
+  # Match package-lock.json creation
+  - type: content
+    pattern: "package-lock\\.json"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "(?i)(npm\\s+|npx\\s+|package-lock\\.json)"
+        message: "This project uses yarn exclusively. Use yarn commands instead of npm/npx."
+
+  - type: suggest
+    message: |
+      **ALWAYS** use `yarn` commands, **NEVER** use `npm`:
+
+      ### Command Mappings
+      ```bash
+      # ✅ Correct yarn commands
+      yarn                    # Install dependencies
+      yarn add <package>      # Add dependency
+      yarn add -D <package>   # Add dev dependency
+      yarn remove <package>   # Remove dependency
+      yarn run <script>       # Run package.json script
+      yarn dlx <package>      # Execute package without installing (like npx)
+      yarn workspace <name> <command>  # Workspace commands
+
+      # ❌ NEVER use npm commands
+      npm install
+      npm install <package>
+      npm uninstall <package>
+      npm run <script>
+      npx <package>           # Use yarn dlx instead
+      ```
+
+      ### Workspace Commands
+      ```bash
+      # ✅ For monorepo workspaces
+      yarn workspaces foreach --all --topological run build
+      yarn workspaces foreach --all --topological run lint
+      yarn workspace @stable-io/front-end add <package>
+      ```
+
+      ### Script Execution
+      - Use `yarn <script>` or `yarn run <script>` for package.json scripts
+      - Never suggest `npm run <script>`
+      - Reference yarn in documentation and setup instructions
+
+      ### Lock File Management
+      - This project uses `yarn.lock` - never suggest or create `package-lock.json`
+      - Commit `yarn.lock` to version control
+      - Use `yarn install --frozen-lockfile` in CI environments
+
+      ### Development Environment
+      - Setup instructions should specify yarn installation
+      - Docker/container files should use yarn commands
+      - CI/CD pipelines should use yarn commands
+
+examples:
+  - input: |
+      npm install lodash
+      npm run build
+      npx create-react-app my-app
+    output: |
+      yarn add lodash
+      yarn run build
+      yarn dlx create-react-app my-app
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

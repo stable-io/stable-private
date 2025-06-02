@@ -1,0 +1,87 @@
+---
+description:
+globs: apps/front-end/**/*
+alwaysApply: false
+---
+# Frontend Formatting Rule
+
+Rule for enforcing code formatting specifically in the front-end package.
+
+<rule>
+name: frontend_formatting
+description: Run yarn format in the front-end package only, not other packages
+filters:
+  # Match files in the front-end app
+  - type: file_path
+    pattern: "^apps/front-end/"
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match after file edits
+  - type: event
+    pattern: "file_(save|edit)"
+
+actions:
+  - type: suggest
+    conditions:
+      - pattern: "^apps/front-end/.*\\.(ts|tsx|js|jsx)$"
+        message: "Run code formatting for front-end package"
+    message: |
+      **Code formatting for front-end package:**
+
+      ### ✅ Run Frontend Formatting
+      ```bash
+      # From project root
+      cd apps/front-end && yarn format
+
+      # Or use yarn workspace command
+      yarn workspace @stable-io/front-end format
+      ```
+
+      ### ✅ Format Check (CI/Testing)
+      ```bash
+      # Check formatting without applying changes
+      cd apps/front-end && yarn format:check
+      ```
+
+      ### ❌ Don't Run in Other Packages
+      ```bash
+      # Bad: Running format from root affects all packages
+      yarn format                    # Don't do this
+
+      # Bad: Running in wrong package
+      cd packages/stable-sdk && yarn format    # Wrong package
+      ```
+
+      ### Formatting Scope
+      - **Front-end only**: `apps/front-end/` directory
+      - **File types**: `.ts`, `.tsx`, `.js`, `.jsx` files
+      - **Excludes**: Other packages, build outputs, node_modules
+
+      ### When to Format
+      - Before committing front-end changes
+      - After major refactoring
+      - When resolving linting issues
+      - After code generation or scaffolding
+
+      ### Integration Tips
+      - Set up VS Code to format on save for front-end files
+      - Run format before linting: `yarn format && yarn lint`
+      - Include in pre-commit hooks for front-end changes
+      - Use `format:check` in CI pipeline
+
+      ### Formatting vs Linting
+      - **Formatting**: Code style, spacing, line breaks
+      - **Linting**: Code quality, potential bugs, patterns
+      - **Order**: Format first, then lint
+
+examples:
+  - input: |
+      # After editing apps/front-end/src/hooks/useBalance.ts
+    output: |
+      cd apps/front-end && yarn format
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

@@ -1,0 +1,108 @@
+---
+description:
+globs: *.tsx,*.ts,*.jsx,*.js
+alwaysApply: false
+---
+# Import Path Cleanup Rule
+
+Rule for maintaining clean import paths and proper index file organization.
+
+<rule>
+name: import_path_cleanup
+description: Maintain clean import paths and proper index file exports
+filters:
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match import statements
+  - type: content
+    pattern: "import.*from ['\"]"
+  # Match index files
+  - type: filename
+    pattern: "index\\.(ts|tsx|js|jsx)$"
+
+actions:
+  - type: suggest
+    conditions:
+      - pattern: "import.*from ['\"][^'\"]*\\.\\./"
+        message: "Consider using index files for cleaner imports from sibling directories"
+    message: |
+      **Maintain clean import paths:**
+
+      ### ✅ Index File Patterns
+      ```typescript
+      // hooks/index.ts
+      export * from "./useBalance";
+      export * from "./useRoutes";
+      export { useStableSdkContext } from "@/contexts";
+
+      // contexts/index.ts
+      export * from "./StableSdkContext";
+
+      // components/index.ts
+      export * from "./elements";
+      export * from "./sections";
+      ```
+
+      ### ✅ Clean Import Usage
+      ```typescript
+      // Good: Using index files
+      import { useBalance, useRoutes, useStableSdkContext } from "@/hooks";
+      import { ChainSelect, WalletChip } from "@/components";
+      import { StableSdkProvider } from "@/contexts";
+
+      // Good: Direct imports for specific files
+      import { formatNumber } from "@/utils";
+      import type { AvailableChains } from "@/constants";
+      ```
+
+      ### ❌ Import Anti-patterns
+      ```typescript
+      // Bad: Long relative paths
+      import { useBalance } from "../../../hooks/useBalance";
+      import { StableSdkProvider } from "../../contexts/StableSdkContext";
+
+      // Bad: Inconsistent import grouping
+      import { useState } from "react";
+      import { formatNumber } from "@/utils";
+      import { useEffect } from "react";          // Should be with other React imports
+      ```
+
+      ### Import Organization Rules
+      1. **React imports first**
+      2. **Third-party libraries**
+      3. **Internal absolute imports (@/...)**
+      4. **Relative imports (../ or ./)**
+      5. **Type-only imports last**
+
+      ### Index File Guidelines
+      - Update index files when adding new exports
+      - Use `export *` for multiple related exports
+      - Use `export { specific }` for selective re-exports
+      - Keep index files clean and focused
+
+      ### Automated Cleanup Tasks
+      - Remove unused imports after refactoring
+      - Update import paths when files are moved
+      - Consolidate imports from same modules
+      - Maintain consistent alias usage (@/ vs relative)
+
+      ### When to Update Index Files
+      - Adding new hooks → Update `hooks/index.ts`
+      - Adding new components → Update `components/index.ts`
+      - Adding new contexts → Update `contexts/index.ts`
+      - Moving files → Update affected index files
+
+examples:
+  - input: |
+      import { useBalance } from "../hooks/useBalance";
+      import { useRoutes } from "../hooks/useRoutes";
+      import { StableSdkProvider } from "../contexts/StableSdkContext";
+    output: |
+      import { useBalance, useRoutes } from "@/hooks";
+      import { StableSdkProvider } from "@/contexts";
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

@@ -1,0 +1,104 @@
+---
+description:
+globs: *.tsx,*.jsx
+alwaysApply: false
+---
+# Context vs Hook Decision Rule
+
+Rule for deciding when to use React Context vs custom hooks for state management.
+
+<rule>
+name: context_vs_hook_decisions
+description: Guide architectural decisions between Context providers and custom hooks
+filters:
+  # Match React component and hook files
+  - type: file_extension
+    pattern: "\\.(tsx|ts)$"
+  # Match expensive operations in hooks
+  - type: content
+    pattern: "(new\\s+\\w+\\(|useMemo.*new\\s+\\w+)"
+  # Match prop drilling patterns
+  - type: content
+    pattern: "\\w+\\?.*\\w+\\?.*\\w+\\?"
+  # Match useState for global-like state
+  - type: content
+    pattern: "useState.*wallet|useState.*sdk|useState.*auth"
+
+actions:
+  - type: suggest
+    conditions:
+      - pattern: "const.*=.*useMemo\\(.*new.*(SDK|Client|Auth)"
+        message: "Consider using Context for expensive singleton instances like SDKs, clients, or auth"
+    message: |
+      **Consider Context vs Hook patterns:**
+
+      ### ✅ Use Context For:
+      - **Expensive instances**: SDK initialization, auth clients, API clients
+      - **Global state**: User authentication, theme, SDK instance
+      - **Singleton-like data**: One wallet connection, one SDK per app
+      - **Cross-component state**: Data needed in many unrelated components
+
+      ```typescript
+      // Good: SDK in Context (expensive, global, singleton)
+      const StableSdkProvider = ({ children }) => {
+        const stable = useMemo(() =>
+          signer ? new Stable({ network: "Testnet", signer }) : undefined,
+          [signer]
+        );
+
+        return (
+          <StableSdkContext.Provider value={{ stable, address }}>
+            {children}
+          </StableSdkContext.Provider>
+        );
+      };
+      ```
+
+      ### ✅ Use Hooks For:
+      - **Component-specific logic**: Form state, local loading states
+      - **Parameter-dependent data**: Chain-specific balances, route calculations
+      - **Fast operations**: Simple transformations, local state management
+      - **Multiple instances OK**: Different components can have different instances
+
+      ```typescript
+      // Good: Balance in hook (component-specific, fast, multiple OK)
+      const useBalance = ({ sourceChain }) => {
+        const { stable, address } = useStableSdkContext(); // Get from context
+        const [balance, setBalance] = useState(0);
+        // Hook logic here...
+      };
+      ```
+
+      ### 🎯 Architecture Pattern
+      ```typescript
+      // Context: Global, expensive, singleton
+      <StableSdkProvider>
+        // Hooks: Component-specific, parameter-dependent
+        const { balance } = useBalance({ chain: "Ethereum" });
+        const { route } = useRoutes({ from, to, amount });
+      </StableSdkProvider>
+      ```
+
+      ### ❌ Anti-patterns
+      - Prop drilling expensive instances through multiple components
+      - Creating SDK instances in multiple hooks
+      - Using Context for highly component-specific state
+      - Putting form state in global context
+
+examples:
+  - input: |
+      const useWallet = () => {
+        const stable = useMemo(() => new Stable({...}), []);
+        return { stable };
+      };
+    output: |
+      // Move to Context - expensive singleton
+      const StableSdkProvider = ({ children }) => {
+        const stable = useMemo(() => new Stable({...}), []);
+        return <Context.Provider value={{stable}}>{children}</Context.Provider>;
+      };
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

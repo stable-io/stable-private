@@ -1,0 +1,110 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Filename Casing Enforcement Rule
+
+Rule for enforcing consistent filename casing conventions across the project.
+
+<rule>
+name: filename_casing_enforcement
+description: Enforce proper filename casing and handle acronyms consistently
+filters:
+  # Match file creation and renaming events
+  - type: event
+    pattern: "file_(create|rename)"
+  # Match files with potential casing issues
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match filenames with acronyms
+  - type: filename
+    pattern: "(SDK|API|URL|HTTP|UI|UX|CSS|HTML)"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "(SDK|API|URL|HTTP|UI|UX|CSS|HTML).*\\.(ts|tsx|js|jsx)$"
+        message: "Use PascalCase for acronyms in filenames (SDK → Sdk, API → Api, etc.)"
+
+  - type: suggest
+    message: |
+      **Follow filename casing conventions:**
+
+      ### ✅ Component Files (PascalCase)
+      ```
+      # Good: Component filenames
+      UserProfile.tsx
+      ChainSelect.tsx
+      StableSdkContext.tsx    # SDK → Sdk
+      ApiClient.ts            # API → Api
+      UrlHelper.ts            # URL → Url
+      ```
+
+      ### ✅ Hook Files (camelCase)
+      ```
+      # Good: Hook filenames
+      useBalance.ts
+      useRoutes.ts
+      useApiCall.ts           # API → Api
+      useUrlParams.ts         # URL → Url
+      ```
+
+      ### ✅ Utility Files (camelCase)
+      ```
+      # Good: Utility filenames
+      formatNumber.ts
+      apiHelpers.ts           # API → Api
+      urlUtils.ts             # URL → Url
+      ```
+
+      ### ❌ Incorrect Casing
+      ```
+      # Bad: All caps acronyms
+      StableSDKContext.tsx    # Should be StableSdkContext.tsx
+      APIClient.ts            # Should be ApiClient.ts
+      URLHelper.ts            # Should be UrlHelper.ts
+
+      # Bad: Mixed conventions
+      stable_sdk_context.tsx  # Should be StableSdkContext.tsx
+      apiCLIENT.ts           # Should be ApiClient.ts
+      ```
+
+      ### Acronym Casing Rules
+      - **SDK** → **Sdk**
+      - **API** → **Api**
+      - **URL** → **Url**
+      - **HTTP** → **Http**
+      - **UI** → **Ui**
+      - **UX** → **Ux**
+      - **CSS** → **Css**
+      - **HTML** → **Html**
+
+      ### File Type Conventions
+      - **React Components**: PascalCase (UserProfile.tsx, ChainSelect.tsx)
+      - **React Hooks**: camelCase starting with "use" (useBalance.ts)
+      - **Utilities/Helpers**: camelCase (formatNumber.ts, apiHelpers.ts)
+      - **Types**: PascalCase (UserTypes.ts, ApiTypes.ts)
+      - **Constants**: camelCase or SCREAMING_SNAKE_CASE (constants.ts)
+
+      ### Import Path Updates
+      When renaming files, remember to update:
+      - All import statements
+      - Index file exports
+      - Test file imports
+      - Configuration references
+
+examples:
+  - input: |
+      StableSDKContext.tsx
+      APIHelpers.ts
+      URLUtils.ts
+    output: |
+      StableSdkContext.tsx
+      ApiHelpers.ts
+      UrlUtils.ts
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

@@ -1,0 +1,91 @@
+---
+description:
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+# Import Path Optimization Rules
+
+Rules for optimizing import paths and maintaining consistent path conventions.
+
+<rule>
+name: import_path_optimization
+description: Enforce proper import path conventions and alias usage
+filters:
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match import statements
+  - type: content
+    pattern: "(?i)(import|from)\\s+['\"`]"
+  # Match relative imports beyond 2 levels
+  - type: content
+    pattern: "from\\s+['\"`](mdc:\\.\\.){3,}"
+  # Match literal src/ paths
+  - type: content
+    pattern: "from\\s+['\"`].*src/"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "from\\s+['\"`].*src/"
+        message: "Never use literal 'src/' paths - they break in built files under 'dist/'. Use '@/*' alias instead."
+      - pattern: "from\\s+['\"`](mdc:\\.\\.){3,}"
+        message: "Avoid deep relative imports (more than 2 levels). Use '@/*' alias instead."
+
+  - type: suggest
+    message: |
+      ### Path Alias Usage
+      - Use `@/*` alias for imports crossing different top-level src directories
+      - Use relative imports (`./` or `../`) within same feature/component directory
+      - Never use more than 2 levels of relative imports (`../../`) - use `@/*` instead
+      - **NEVER** use literal `src/` paths - they break in built files under `dist/`
+
+      ### Good Patterns
+      ```typescript
+      // ✅ Cross-directory imports
+      import { ChainSelect } from "@/components";
+      import { formatNumber } from "@/utils";
+      import type { AvailableChains } from "@/constants";
+
+      // ✅ Same directory
+      import { Header } from "./Header";
+      import { ChainSelectButton } from "./ChainSelectButton";
+
+      // ✅ Related subdirectories (max 2 levels)
+      import { Header } from "../Header";
+      import { Footer } from "../Footer";
+      ```
+
+      ### Bad Patterns
+      ```typescript
+      // ❌ Literal src paths - BREAKS BUILD
+      import { Component } from "src/components/Component";
+      import { utils } from "./src/utils";
+
+      // ❌ Deep relative paths
+      import { Component } from "../../../components/Component";
+
+      // ❌ Unnecessary alias for same directory
+      import { Header } from "@/components/sections/Header";
+      // when already in components/sections/Layout/
+      ```
+
+      ### Directory Mapping
+      - `@/components` for UI components
+      - `@/utils` for utility functions
+      - `@/constants` for constants and configuration
+      - `@/types` for type definitions
+      - `@/styles` for stylesheets
+
+examples:
+  - input: |
+      import { Component } from "src/components/Component";
+      import { utils } from "../../../utils/helpers";
+    output: |
+      import { Component } from "@/components/Component";
+      import { utils } from "@/utils/helpers";
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
