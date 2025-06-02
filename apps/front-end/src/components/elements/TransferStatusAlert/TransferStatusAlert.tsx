@@ -3,15 +3,19 @@ import type { ReactElement } from "react";
 import { getExplorerUrl } from "@/utils";
 
 interface TransferStatusAlertProps {
-  txHash: string;
+  transferTxHash: string;
+  redeemTxHash?: string;
   targetChain: string;
 }
 
 export const TransferStatusAlert = ({
-  txHash,
+  transferTxHash,
+  redeemTxHash,
   targetChain,
 }: TransferStatusAlertProps): ReactElement => {
-  const explorerUrl = txHash ? getExplorerUrl("Testnet", txHash) : "#";
+  const explorerUrl = transferTxHash
+    ? getExplorerUrl("Testnet", transferTxHash)
+    : "#";
   return (
     <div className="alert alert-success">
       <h3>Transfer Complete</h3>
@@ -23,6 +27,18 @@ export const TransferStatusAlert = ({
         </a>
         .
       </p>
+      {redeemTxHash && (
+        <p style={{ marginTop: "10px", fontSize: "14px", opacity: 0.8 }}>
+          <strong>Redeem Transaction:</strong>{" "}
+          <a
+            href={getExplorerUrl("Testnet", redeemTxHash)}
+            target="_blank"
+            style={{ fontFamily: "monospace" }}
+          >
+            {redeemTxHash.slice(0, 10)}...{redeemTxHash.slice(-8)}
+          </a>
+        </p>
+      )}
     </div>
   );
 };

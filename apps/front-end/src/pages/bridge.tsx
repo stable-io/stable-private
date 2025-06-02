@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactElement } from "react";
 
 import {
@@ -28,7 +28,8 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
     availableChains[1],
   );
   const [isInProgress, setIsInProgress] = useState(false);
-  const [txHash, setTxHash] = useState<string | undefined>();
+  const [transferTxHash, setTransferTxHash] = useState<string | undefined>();
+  const [redeemTxHash, setRedeemTxHash] = useState<string | undefined>();
 
   const { address, stable } = useStableContext();
   const { balance, updateBalance } = useBalance({ sourceChain });
@@ -40,6 +41,45 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
   });
 
   const estimatedDuration = route?.estimatedDuration.toString(10) ?? "??";
+
+  const resetTransferState = useCallback(() => {
+    setTransferTxHash(undefined);
+    setRedeemTxHash(undefined);
+    setIsInProgress(false);
+  }, []);
+
+  useEffect(() => {
+    if (!route) return;
+
+    const handleTransferSent = (eventData: {
+      transactionHash: string;
+    }): void => {
+      setTransferTxHash(eventData.transactionHash);
+    };
+
+    route.progress.on("transfer-sent", handleTransferSent);
+
+    return (): void => {
+      route.progress.off("transfer-sent", handleTransferSent);
+    };
+  }, [route]);
+
+  useEffect(() => {
+    if (!route) return;
+
+    const handleTransferRedeemed = (redeemData: {
+      transactionHash: string;
+    }): void => {
+      setRedeemTxHash(redeemData.transactionHash);
+      void updateBalance();
+    };
+
+    route.progress.on("transfer-redeemed", handleTransferRedeemed);
+
+    return (): void => {
+      route.progress.off("transfer-redeemed", handleTransferRedeemed);
+    };
+  }, [route, updateBalance]);
 
   // @todo: Subtract expected fees
   // const maxAmount = balance;
@@ -71,11 +111,11 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
       return;
     }
     setIsInProgress(true);
-    setTxHash(undefined);
+    resetTransferState();
+
     stable
       .executeRoute(route)
-      .then(({ transferHash }) => {
-        setTxHash(transferHash);
+      .then(() => {
         void updateBalance();
       })
       .catch((error: unknown) => {
@@ -93,9 +133,13 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
           Stable | Move USDC across networks with high speed and minimal costs
         </title>
       </Head>
-      {txHash && (
+      {transferTxHash && (
         <TopSection>
-          <TransferStatusAlert txHash={txHash} targetChain={targetChain} />
+          <TransferStatusAlert
+            transferTxHash={transferTxHash}
+            redeemTxHash={redeemTxHash}
+            targetChain={targetChain}
+          />
         </TopSection>
       )}
       <LeftSection>
