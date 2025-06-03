@@ -51,7 +51,7 @@ const EVM_APPROVAL_TX_GAS_COST_APROXIMATE = 40000n;
 /**
  * @todo: this probably makes more sense in BPS?
  */
-const RELAY_FEE_MAX_CHANGE_MARGIN = 1.5;
+const RELAY_FEE_MAX_CHANGE_MARGIN = 1.02;
 
 export type FindRoutesDeps<N extends Network> = Pick<SDK<N>, "getNetwork" | "getRpcUrl">;
 
