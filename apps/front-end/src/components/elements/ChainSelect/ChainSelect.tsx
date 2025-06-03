@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
 import { ChainSelectButton } from "./ChainSelectButton";
 import { ChainSelectMenu } from "./ChainSelectMenu";
@@ -18,7 +18,7 @@ export const ChainSelect = ({
   chains,
   selectedChain,
   onSelect,
-}: ChainSelectProps): JSX.Element => {
+}: ChainSelectProps): ReactElement => {
   const otherChains = chains.filter((chain) => chain !== selectedChain);
   const [isOpen, setIsOpen] = useState(false);
 

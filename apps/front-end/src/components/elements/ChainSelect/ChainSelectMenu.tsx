@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
 import { ChainSelectItem } from "./ChainSelectItem";
 
@@ -12,7 +12,7 @@ export interface ChainSelectMenuProps {
 export const ChainSelectMenu = ({
   chains,
   onSelect,
-}: ChainSelectMenuProps): JSX.Element => (
+}: ChainSelectMenuProps): ReactElement => (
   <div className="select-menu">
     <ul className="networks">
       {chains.map((chain) => (

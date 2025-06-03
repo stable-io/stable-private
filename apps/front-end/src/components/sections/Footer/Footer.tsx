@@ -1,7 +1,7 @@
 import Image from "next/image";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
-export const Footer = (): JSX.Element => (
+export const Footer = (): ReactElement => (
   <footer>
     <div className="left"></div>
     <div className="right">
@@ -15,6 +15,7 @@ export const Footer = (): JSX.Element => (
                 unoptimized
                 height={14}
                 width={14}
+                style={{ width: "12px", height: "12px" }}
               />
             </button>
           </a>

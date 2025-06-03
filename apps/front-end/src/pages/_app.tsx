@@ -1,24 +1,31 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
-import { Layout } from "@/components";
 import { DynamicProvider, StableProvider } from "@/providers";
+import type { NextPageWithLayout } from "@/utils";
 import "@/styles/globals.css";
 
-const App = ({ Component, pageProps }: AppProps): JSX.Element => (
-  <>
-    <Head>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-    </Head>
-    <DynamicProvider>
-      <StableProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </StableProvider>
-    </DynamicProvider>
-  </>
-);
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+const App = ({ Component, pageProps }: AppPropsWithLayout): ReactElement => {
+  const getLayout =
+    Component.getLayout ?? ((page: ReactElement): ReactElement => page);
+
+  return (
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <DynamicProvider>
+        <StableProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </StableProvider>
+      </DynamicProvider>
+    </>
+  );
+};
 
 export default App;

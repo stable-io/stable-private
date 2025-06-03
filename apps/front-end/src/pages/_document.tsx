@@ -1,7 +1,7 @@
 import { Html, Head, Main, NextScript } from "next/document";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
-const Document = (): JSX.Element => (
+const Document = (): ReactElement => (
   <Html lang="en">
     <Head>
       <meta charSet="utf-8" />
