@@ -1,6 +1,6 @@
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import Image from "next/image";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
 import { truncateAddress } from "@/utils";
 
@@ -14,7 +14,7 @@ export const WalletChip = ({
   address,
   walletIcon = "/imgs/metamask-logo.svg",
   walletName = "MetaMask",
-}: WalletChipProps): JSX.Element => {
+}: WalletChipProps): ReactElement => {
   const displayAddress = address ? truncateAddress(address) : "???";
   return (
     <DynamicConnectButton>

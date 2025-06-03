@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
 import type { AvailableChains } from "@/constants";
 import { chainLogos } from "@/constants";
@@ -12,7 +12,7 @@ export interface ChainSelectButtonProps {
 export const ChainSelectButton = ({
   selectedChain,
   onToggle,
-}: ChainSelectButtonProps): JSX.Element => (
+}: ChainSelectButtonProps): ReactElement => (
   <div className="network-select-btn" onClick={onToggle}>
     <Image
       src={chainLogos[selectedChain]}

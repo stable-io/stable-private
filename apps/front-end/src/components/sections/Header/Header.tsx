@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
-export const Header = (): JSX.Element => {
+export const Header = (): ReactElement => {
   const router = useRouter();
 
   return (
