@@ -15,6 +15,7 @@ export const Footer = (): JSX.Element => (
                 unoptimized
                 height={14}
                 width={14}
+                style={{ width: "12px", height: "12px" }}
               />
             </button>
           </a>
