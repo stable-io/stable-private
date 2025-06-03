@@ -46,6 +46,8 @@ export async function executeRouteSteps<N extends Network, D extends keyof EvmDo
 
       route.transactionListener.emit("transaction-included", receipt);
 
+      if (receipt.status === "reverted") throw new Error("Execution Reverted");
+
       const { eventName, eventData } = buildTransactionEventData(network, stepType, txOrSig, tx);
       route.progress.emit(eventName, eventData);
     } else if (stepType === "sign-permit" && isEip2612Data(txOrSig)) {
