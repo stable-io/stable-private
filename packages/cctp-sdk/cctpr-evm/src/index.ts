@@ -17,7 +17,7 @@ export type { CorridorStats } from "./getCorridors.js";
 export type { Corridor } from "./contractSdk/layouts/common.js";
 export type { SupportedEvmDomain } from "./common.js";
 
-export { parseTransferTxCalldata } from "./contractSdk/index.js";
+export { execSelector, parseTransferTxCalldata } from "./contractSdk/index.js";
 export { routerHookDataLayout } from "./contractSdk/layouts/routerHookData.js";
 
 /**

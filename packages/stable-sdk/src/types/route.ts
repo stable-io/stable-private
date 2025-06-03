@@ -10,7 +10,7 @@ import {
   GasTokenOf,
 } from "@stable-io/cctp-sdk-definitions";
 import { Permit, ContractTx, Eip2612Data, selectorOf } from "@stable-io/cctp-sdk-evm";
-import { Corridor } from "@stable-io/cctp-sdk-cctpr-evm";
+import { Corridor, execSelector } from "@stable-io/cctp-sdk-cctpr-evm";
 import { Intent } from "./intent.js";
 import { SupportedPlatform } from "./signer.js";
 import { encoding } from "@stable-io/utils";
@@ -96,7 +96,7 @@ export interface TransferStep extends BaseRouteExecutionStep {
 export function getStepType(txOrSig: ContractTx | Eip2612Data): StepType {
   if (isEip2612Data(txOrSig)) return "sign-permit";
   if (isContractTx(txOrSig) && isTransferTx(txOrSig)) return "transfer";
-  if (isContractTx(txOrSig)) return "pre-approve";
+  if (isContractTx(txOrSig) && isApprovalTx(txOrSig)) return "pre-approve";
   throw new Error("Unknown Step Type");
 };
 
@@ -111,7 +111,7 @@ export function isEip2612Data(subject: unknown): subject is Eip2612Data {
 }
 
 export function isApprovalTx(subject: ContractTx): boolean {
-  const approvalFuncSelector = selectorOf("approve()");
+  const approvalFuncSelector = selectorOf("approve(address,uint256)");
   return encoding.bytes.equals(
     subject.data.subarray(0, approvalFuncSelector.length),
     approvalFuncSelector,
@@ -128,9 +128,8 @@ export function isTransferTx(subject: ContractTx): boolean {
    *            - parsing the next byte to check is a one of the transfer variants
    *            - try/catching a call to parseTransferTxCalldata
    */
-  const approvalFuncSelector = selectorOf("exec768()");
   return encoding.bytes.equals(
-    subject.data.subarray(0, approvalFuncSelector.length),
-    approvalFuncSelector,
+    subject.data.subarray(0, execSelector.length),
+    execSelector,
   );
 }
