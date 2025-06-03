@@ -1,6 +1,6 @@
-import type { JSX } from "react";
+import type { ReactElement } from "react";
 
-export const Background = (): JSX.Element => (
+export const Background = (): ReactElement => (
   <div className="backgrounds">
     <div className="radial-right"></div>
     <div className="radial-left"></div>

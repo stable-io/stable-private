@@ -1,3 +1,10 @@
+import type { NextPage } from "next";
+import type { ReactElement, ReactNode } from "react";
+
+export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
 export const truncateAddress = (address: string): string =>
   `${address.slice(0, 4)}...${address.slice(-4)}`;
 
