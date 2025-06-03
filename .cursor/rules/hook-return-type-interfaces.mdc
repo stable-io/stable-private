@@ -1,0 +1,76 @@
+---
+description:
+globs: apps/front-end/src/**/*.ts,apps/front-end/src/**/*.tsx
+alwaysApply: false
+---
+# Hook Return Type Interface Generator
+
+Rule for automatically creating dedicated return type interfaces for custom React hooks.
+
+<rule>
+name: hook_return_type_interface_generator
+description: Extract inline hook return types into dedicated interfaces for better maintainability
+filters:
+  # Match custom hook functions (starting with 'use')
+  - type: function_name
+    pattern: "^use[A-Z]"
+  # Match files with inline return type objects
+  - type: content
+    pattern: "\\):\\s*\\{[^}]*\\}\\s*=>"
+
+actions:
+  - type: suggest
+    message: |
+      **Create dedicated return type interface for this hook**
+
+      Instead of inline return types:
+      ```typescript
+      export const useMyHook = (): {
+        data: string;
+        isLoading: boolean;
+        refetch: () => void;
+      } => {
+        // implementation
+      };
+      ```
+
+      Create a dedicated interface:
+      ```typescript
+      interface UseMyHookReturn {
+        data: string;
+        isLoading: boolean;
+        refetch: () => void;
+      }
+
+      export const useMyHook = (): UseMyHookReturn => {
+        // implementation
+      };
+      ```
+
+      **Benefits:**
+      - Better readability and maintainability
+      - Reusable return type interface
+      - Easier to extend or modify
+      - Better TypeScript IntelliSense support
+      - Consistent naming convention: `Use{HookName}Return`
+
+examples:
+  - input: |
+      export const useApi = (): { data: any; error: string | null; loading: boolean } => {
+        // hook implementation
+      };
+    output: |
+      interface UseApiReturn {
+        data: any;
+        error: string | null;
+        loading: boolean;
+      }
+
+      export const useApi = (): UseApiReturn => {
+        // hook implementation
+      };
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

@@ -1,0 +1,80 @@
+---
+description:
+globs: apps/front-end/src/**/*.ts,apps/front-end/src/**/*.tsx
+alwaysApply: false
+---
+# Component Props Interface Generator
+
+Rule for automatically generating TypeScript interfaces for React component props.
+
+<rule>
+name: component_props_interface_generator
+description: Generate proper TypeScript interfaces for React component props based on destructured parameters
+filters:
+  # Match React component files
+  - type: file_extension
+    pattern: "\\.(tsx|jsx)$"
+  # Match component functions with destructured props but no interface
+  - type: content
+    pattern: "(?:export\\s+)?(?:const|function)\\s+[A-Z]\\w*\\s*=\\s*\\(\\{[^}]+\\}(?::\\s*\\w+)?\\)"
+
+actions:
+  - type: suggest
+    message: |
+      **Generate TypeScript interface for component props**
+
+      Instead of inline prop types or missing interfaces:
+      ```typescript
+      export const MyComponent = ({ title, count, onAction }: {
+        title: string;
+        count: number;
+        onAction: () => void;
+      }) => {
+        // component implementation
+      };
+      ```
+
+      Create a dedicated props interface:
+      ```typescript
+      interface MyComponentProps {
+        title: string;
+        count: number;
+        onAction: () => void;
+      }
+
+      export const MyComponent = ({ title, count, onAction }: MyComponentProps): JSX.Element => {
+        // component implementation
+      };
+      ```
+
+      **Interface naming convention:**
+      - Use PascalCase: `{ComponentName}Props`
+      - Place interface before component definition
+      - Export interface if it might be reused
+
+      **Benefits:**
+      - Better prop documentation and IntelliSense
+      - Reusable prop types for testing and composition
+      - Easier to extend with additional props
+      - Consistent component structure across codebase
+
+examples:
+  - input: |
+      export const Button = ({ text, onClick, disabled = false }) => {
+        return <button onClick={onClick} disabled={disabled}>{text}</button>;
+      };
+    output: |
+      interface ButtonProps {
+        text: string;
+        onClick: () => void;
+        disabled?: boolean;
+      }
+
+      export const Button = ({ text, onClick, disabled = false }: ButtonProps): JSX.Element => {
+        return <button onClick={onClick} disabled={disabled}>{text}</button>;
+      };
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

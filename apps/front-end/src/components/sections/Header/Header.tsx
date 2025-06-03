@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { JSX } from "react";
 
-export const Header = () => (
+export const Header = (): JSX.Element => (
   <div test-id="eader" className="top-nav">
     <div className="left">
       <Link href="/">

@@ -1,6 +1,7 @@
 import Image from "next/image";
+import type { JSX } from "react";
 
-export const Footer = () => (
+export const Footer = (): JSX.Element => (
   <footer>
     <div className="left"></div>
     <div className="right">

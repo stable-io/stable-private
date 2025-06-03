@@ -1,7 +1,10 @@
 import { useState } from "react";
-import type { AvailableChains } from "@/constants";
+import type { JSX } from "react";
+
 import { ChainSelectButton } from "./ChainSelectButton";
 import { ChainSelectMenu } from "./ChainSelectMenu";
+
+import type { AvailableChains } from "@/constants";
 
 export interface ChainSelectProps {
   title: string;
@@ -15,15 +18,15 @@ export const ChainSelect = ({
   chains,
   selectedChain,
   onSelect,
-}: ChainSelectProps) => {
+}: ChainSelectProps): JSX.Element => {
   const otherChains = chains.filter((chain) => chain !== selectedChain);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleToggle = () => {
+  const handleToggle = (): void => {
     setIsOpen(!isOpen);
   };
 
-  const handleSelect = (chain: AvailableChains) => {
+  const handleSelect = (chain: AvailableChains): void => {
     onSelect(chain);
     setIsOpen(false);
   };
