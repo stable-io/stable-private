@@ -55,11 +55,23 @@ const tsxConfig = {
       "error",
       {
         case: "pascalCase",
-        ignore: ["_app.tsx", "_document.tsx"],
-      },
+        },
     ],
   },
 };
+
+const pagesConfig = {
+  name: "front-end:pages",
+  files: ["src/pages/*.tsx"],
+  rules: {
+    "unicorn/filename-case": [
+      "error",
+      {
+        case: "camelCase",
+        },
+    ],
+  },
+}
 
 const nextCoreWebVitalsConfig = compat.extends("next/core-web-vitals");
 const nextTypescriptConfig = compat.extends("next/typescript");
@@ -104,6 +116,7 @@ const flatConfig = [
   tsParserConfig,
   tsRulesConfig,
   tsxConfig,
+  pagesConfig,
   importRestrictionsConfig,
   prettierConfig,
 ];
