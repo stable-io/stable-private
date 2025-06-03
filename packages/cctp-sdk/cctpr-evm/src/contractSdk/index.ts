@@ -86,7 +86,7 @@ export * as layouts from "./layouts/index.js";
 export const offChainQuoteData = <N extends Network>(network: N) =>
   (params: OffChainQuote<N>) => serialize(offChainQuoteLayout(network), params);
 
-const execSelector = selectorOf("exec768()");
+export const execSelector = selectorOf("exec768()");
 const get1959Selector = selectorOf("get1959()");
 
 const parseExecCalldata = <const L extends Layout>(calldata: CallData, layout: L) => {
