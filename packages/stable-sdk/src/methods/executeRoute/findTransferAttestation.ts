@@ -8,52 +8,21 @@ import { Hex } from "viem";
 import { EvmDomains, UniversalAddress, v1, v2 } from "@stable-io/cctp-sdk-definitions";
 import type { Address, Network, TxHash } from "../../types/index.js";
 import { encoding } from "@stable-io/utils";
-
-interface AttestationFetchConfig {
-  timeoutMs?: number;
-}
+import type { PollingConfig } from "../../utils.js";
+import { pollUntil } from "../../utils.js";
 
 export async function findTransferAttestation<N extends Network>(
   network: N,
   sourceChain: keyof EvmDomains,
   transactionHash: TxHash,
-  config: AttestationFetchConfig = {},
+  config: PollingConfig = {},
 ): Promise<CctpAttestation> {
-  const baseDelayMs = 500;
-  const maxDelayMs = 5000;
-  const backoffMultiplier = 1.5;
-  const jitterPercent = 0.2;
-  const timeoutMs = config.timeoutMs ?? 30_000;
-  const startTime = Date.now();
-
-  let attempt = 0;
-  let response: v2.GetMessagesResponse;
-
-  while (true) {
-    if (Date.now() - startTime > timeoutMs) {
-      throw new Error(`Timeout after ${timeoutMs}ms waiting for transfer attestation`);
-    }
-
-    response = await v2.fetchMessagesFactory(network)(
-      sourceChain,
-      { transactionHash },
-    );
-
-    if (response.status === "success") {
-      break;
-    }
-
-    ++attempt;
-    const exponentialDelay = Math.min(
-      baseDelayMs * Math.pow(backoffMultiplier, attempt - 1),
-      maxDelayMs,
-    );
-    const jitter = (Math.random() - 0.5) * 2 * jitterPercent;
-    const delayWithJitter = Math.round(exponentialDelay * (1 + jitter));
-    await new Promise(resolve => setTimeout(resolve, delayWithJitter));
-  }
-
-  const message = response.messages[0];
+  const fetchMessages = v2.fetchMessagesFactory(network);
+  const { messages: [message] } = await pollUntil(
+    () => fetchMessages(sourceChain, { transactionHash }),
+    (result): result is Extract<v2.GetMessagesResponse, { status: "success" }> => result.status === "success",
+    config,
+  );
   return message.cctpVersion === 1 ? parseV1Attestation(message) : parseV2Attestation(message);
 }
 
