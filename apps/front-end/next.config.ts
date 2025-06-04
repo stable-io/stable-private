@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     // @todo: add a loder to optimize images.
   },
+
+  trailingSlash: true,
 };
 
 export default nextConfig;
