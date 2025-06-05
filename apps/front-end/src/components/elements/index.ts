@@ -1,5 +1,4 @@
 export * from "./Background";
-export * from "./BridgeWidget";
 export * from "./ChainSelect";
 export * from "./NetworkSettings";
 export * from "./PortfolioSidebar";
