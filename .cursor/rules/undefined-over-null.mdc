@@ -1,0 +1,149 @@
+---
+description:
+globs: *.tsx,*.ts,*.js,*.jsx,*.mjs,*.mts
+alwaysApply: false
+---
+# Undefined Over Null
+
+Rule for enforcing the use of `undefined` instead of `null` for consistency and better TypeScript practices.
+
+<rule>
+name: undefined_over_null
+description: Enforce using undefined instead of null for optional values and missing data
+filters:
+  # Match TypeScript/JavaScript files
+  - type: file_extension
+    pattern: "\\.(ts|tsx|js|jsx)$"
+  # Match null usage in return types
+  - type: content
+    pattern: "\\|\\s*null"
+  # Match null assignments
+  - type: content
+    pattern: "=\\s*null"
+  # Match null comparisons
+  - type: content
+    pattern: "(===|!==|==|!=)\\s*null"
+  # Match null as default value
+  - type: content
+    pattern: "null\\s*[,\\)]"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "\\|\\s*null(?!\\s*\\|)"
+        message: "Use 'undefined' instead of 'null' for optional return types"
+      - pattern: "=\\s*null(?!;\\s*//.*keep null)"
+        message: "Use 'undefined' instead of 'null' for variable assignments"
+
+  - type: suggest
+    message: |
+      **Always use `undefined` instead of `null`** for consistency and better TypeScript practices:
+
+      ### ✅ Preferred Patterns
+      ```typescript
+      // Good: Optional return types with undefined
+      function getUser(): User | undefined {
+        return userExists ? user : undefined;
+      }
+
+      // Good: Optional properties with undefined
+      interface UserProps {
+        name: string;
+        email?: string; // implicitly string | undefined
+        avatar: string | undefined;
+      }
+
+      // Good: Variable assignments with undefined
+      const [user, setUser] = useState<User | undefined>(undefined);
+      let result: string | undefined = undefined;
+
+      // Good: Comparisons with undefined
+      if (value === undefined) {
+        // handle missing value
+      }
+
+      // Good: Default parameters
+      function processData(input: string | undefined = undefined) {
+        if (input === undefined) return;
+        // process input
+      }
+      ```
+
+      ### ❌ Avoid null patterns
+      ```typescript
+      // Bad: null in return types
+      function getUser(): User | null {
+        return userExists ? user : null;
+      }
+
+      // Bad: null assignments
+      const [user, setUser] = useState<User | null>(null);
+      let result: string | null = null;
+
+      // Bad: null comparisons
+      if (value === null) {
+        // handle missing value
+      }
+      ```
+
+      ### Why prefer undefined?
+
+      **Consistency:**
+      - Optional object properties are `undefined` when missing
+      - Function parameters default to `undefined` when not provided
+      - Array access returns `undefined` for out-of-bounds indices
+
+      **TypeScript Integration:**
+      - Optional properties (`prop?: string`) are implicitly `| undefined`
+      - Better integration with optional chaining (`?.`)
+      - Cleaner union types without explicit `null`
+
+      **JavaScript Semantics:**
+      - `undefined` represents "not initialized" or "missing"
+      - `null` represents "intentionally empty" (rare use case)
+      - Avoiding dual concepts simplifies mental model
+
+      ### Exception Cases
+      ```typescript
+      // Acceptable: When interfacing with APIs that explicitly use null
+      interface ApiResponse {
+        data: UserData | null; // API contract requires null
+      }
+
+      // Acceptable: When null has semantic meaning different from undefined
+      interface CacheEntry {
+        value: string | undefined; // not yet loaded
+        error: Error | null;       // explicitly no error (vs undefined = not checked)
+      }
+      ```
+
+      ### Migration Pattern
+      ```typescript
+      // Before
+      const [data, setData] = useState<Data | null>(null);
+      if (data === null) return <Loading />;
+
+      // After
+      const [data, setData] = useState<Data | undefined>(undefined);
+      if (data === undefined) return <Loading />;
+      ```
+
+examples:
+  - input: |
+      function getUser(): User | null {
+        return found ? user : null;
+      }
+    output: |
+      function getUser(): User | undefined {
+        return found ? user : undefined;
+      }
+
+  - input: |
+      const [user, setUser] = useState<User | null>(null);
+    output: |
+      const [user, setUser] = useState<User | undefined>(undefined);
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
