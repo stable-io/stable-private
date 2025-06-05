@@ -4,8 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import { ChainSelect, WalletChip } from "@/components";
-import { BridgeLayout } from "@/components/sections/BridgeLayout";
+import { BridgeLayout, ChainSelect, WalletChip } from "@/components";
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
 import { availableChains } from "@/constants";
 import { useBalance, useRoutes } from "@/hooks";
