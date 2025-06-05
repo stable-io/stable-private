@@ -1,0 +1,49 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Propose Net-New Code Rule
+
+Rule to prevent the agent from creating unrequested example code without confirmation.
+
+<rule>
+name: propose_net_new_code
+description: Requires the agent to propose the creation of new, non-trivial example code before writing it.
+filters:
+  # Match during planning or demonstration phases
+  - type: content
+    pattern: "(?i)(to demonstrate|for example|as a sample|create a sample)"
+
+actions:
+  - type: suggest
+    message: |
+      **When demonstrating a new pattern or category, propose the creation of example code before implementing it.**
+
+      Instead of building a full component that might not be needed, ask the user for confirmation first. This avoids wasted effort and ensures the example is relevant to the user's goals.
+
+      ### ✅ Good Interaction Flow
+      1.  **Agent**: "I've created the `compounds` category. To demonstrate how it works, I propose creating a sample `TransferForm` component that groups together several transfer-related elements. Would you like me to proceed with creating this example?"
+      2.  **User**: "No, that's not necessary. I understand the concept."
+      3.  **Agent**: "Understood. I will skip creating the example and move on to the next step."
+
+      ### ❌ Bad Interaction Flow
+      1.  **Agent**: "I've created the `compounds` category and built a `TransferForm` component as an example." (Builds the component files).
+      2.  **User**: "That wasn't necessary, please remove it."
+      3.  **Agent**: (Deletes the files it just created).
+
+      ### When to Propose
+      - Before creating a new file that is purely for demonstration.
+      - When adding a significant amount of code that wasn't part of the explicit request.
+      - When the value of an example is uncertain.
+
+examples:
+  - input: |
+      Agent plans to create a new category and then build a sample component inside it.
+    output: |
+      First, create the category structure. Then, before building the sample component, ask the user: "To demonstrate this, I can create a sample `[ComponentName]`. Shall I proceed?"
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
