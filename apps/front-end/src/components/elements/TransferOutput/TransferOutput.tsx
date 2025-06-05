@@ -1,10 +1,9 @@
-import Image from "next/image";
 import type { ReactElement } from "react";
 
-import { NetworkSettings, SplitLayout } from "@/components";
-import type { AvailableChains, GasDropoffLevel } from "@/constants";
+import { GasSettings } from "./GasSettings";
 
-const gasDropoffOptions: GasDropoffLevel[] = ["zero", "low", "avg", "high"];
+import { NetworkSettings } from "@/components";
+import type { AvailableChains, GasDropoffLevel } from "@/constants";
 
 interface TransferOutputProps {
   targetChain: AvailableChains;
@@ -23,46 +22,6 @@ export const TransferOutput = ({
   gasDropoffLevel,
   onGasDropoffLevelSelect,
 }: TransferOutputProps): ReactElement => {
-  const gasSettingsLeft = (
-    <>
-      <span className="label">Destination gas</span>
-      <div className="tooltip">
-        <Image
-          src="/imgs/tooltip.svg"
-          alt=""
-          className="tooltip-icon"
-          unoptimized
-          height={14}
-          width={14}
-        />
-      </div>
-      <div className="options">
-        {gasDropoffOptions.map((level) => (
-          <button
-            key={level}
-            className={`option ${gasDropoffLevel === level ? "active" : ""}`}
-            onClick={() => onGasDropoffLevelSelect(level)}
-          >
-            {level.charAt(0).toUpperCase() + level.slice(1)}
-          </button>
-        ))}
-      </div>
-    </>
-  );
-
-  const gasSettingsRight = (
-    <div className="gas-settings-fees">
-      <div className="fee-row">
-        <span className="currency">USDC</span>
-        <span className="value">0.0</span>
-      </div>
-      <div className="fee-row">
-        <span className="currency">OPT</span>
-        <span className="value">~0.0</span>
-      </div>
-    </div>
-  );
-
   return (
     <div className="select-section select-to-section">
       <NetworkSettings
@@ -73,10 +32,9 @@ export const TransferOutput = ({
         walletAddress={walletAddress}
       />
 
-      <SplitLayout
-        className="gas-settings"
-        left={gasSettingsLeft}
-        right={gasSettingsRight}
+      <GasSettings
+        gasDropoffLevel={gasDropoffLevel}
+        onGasDropoffLevelSelect={onGasDropoffLevelSelect}
       />
     </div>
   );

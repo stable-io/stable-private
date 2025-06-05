@@ -1,6 +1,8 @@
 import Image from "next/image";
 import type { ReactElement } from "react";
 
+import { RouteMetaItem } from "./RouteMetaItem";
+
 import { SectionDivider, SplitLayout } from "@/components";
 
 interface RouteInformationProps {
@@ -35,28 +37,12 @@ export const RouteInformation = ({
 
   const rightContent = (
     <>
-      <div className="meta">
-        <Image
-          src="/imgs/gas.svg"
-          className="icon"
-          alt="Gas fees"
-          unoptimized
-          height={16}
-          width={16}
-        />
-        <span>$3.20</span>
-      </div>
-      <div className="meta">
-        <Image
-          src="/imgs/time.svg"
-          className="icon"
-          alt="Duration"
-          unoptimized
-          height={16}
-          width={16}
-        />
-        <span>~{estimatedDuration} seconds</span>
-      </div>
+      <RouteMetaItem iconSrc="/imgs/gas.svg" altText="Gas fees" value="$3.20" />
+      <RouteMetaItem
+        iconSrc="/imgs/time.svg"
+        altText="Duration"
+        value={`~${estimatedDuration} seconds`}
+      />
     </>
   );
 

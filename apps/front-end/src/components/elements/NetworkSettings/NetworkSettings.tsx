@@ -1,10 +1,9 @@
 import type { ReactElement } from "react";
 
-import { SplitLayout } from "../SplitLayout";
+import { BalanceDisplay } from "./BalanceDisplay";
 
-import { ChainSelect, WalletChip } from "@/components";
+import { ChainSelect, WalletChip, SplitLayout } from "@/components";
 import type { AvailableChains } from "@/constants";
-import { formatNumber } from "@/utils";
 
 interface NetworkSettingsProps {
   title: string;
@@ -23,31 +22,23 @@ export const NetworkSettings = ({
   walletAddress,
   balance,
 }: NetworkSettingsProps): ReactElement => {
-  const leftContent = (
-    <ChainSelect
-      title={title}
-      chains={availableChains}
-      selectedChain={selectedChain}
-      onSelect={onSelectChain}
-    />
-  );
-
-  const rightContent = (
-    <>
-      <WalletChip address={walletAddress} />
-      {balance !== undefined && (
-        <div className="balance">
-          <span>Balance: {formatNumber(balance)} USDC</span>
-        </div>
-      )}
-    </>
-  );
-
   return (
     <SplitLayout
       className="network-settings"
-      left={leftContent}
-      right={rightContent}
+      left={
+        <ChainSelect
+          title={title}
+          chains={availableChains}
+          selectedChain={selectedChain}
+          onSelect={onSelectChain}
+        />
+      }
+      right={
+        <>
+          <WalletChip address={walletAddress} />
+          {balance !== undefined && <BalanceDisplay balance={balance} />}
+        </>
+      }
     />
   );
 };
