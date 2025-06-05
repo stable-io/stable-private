@@ -31,16 +31,3 @@ ComponentName/
 ├── ComponentPartB.tsx   # Optional: Another internal subcomponent/constituent
 └── index.ts            # Exports the main ComponentName and its Props type
 ```
-
-## Exports
-
-```typescript
-// Individual component's index.ts (e.g., components/elements/Button/index.ts)
-export { Button } from "./Button";
-export type { ButtonProps } from "./Button"; // Or from './types' if props are complex
-
-// Category index.ts (e.g., components/elements/index.ts)
-export * from "./Button";
-export * from "./ChainSelect";
-// ...etc.
-```
