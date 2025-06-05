@@ -4,7 +4,14 @@ import Image from "next/image";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import { BridgeLayout, ChainSelect, WalletChip } from "@/components";
+import {
+  BridgeLayout,
+  ChainSelect,
+  WalletChip,
+  TopSection,
+  LeftSection,
+  RightSection,
+} from "@/components";
 import type { AvailableChains, GasDropoffLevel } from "@/constants";
 import { availableChains } from "@/constants";
 import { useBalance, useRoutes } from "@/hooks";
@@ -93,7 +100,7 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
         </title>
       </Head>
       {txHash && (
-        <div className="top">
+        <TopSection>
           <div className="alert alert-success">
             <h3>Transfer Complete</h3>
             <p>
@@ -105,9 +112,9 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
               .
             </p>
           </div>
-        </div>
+        </TopSection>
       )}
-      <div className="left" style={{ width: "50%" }}>
+      <LeftSection>
         <div className="bridge-widget">
           <div className="widget-title">
             <h2>Transfer USDC</h2>
@@ -327,11 +334,8 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="right"
-        style={{ width: "calc(100% - 50% - 30px)", marginLeft: "30px" }}
-      >
+      </LeftSection>
+      <RightSection>
         <div className="sidebar">
           <ul className="tabs">
             <li className="active">My Portfolio</li>
@@ -349,7 +353,7 @@ const Bridge: NextPageWithLayout = (): ReactElement => {
             </p>
           </div>
         </div>
-      </div>
+      </RightSection>
     </>
   );
 };
