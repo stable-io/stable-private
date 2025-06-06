@@ -33,8 +33,8 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Check front-end formatting
-        run: yarn workspace @stable-io/front-end run format:check
+      - name: Check formatting
+        run: yarn workspaces foreach --all --parallel --include @stable-io/back-end --include @stable-io/front-end run format:check
 
       - name: Lint
         run: yarn lint
