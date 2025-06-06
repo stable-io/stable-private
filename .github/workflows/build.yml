@@ -34,7 +34,7 @@ jobs:
         run: yarn build
 
       - name: Check formatting
-        run: yarn workspaces foreach --all --parallel --include @stable-io/back-end --include @stable-io/front-end run format:check
+        run: yarn format:check
 
       - name: Lint
         run: yarn lint
