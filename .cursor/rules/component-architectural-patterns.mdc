@@ -1,0 +1,67 @@
+---
+description:
+globs: apps/front-end/src/components/**/*
+alwaysApply: false
+---
+# Component Architectural Patterns Rule
+
+Rule for enforcing clear, principle-based definitions for component categories.
+
+<rule>
+name: component_architectural_patterns
+description: Enforce component categorization based on functional purpose, not arbitrary metrics like line count.
+filters:
+  # Match component files during creation or refactoring
+  - type: file_path
+    pattern: "src/components/"
+  # Match during planning phases
+  - type: content
+    pattern: "(?i)(plan for|structure of|categorize|organize) component"
+
+actions:
+  - type: suggest
+    message: |
+      **Categorize components based on their functional purpose and the reusability of their parts.**
+
+      ### ✅ Categories & Principles
+
+      **Elements** - Provide a single, focused piece of UI functionality (UI Primitives).
+      - **Examples**: `Button`, `Input`, `WalletChip`, `ChainSelect`.
+      - **Internal Subcomponents**: Elements CAN be broken down into internal subcomponents for organizational clarity if their own implementation is complex (e.g., `ChainSelect` uses `ChainSelectButton`). These subcomponents are **implementation details** of the parent Element and are NOT intended for independent use elsewhere.
+      - **Purpose**: To be a reusable building block, like a custom HTML element.
+
+      **Compounds** - Orchestrate multiple, often *independently reusable*, Elements to deliver a larger piece of domain-specific functionality or a feature.
+      - **Examples**: `BridgeWidget` (uses `TransferInput`, `TransferOutput`, etc.).
+      - **Constituent Parts**: The Elements used within a Compound ARE designed for broader reusability.
+      - **Purpose**: To compose Elements into a specific feature or user flow.
+
+      **Sections** - Major structural areas of a page, often composing multiple Elements and Compounds.
+      - **Examples**: `Header`, `Footer`, `Sidebar`.
+
+      **Layouts** - Top-level page structure, defining the arrangement of Sections.
+      - **Examples**: `BridgeLayout`, `LandingLayout`.
+
+      ### ❌ Anti-patterns
+      - Categorizing based on line count.
+      - Creating a "Compound" when its parts are not independently reusable.
+      - Exposing the internal subcomponents of an "Element" for external use.
+
+examples:
+  - input: |
+      // A complex component that shows a chain selector dropdown
+      // It has a button, a menu, and menu items.
+      // Should this be a compound because it has many parts?
+    output: |
+      This should be an **Element**. Its single purpose is to be "a chain selector". The button and menu are internal implementation details, not meant for reuse outside the selector itself.
+
+  - input: |
+      // A component that combines TransferInput, TransferOutput, and TransferButton
+      // to create a full bridging form.
+      // Is this an element since it's one "widget"?
+    output: |
+      This should be a **Compound**. It orchestrates several independent, reusable Elements (`TransferInput`, `TransferButton`) to deliver a complete feature.
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

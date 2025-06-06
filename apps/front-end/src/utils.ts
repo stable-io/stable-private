@@ -1,3 +1,4 @@
+import type { Network } from "@stable-io/sdk";
 import type { NextPage } from "next";
 import type { ReactElement, ReactNode } from "react";
 
@@ -18,3 +19,6 @@ const bigintReplacer = (key: string, value: unknown): unknown =>
   typeof value === "bigint" ? value.toString() : value;
 export const stringify = (obj: unknown): string =>
   JSON.stringify(obj, bigintReplacer, 2);
+
+export const getExplorerUrl = (network: Network, txHash: string): string =>
+  `https://wormholescan.io/#/tx/${txHash}?network=${network}`;

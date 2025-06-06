@@ -1,0 +1,78 @@
+---
+description:
+globs: apps/front-end/src/components/**/*
+alwaysApply: false
+---
+# Subcomponent Extraction Principles Rule
+
+Rule for guiding the refactoring of components into focused, single-purpose subcomponents.
+
+<rule>
+name: subcomponent_extraction_principles
+description: Enforce principles for when and how to extract subcomponents, preventing unnecessary wrappers.
+filters:
+  # Match when refactoring or breaking down components
+  - type: content
+    pattern: "(?i)(break down|refactor|extract) component"
+  # Match component files
+  - type: file_path
+    pattern: "src/components/.*\\.tsx$"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "const \\w+Left = \\(.*<\\w+ .*/?\\s*>\\)"
+        message: "Avoid creating subcomponents that are simple wrappers around a single, existing component. Use the existing component directly in the parent."
+
+  - type: suggest
+    message: |
+      **Extract subcomponents only when they add real value and encapsulate distinct functionality.**
+
+      ### ✅ When to Extract a Subcomponent
+      - **To reduce complexity**: The parent component's JSX or logic is becoming hard to read (>150-200 lines).
+      - **To create a focused unit**: The subcomponent has a clear, single responsibility (e.g., `BalanceDisplay` only shows the balance, `GasLevelOptions` only handles option selection).
+      - **To encapsulate a repeated pattern**: A specific piece of JSX is used multiple times within the parent (e.g., `SummaryRow` in `TransferSummary`).
+
+      ### ❌ When NOT to Extract (Anti-patterns)
+      - **Simple Wrappers**: Don't create a subcomponent that just wraps a single, existing component and passes props down. This adds an unnecessary layer of abstraction.
+      - **Mixing Concerns**: Don't create a subcomponent that handles multiple, unrelated pieces of functionality (e.g., a component that handles both wallet display and balance display).
+
+      ### Example Refactoring
+
+      **Bad:** Creating a simple wrapper.
+      ```typescript
+      // NetworkSettings.tsx
+      // ANTI-PATTERN: NetworkSettingsLeft is an unnecessary wrapper
+      const NetworkSettingsLeft = ({...props}) => <ChainSelect {...props} />;
+
+      return <SplitLayout left={<NetworkSettingsLeft {...props} />} ... />
+      ```
+
+      **Good:** Identifying and extracting the most focused, new piece of functionality.
+      ```typescript
+      // NetworkSettings.tsx
+      // GOOD: BalanceDisplay has a clear, single purpose.
+      // ChainSelect and WalletChip are used directly.
+      const rightContent = (
+        <>
+          <WalletChip address={walletAddress} />
+          <BalanceDisplay balance={balance} />
+        </>
+      );
+
+      return <SplitLayout left={<ChainSelect ... />} right={rightContent} />
+      ```
+
+examples:
+  - input: |
+      // NetworkSettings combines a ChainSelect and a WalletChip.
+      // Let's break it down.
+      // I'll create NetworkSettingsLeft.tsx and NetworkSettingsRight.tsx.
+    output: |
+      Instead of creating simple wrappers, identify the most focused piece of new functionality. The `ChainSelect` and `WalletChip` are already components. The new functionality is the balance display.
+      **Suggestion**: Create a single, focused subcomponent: `BalanceDisplay.tsx`. Then, use `ChainSelect`, `WalletChip`, and `BalanceDisplay` directly within `NetworkSettings.tsx`.
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

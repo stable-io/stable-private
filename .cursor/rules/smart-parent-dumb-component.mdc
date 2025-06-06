@@ -1,0 +1,96 @@
+---
+description:
+globs: apps/front-end/src/components/**/*
+alwaysApply: false
+---
+# Smart Parent, Dumb Component Rule
+
+Rule for enforcing a clear separation of logic between parent and child components.
+
+<rule>
+name: smart_parent_dumb_component
+description: Parent components should handle conditional rendering logic; child components should be "dumb" and just render props.
+filters:
+  # Match component files
+  - type: file_path
+    pattern: "src/components/.*\\.tsx$"
+  # Match conditional rendering logic
+  - type: content
+    pattern: "if \\(.*(===|!==) (undefined|null)\\) \\{?\\s*return (undefined|null);"
+
+actions:
+  - type: suggest
+    message: |
+      **Use a "Smart Parent, Dumb Component" pattern for conditional rendering.**
+
+      The parent component should contain the logic to decide *whether* a child component should be rendered. The child component should be "dumb" and assume the props it receives are valid for rendering.
+
+      ### ✅ Good Pattern: Logic in Parent
+      The parent component checks for the condition and only renders the child when appropriate.
+      ```typescript
+      // Parent: NetworkSettings.tsx
+      // "Smart" parent handles the conditional check
+      return (
+        <>
+          <WalletChip address={walletAddress} />
+          {balance !== undefined && <BalanceDisplay balance={balance} />}
+        </>
+      );
+
+      // Child: BalanceDisplay.tsx
+      // "Dumb" child assumes `balance` is a number and just renders.
+      export const BalanceDisplay = ({ balance }: { balance: number }): ReactElement => {
+        return (
+          <div className="balance">
+            <span>Balance: {formatNumber(balance)} USDC</span>
+          </div>
+        );
+      };
+      ```
+
+      ### ❌ Bad Pattern: Logic in Child
+      The child component contains logic to check its own props and conditionally return `null` or `undefined`. This makes the child less reusable and its props contract less clear.
+      ```typescript
+      // Parent: NetworkSettings.tsx
+      // Parent blindly passes prop down.
+      return <BalanceDisplay balance={balance} />;
+
+      // Child: BalanceDisplay.tsx
+      // Child has to check if it should render itself.
+      export const BalanceDisplay = ({ balance }: { balance?: number }): ReactElement | null => {
+        if (balance === undefined) {
+          return null; // Logic is in the wrong place
+        }
+        return (
+          <div className="balance">
+            <span>Balance: {formatNumber(balance)} USDC</span>
+          </div>
+        );
+      };
+      ```
+
+examples:
+  - input: |
+      // BalanceDisplay.tsx
+      export const BalanceDisplay = ({ balance }: { balance?: number }) => {
+        if (!balance) return null;
+        return <div>{balance}</div>;
+      }
+    output: |
+      Move the conditional logic to the parent component. `BalanceDisplay` should only be responsible for rendering the balance, not deciding *if* it should render.
+
+      **Refactored Child (`BalanceDisplay.tsx`):**
+      ```typescript
+      export const BalanceDisplay = ({ balance }: { balance: number }) => {
+        return <div>{balance}</div>;
+      }
+      ```
+      **Parent Usage:**
+      ```typescript
+      {balance !== undefined && <BalanceDisplay balance={balance} />}
+      ```
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

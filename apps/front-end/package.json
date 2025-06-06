@@ -10,8 +10,7 @@
     "format:check": "prettier --check ./src",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "clean": "rm -rf .next next-env.d.ts dist",
-    "component:generate": "tsx scripts/generateComponent.ts"
+    "clean": "rm -rf .next next-env.d.ts dist"
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.19.1",

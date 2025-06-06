@@ -1,4 +1,5 @@
-export * from "./BridgeLayout";
 export * from "./Footer";
 export * from "./Header";
-export * from "./LandingLayout";
+export * from "./TopSection";
+export * from "./LeftSection";
+export * from "./RightSection";
