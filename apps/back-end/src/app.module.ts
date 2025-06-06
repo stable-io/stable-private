@@ -5,11 +5,7 @@ import { ConfigModule } from "./config/config.module";
 import { MetricsModule } from "./metrics/metrics.module";
 
 @Module({
-  imports: [
-    NestConfigModule,
-    ConfigModule,
-    MetricsModule,
-  ],
+  imports: [NestConfigModule, ConfigModule, MetricsModule],
 })
 export class AppModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): void {
