@@ -27,6 +27,7 @@ export const TransferStatusAlert = ({
         </a>
         .
       </p>
+      {/* @todo: Add proper redeem status alert */}
       {redeemTxHash && (
         <p style={{ marginTop: "10px", fontSize: "14px", opacity: 0.8 }}>
           <strong>Redeem Transaction:</strong>{" "}
