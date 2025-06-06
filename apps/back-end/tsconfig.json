@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  }
+}

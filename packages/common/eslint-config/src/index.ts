@@ -58,6 +58,7 @@ const ruleOverridesConfig: Linter.Config = {
       "error", { allowInterfaces: "with-single-extends" },
     ],
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-extraneous-class": ["error", { allowWithDecorator: true }],
     "@typescript-eslint/no-invalid-void-type": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unnecessary-condition": ["error", { allowConstantLoopConditions: "only-allowed-literals" }],
