@@ -11,6 +11,8 @@ import type { CctpAttestation } from "./findTransferAttestation.js";
 import { parseAbiItem } from "viem/utils";
 import type { Hex } from "viem";
 import type { Redeem } from "src/types/redeem.js";
+import type { PollingConfig } from "../../utils.js";
+import { pollUntil } from "../../utils.js";
 
 /**
  * @todo: Should be configured by chain.
@@ -21,7 +23,11 @@ export async function findTransferRedeem<N extends Network>(
   network: N,
   rpcUrl: Url,
   attestation: CctpAttestation,
+  config: PollingConfig = {},
 ): Promise<Redeem> {
+  const defaultConfig: PollingConfig = {
+    baseDelayMs: 2000,
+  };
   const { cctpVersion, nonce, sourceDomain, targetDomain } = attestation;
   const viemEvmClient = ViemEvmClient.fromNetworkAndDomain(
     network,
@@ -30,7 +36,8 @@ export async function findTransferRedeem<N extends Network>(
   );
 
   let fromBlock = await viemEvmClient.getLatestBlock() - REDEEM_SCAN_BLOCKS_BUFFER;
-  while (true) {
+
+  return await pollUntil(async () => {
     const [latestBlock, logs] = await Promise.all([
       viemEvmClient.getLatestBlock(),
       cctpVersion === 1 ?
@@ -43,15 +50,17 @@ export async function findTransferRedeem<N extends Network>(
       throw new Error(`Found multiple ${filteredLogs.length} redeem logs for the same nonce.`);
     }
 
-    if (filteredLogs.length > 0) return {
-      destinationDomain: targetDomain,
-      transactionHash: filteredLogs[0].transactionHash,
-    };
-
     fromBlock = latestBlock;
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-  }
+    return filteredLogs.length > 0
+      ? {
+        destinationDomain: targetDomain,
+        transactionHash: filteredLogs[0].transactionHash,
+      }
+      : undefined;
+  }, result => result !== undefined, {
+    ...defaultConfig,
+    ...config,
+  });
 };
 
 const v1MessageReceivedEvent = parseAbiItem(

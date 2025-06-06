@@ -8,27 +8,21 @@ import { Hex } from "viem";
 import { EvmDomains, UniversalAddress, v1, v2 } from "@stable-io/cctp-sdk-definitions";
 import type { Address, Network, TxHash } from "../../types/index.js";
 import { encoding } from "@stable-io/utils";
+import type { PollingConfig } from "../../utils.js";
+import { pollUntil } from "../../utils.js";
 
 export async function findTransferAttestation<N extends Network>(
   network: N,
   sourceChain: keyof EvmDomains,
   transactionHash: TxHash,
+  config: PollingConfig = {},
 ): Promise<CctpAttestation> {
-  let response: v2.GetMessagesResponse;
-  while (true) {
-    response = await v2.fetchMessagesFactory(network)(
-      sourceChain,
-      { transactionHash },
-    );
-
-    if (response.status === "success") {
-      break;
-    }
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  const message = response.messages[0];
-
+  const fetchMessages = v2.fetchMessagesFactory(network);
+  const { messages: [message] } = await pollUntil(
+    () => fetchMessages(sourceChain, { transactionHash }),
+    (result): result is Extract<v2.GetMessagesResponse, { status: "success" }> => result.status === "success",
+    config,
+  );
   return message.cctpVersion === 1 ? parseV1Attestation(message) : parseV2Attestation(message);
 }
 
