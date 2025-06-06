@@ -4,11 +4,13 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { LoggingMiddleware } from "./common/middleware/logging.middleware";
 import { ConfigModule } from "./config/config.module";
+import { MetricsModule } from "./metrics/metrics.module";
 
 @Module({
   imports: [
     NestConfigModule,
     ConfigModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

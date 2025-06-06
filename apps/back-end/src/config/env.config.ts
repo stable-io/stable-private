@@ -1,9 +1,11 @@
 import { plainToInstance } from "class-transformer";
-import { validateSync } from "class-validator";
+import { IsNotEmpty, IsPort, validateSync } from "class-validator";
 
-// @todo: fill this out
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class EnvironmentVariables {}
+export class EnvironmentVariables {
+  @IsPort()
+  @IsNotEmpty()
+  public PORT!: number;
+}
 
 export const validate = (
   config: Record<string, string>,
