@@ -14,6 +14,8 @@ COPY . .
 RUN yarn install
 
 # Build app
+RUN yarn build:common
+RUN yarn build:cctp-sdk
 RUN yarn build:back-end
 
 # Production stage
@@ -28,6 +30,8 @@ COPY --from=builder /app/apps/back-end/package.json ./apps/back-end/package.json
 COPY --from=builder /app/apps/back-end/node_modules ./apps/back-end/node_modules
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/packages/common ./packages/common
+COPY --from=builder /app/packages/cctp-sdk/ ./packages/cctp-sdk
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S stable && \
